@@ -1,19 +1,59 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.png'
 import { useCartStore } from '../../store/cartStore'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+
+// ⬇️ витягуємо дані з .env
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
 export function Payment () {
   const { cartItems, clearCart } = useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
-  const handlePaymentSubmit = e => {
+
+  const formRef = useRef()
+
+  const handlePaymentSubmit = async e => {
     e.preventDefault()
-    alert('Оплата пройшла успішно! Дякуємо за покупку!')
+
+    const form = formRef.current
+    const name = form['name'].value
+    const phone = form['phone'].value
+    const email = form['email'].value
+    const address = form['address'].value
+
+    const orderDetails = cartItems
+      .map(
+        item =>
+          `${item.name} (${item.quantity} шт.) — ${item.price} x ${item.quantity}`
+      )
+      .join('\n')
+
+    const total = `${totalPrice.toFixed(2)} грн`
+
+    try {
+      await axios.post(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          chat_id: TELEGRAM_CHAT_ID,
+          text: `🛒 *Нове замовлення!*\n\n👤 Ім'я: ${name}\n📞 Телефон: ${phone}\n📧 Email: ${email}\n🏠 Адреса: ${address}\n\n🧾 Замовлення:\n${orderDetails}\n\n💰 Всього: ${total}`,
+          parse_mode: 'Markdown'
+        }
+      )
+    } catch (error) {
+      toast.error('Помилка при відправці в Telegram 😢')
+      return
+    }
+
+    toast.success('Замовлення успішно оформлено! 🎉')
     clearCart()
+    form.reset()
   }
 
   return (
@@ -41,7 +81,6 @@ export function Payment () {
           </motion.div>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            {/* Інформація про замовлення */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -124,7 +163,6 @@ export function Payment () {
               </div>
             </motion.div>
 
-            {/* Форма оплати */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -137,110 +175,82 @@ export function Payment () {
                 </h2>
               </div>
 
-              <form onSubmit={handlePaymentSubmit} className='p-6'>
+              <form
+                ref={formRef}
+                onSubmit={handlePaymentSubmit}
+                className='p-6'
+              >
                 <div className='space-y-5'>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                  >
+                  <div>
                     <label className='block text-gray-700 mb-2'>
                       Ім’я та прізвище
                     </label>
                     <input
                       type='text'
+                      name='name'
                       required
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none transition-all'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg'
                     />
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                  >
+                  <div>
                     <label className='block text-gray-700 mb-2'>
                       Номер телефону
                     </label>
                     <input
                       type='tel'
+                      name='phone'
                       required
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none transition-all'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg'
                     />
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                  >
+                  <div>
                     <label className='block text-gray-700 mb-2'>Email</label>
                     <input
                       type='email'
+                      name='email'
                       required
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none transition-all'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg'
                     />
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                  >
+                  <div>
                     <label className='block text-gray-700 mb-2'>
                       Адреса доставки
                     </label>
                     <textarea
+                      name='address'
                       rows='3'
                       required
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none transition-all'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg'
                     ></textarea>
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.0 }}
-                    className='border-t border-gray-200 pt-4'
-                  >
+                  <div className='border-t border-gray-200 pt-4'>
                     <h3 className='text-lg font-medium text-gray-800 mb-4'>
                       Спосіб оплати
                     </h3>
-                    <div className='space-y-3'>
-                      <label className='flex items-center space-x-3 cursor-pointer'>
-                        <input
-                          type='radio'
-                          name='payment'
-                          defaultChecked
-                          className='h-5 w-5 text-amber-500 focus:ring-amber-300 border-gray-300'
-                        />
-                        <span>Оплата при отриманні</span>
-                      </label>
-                      <label className='flex items-center space-x-3 cursor-pointer'>
-                        <input
-                          type='radio'
-                          name='payment'
-                          className='h-5 w-5 text-amber-500 focus:ring-amber-300 border-gray-300'
-                        />
-                        <span>Онлайн оплата карткою</span>
-                      </label>
-                    </div>
-                  </motion.div>
+                    <label className='flex items-center space-x-3 cursor-pointer'>
+                      <input
+                        type='radio'
+                        name='payment'
+                        defaultChecked
+                        className='h-5 w-5 text-amber-500 border-gray-300'
+                      />
+                      <span>Оплата при отриманні</span>
+                    </label>
+                  </div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.1 }}
-                    className='pt-4'
-                  >
+                  <div className='pt-4'>
                     <button
                       type='submit'
-                      className='w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center space-x-2'
+                      className='w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium rounded-lg flex items-center justify-center space-x-2'
                     >
                       <FontAwesomeIcon icon={faCheckCircle} />
                       <span>Підтвердити замовлення</span>
                     </button>
-                  </motion.div>
+                  </div>
                 </div>
               </form>
             </motion.div>
@@ -260,7 +270,7 @@ export function Payment () {
               та{' '}
               <Link to='/Privacy' className='text-amber-600 hover:underline'>
                 політикою конфіденційності
-              </Link>
+              </Link>{' '}
               а також{' '}
               <Link to='/Refund' className='text-amber-600 hover:underline'>
                 Правилами та умовами повернення коштів
