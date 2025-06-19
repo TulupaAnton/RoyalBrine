@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../../assets/logo2.png'
 import zaglushka from '../../assets/zaglushka.png'
+import semiFinishedImage from '../../assets/semiFinished.png'
 
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -36,7 +37,7 @@ const categories = [
     id: 'semi-finished',
     name: 'Напівфабрикати',
     description: 'Домашні пельмені, вареники та інші напівфабрикати',
-    image: zaglushka,
+    image: semiFinishedImage,
     catalogLink: '/catalog/semi-finished',
     comingSoon: false
   }
