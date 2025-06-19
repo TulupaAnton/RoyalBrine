@@ -190,7 +190,7 @@ export function About () {
               створеною з любов'ю.
             </p>
             <a
-              href='/All'
+              href='/'
               className='inline-block px-8 py-3 bg-white text-amber-600 rounded-xl font-medium hover:bg-gray-100 transition-colors duration-300 shadow-lg'
             >
               До каталогу

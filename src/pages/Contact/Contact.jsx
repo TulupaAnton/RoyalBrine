@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPhone,
@@ -8,9 +8,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import emailjs from 'emailjs-com'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export function Contacts () {
-  React.useEffect(() => {
+  const formRef = useRef()
+
+  useEffect(() => {
     AOS.init({
       duration: 800,
       easing: 'ease-in-out',
@@ -18,8 +23,32 @@ export function Contacts () {
     })
   }, [])
 
+  const sendEmail = e => {
+    e.preventDefault()
+
+    emailjs
+      .sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        formRef.current,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      )
+      .then(() => {
+        toast.success('✅ Повідомлення успішно надіслано!', {
+          position: 'top-center'
+        })
+        formRef.current.reset()
+      })
+      .catch(() => {
+        toast.error('❌ Помилка при надсиланні повідомлення', {
+          position: 'top-center'
+        })
+      })
+  }
+
   return (
     <div className='py-16 bg-gradient-to-b from-amber-50 to-white min-h-screen'>
+      <ToastContainer />
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         {/* Заголовок */}
         <div className='text-center mb-16' data-aos='fade-up'>
@@ -49,13 +78,13 @@ export function Contacts () {
                 </h3>
                 <ul className='space-y-2'>
                   <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380441234567'>+38 (044) 123-45-67</a>
+                    <a href='tel:+380441234567'>+38 (099) 352-38-68</a>
                   </li>
                   <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380671234567'>+38 (067) 123-45-67</a>
+                    <a href='tel:+380671234567'>+38 (050) 020-36-93</a>
                   </li>
                   <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380501234567'>+38 (050) 123-45-67</a>
+                    <a href='tel:+380501234567'>+38 (095) 359-89-17</a>
                   </li>
                 </ul>
               </div>
@@ -72,18 +101,10 @@ export function Contacts () {
                   />
                   Email
                 </h3>
-                <ul className='space-y-2'>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='mailto:info@shop-90ab9.com'>info@shop-90ab9.com</a>
-                  </li>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='mailto:support@shop-90ab9.com'>
-                      support@shop-90ab9.com
-                    </a>
-                  </li>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='mailto:sales@shop-90ab9.com'>
-                      sales@shop-90ab9.com
+                <ul className='space-y-5'>
+                  <li className='text-gray-600 hover:text-amber-600 transition-colors mt-10'>
+                    <a href='mailto:royalbriner@gmail.com'>
+                      royalbriner@gmail.com
                     </a>
                   </li>
                 </ul>
@@ -105,15 +126,15 @@ export function Contacts () {
               <ul className='space-y-2'>
                 <li className='flex justify-between text-gray-600'>
                   <span>Пн-Пт:</span>
-                  <span className='font-medium'>09:00 - 20:00</span>
+                  <span className='font-medium'>08:00 - 22:00</span>
                 </li>
                 <li className='flex justify-between text-gray-600'>
                   <span>Сб:</span>
-                  <span className='font-medium'>10:00 - 18:00</span>
+                  <span className='font-medium'>8:00 - 20:00</span>
                 </li>
                 <li className='flex justify-between text-gray-600'>
                   <span>Нд:</span>
-                  <span className='font-medium'>10:00 - 16:00</span>
+                  <span className='font-medium'>8:00 - 18:00</span>
                 </li>
                 <li className='pt-2 text-gray-500 text-sm'>
                   Консультації доступні цілодобово
@@ -134,7 +155,7 @@ export function Contacts () {
               />
               Написати нам
             </h2>
-            <form className='space-y-4'>
+            <form ref={formRef} onSubmit={sendEmail} className='space-y-4'>
               <div>
                 <label htmlFor='name' className='block text-gray-700 mb-2'>
                   Ваше ім'я
@@ -142,8 +163,10 @@ export function Contacts () {
                 <input
                   type='text'
                   id='name'
+                  name='name'
                   className='w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all'
                   placeholder="Введіть ваше ім'я"
+                  required
                 />
               </div>
 
@@ -154,8 +177,10 @@ export function Contacts () {
                 <input
                   type='email'
                   id='email'
+                  name='email'
                   className='w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all'
                   placeholder='Введіть ваш email'
+                  required
                 />
               </div>
 
@@ -166,6 +191,7 @@ export function Contacts () {
                 <input
                   type='tel'
                   id='phone'
+                  name='phone'
                   className='w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all'
                   placeholder='Введіть ваш телефон'
                 />
@@ -177,9 +203,11 @@ export function Contacts () {
                 </label>
                 <textarea
                   id='message'
+                  name='message'
                   rows='5'
                   className='w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all'
                   placeholder='Введіть ваше повідомлення'
+                  required
                 ></textarea>
               </div>
 
@@ -208,13 +236,13 @@ export function Contacts () {
             </p>
             <div className='flex flex-col sm:flex-row justify-center gap-4'>
               <a
-                href='tel:+380441234567'
+                href='tel:+380993523868'
                 className='inline-block px-6 py-3 bg-white text-amber-600 rounded-xl font-medium hover:bg-gray-100 transition-colors duration-300 shadow-lg'
               >
                 Зателефонувати
               </a>
               <a
-                href='mailto:info@shop-90ab9.com'
+                href='mailto:royalbriner@gmail.com'
                 className='inline-block px-6 py-3 border-2 border-white text-white rounded-xl font-medium hover:bg-white/10 transition-colors duration-300 shadow-lg'
               >
                 Написати email

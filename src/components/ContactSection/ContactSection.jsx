@@ -9,6 +9,9 @@ import {
 import { motion } from 'framer-motion'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import emailjs from 'emailjs-com'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const ContactSection = () => {
   useEffect(() => {
@@ -19,15 +22,48 @@ const ContactSection = () => {
     })
   }, [])
 
+  const sendEmail = e => {
+    e.preventDefault()
+
+    emailjs
+      .sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        e.target,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      )
+      .then(() => {
+        toast.success('✅ Повідомлення успішно надіслано!', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'light'
+        })
+        e.target.reset()
+      })
+      .catch(() => {
+        toast.error('❌ Помилка при надсиланні. Спробуйте ще раз.', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'light'
+        })
+      })
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-amber-50 to-amber-100 py-16 px-4 relative overflow-hidden'>
-      {/* Декоративные элементы */}
       <div className='absolute top-20 left-10 w-24 h-24 rounded-full bg-amber-200 opacity-30 blur-xl'></div>
       <div className='absolute bottom-40 right-20 w-16 h-16 rounded-full bg-amber-300 opacity-40 blur-xl'></div>
       <div className='absolute top-1/3 right-1/4 w-10 h-10 rounded-full bg-amber-400 opacity-20 blur-lg'></div>
 
       <div className='max-w-6xl mx-auto relative z-10'>
-        {/* Заголовок секции */}
         <motion.div
           className='text-center mb-16'
           initial={{ opacity: 0, y: 30 }}
@@ -36,14 +72,13 @@ const ContactSection = () => {
         >
           <h1 className='text-4xl md:text-5xl font-bold text-gray-800 mb-6'>
             <span className='bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-amber-800'>
-              Свяжитесь с нами
+              Зв’яжіться з нами
             </span>
           </h1>
           <div className='w-24 h-1.5 bg-amber-500 mx-auto rounded-full'></div>
         </motion.div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>
-          {/* Левая часть - форма */}
           <motion.div
             className='bg-white rounded-2xl shadow-xl p-8'
             initial={{ opacity: 0, x: -50 }}
@@ -55,10 +90,10 @@ const ContactSection = () => {
                 icon={faPaperPlane}
                 className='text-amber-500 mr-3 text-xl'
               />
-              Напишите нам
+              Напишіть нам
             </h2>
 
-            <form className='space-y-6'>
+            <form className='space-y-6' onSubmit={sendEmail}>
               <div>
                 <label
                   htmlFor='email'
@@ -73,6 +108,7 @@ const ContactSection = () => {
                 <input
                   type='email'
                   id='email'
+                  name='email'
                   placeholder='Ваш email'
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all duration-300 hover:shadow-md'
                   required
@@ -81,12 +117,13 @@ const ContactSection = () => {
 
               <div>
                 <label htmlFor='name' className='block text-gray-700 mb-2'>
-                  Ваше имя
+                  Ваше ім’я
                 </label>
                 <input
                   type='text'
                   id='name'
-                  placeholder='Ваше имя'
+                  name='name'
+                  placeholder='Ваше ім’я'
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all duration-300 hover:shadow-md'
                   required
                 />
@@ -94,12 +131,13 @@ const ContactSection = () => {
 
               <div>
                 <label htmlFor='message' className='block text-gray-700 mb-2'>
-                  Сообщение
+                  Повідомлення
                 </label>
                 <textarea
                   id='message'
+                  name='message'
                   rows='5'
-                  placeholder='Ваше сообщение'
+                  placeholder='Ваше повідомлення'
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all duration-300 hover:shadow-md'
                   required
                 ></textarea>
@@ -111,15 +149,13 @@ const ContactSection = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span>Отправить сообщение</span>
+                <span>Надіслати повідомлення</span>
                 <FontAwesomeIcon icon={faPaperPlane} className='ml-3' />
               </motion.button>
             </form>
           </motion.div>
 
-          {/* Правая часть - контактная информация */}
           <div className='space-y-8'>
-            {/* Часы работы */}
             <motion.div
               className='bg-white rounded-2xl shadow-xl p-8'
               initial={{ opacity: 0, y: 50 }}
@@ -131,16 +167,14 @@ const ContactSection = () => {
                   icon={faClock}
                   className='text-amber-500 mr-3'
                 />
-                ЧАСЫ РАБОТЫ
+                ГОДИНИ РОБОТИ
               </h2>
               <div className='space-y-2 text-gray-600'>
-                <p>с понедельника по субботу</p>
-                <p>с 9:00 до 19:00</p>
-                <p>воскресенье: 10:00 - 18:00</p>
+                <p>з понеділка по неділю</p>
+                <p>з 8:00 до 22:00</p>
               </div>
             </motion.div>
 
-            {/* Телефоны */}
             <motion.div
               className='bg-white rounded-2xl shadow-xl p-8'
               initial={{ opacity: 0, y: 50 }}
@@ -152,7 +186,7 @@ const ContactSection = () => {
                   icon={faPhone}
                   className='text-amber-500 mr-3'
                 />
-                ПОЗВОНИТЕ НАМ
+                ЗАТЕЛЕФОНУЙТЕ НАМ
               </h2>
               <div className='space-y-4'>
                 <a
@@ -162,7 +196,7 @@ const ContactSection = () => {
                   <span className='bg-amber-100 text-amber-700 rounded-full w-8 h-8 flex items-center justify-center mr-3'>
                     1
                   </span>
-                  +38 (063) 123-45-67
+                  +38 (099) 352-38-68
                 </a>
                 <a
                   href='tel:+380501234567'
@@ -171,13 +205,14 @@ const ContactSection = () => {
                   <span className='bg-amber-100 text-amber-700 rounded-full w-8 h-8 flex items-center justify-center mr-3'>
                     2
                   </span>
-                  +38 (050) 123-45-67
+                  +38 (050) 020-36-93
                 </a>
               </div>
             </motion.div>
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   )
 }

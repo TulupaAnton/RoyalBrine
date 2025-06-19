@@ -254,12 +254,16 @@ export function Payment () {
           >
             <p className='text-gray-700 text-center'>
               Натискаючи "Підтвердити замовлення", ви погоджуєтесь з нашими{' '}
-              <Link to='/terms' className='text-amber-600 hover:underline'>
+              <Link to='/Terms' className='text-amber-600 hover:underline'>
                 умовами використання
               </Link>{' '}
               та{' '}
-              <Link to='/privacy' className='text-amber-600 hover:underline'>
+              <Link to='/Privacy' className='text-amber-600 hover:underline'>
                 політикою конфіденційності
+              </Link>
+              а також{' '}
+              <Link to='/Refund' className='text-amber-600 hover:underline'>
+                Правилами та умовами повернення коштів
               </Link>
               .
             </p>

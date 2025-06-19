@@ -5,13 +5,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faHeart,
   faSearch,
-  faArrowRight
+  faArrowRight,
+  faCartShopping
 } from '@fortawesome/free-solid-svg-icons'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
 import zaglushka from '../../assets/zaglushka.png'
 import { useCartStore } from '../../store/cartStore'
+import { toast } from 'react-hot-toast'
 
 const categoryNames = {
   pickles: 'Соління',
@@ -19,10 +21,9 @@ const categoryNames = {
   salads: 'Салати',
   'semi-finished': 'Напівфабрикати'
 }
+
 const truncateDescription = (text, maxLength = 80) => {
   if (text.length <= maxLength) return text
-
-  // Обрезаем до maxLength и ищем последнюю точку/запятую/пробел
   let truncated = text.substr(0, maxLength)
   const lastPunctuation = Math.max(
     truncated.lastIndexOf('. '),
@@ -30,13 +31,12 @@ const truncateDescription = (text, maxLength = 80) => {
     truncated.lastIndexOf('; '),
     truncated.lastIndexOf(' ')
   )
-
   if (lastPunctuation > 0) {
     truncated = truncated.substr(0, lastPunctuation)
   }
-
   return truncated + '...'
 }
+
 export function Catalog () {
   const { category } = useParams()
   const [searchTerm, setSearchTerm] = React.useState('')
@@ -49,16 +49,7 @@ export function Catalog () {
       once: false
     })
   }, [])
-  const handleFavoriteClick = (product, e) => {
-    e.preventDefault()
-    e.stopPropagation()
 
-    if (isFavorite(product.id, product.category)) {
-      removeFromFavorites(product.id, product.category)
-    } else {
-      addToFavorites(product)
-    }
-  }
   const categoryProducts = productsData[category] || []
 
   const filteredProducts = categoryProducts.filter(product =>
@@ -67,6 +58,21 @@ export function Catalog () {
 
   const handleAddToCart = product => {
     addToCart(product, category)
+
+    toast.success(`${product.name} додано до кошика`, {
+      duration: 3000,
+      icon: (
+        <FontAwesomeIcon icon={faCartShopping} className='text-amber-500' />
+      ),
+      style: {
+        borderRadius: '12px',
+        background: '#fff',
+        color: '#000',
+        padding: '12px 16px',
+        border: '1px solid #22c55e'
+      }
+    })
+
     const button = document.getElementById(`add-to-cart-${product.id}`)
     if (button) {
       button.classList.add('animate-pulse')
@@ -98,17 +104,11 @@ export function Catalog () {
                 />
                 <input
                   type='text'
-                  placeholder='Поиск продуктов...'
+                  placeholder='Пошук продуктів...'
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className='w-full pl-12 pr-10 py-3 rounded-2xl bg-white border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200'
                 />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-amber-600 transition-colors'
-                  ></button>
-                )}
               </div>
             </div>
 
@@ -118,7 +118,6 @@ export function Catalog () {
               data-aos-delay='150'
             >
               <Link
-                // to='/All'
                 to='/'
                 className='group inline-flex items-center px-5 py-3 bg-white border border-amber-300 rounded-xl text-amber-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400 transition-all duration-200 shadow-sm hover:shadow-md'
               >
@@ -126,7 +125,6 @@ export function Catalog () {
                   icon={faArrowRight}
                   className='mr-2 transform -rotate-180 transition-transform duration-200 group-hover:translate-x-1'
                 />
-                {/* Повернутись до каталогу */}
                 Повернутись на головну
               </Link>
             </div>

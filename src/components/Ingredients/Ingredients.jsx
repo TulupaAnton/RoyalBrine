@@ -1,11 +1,8 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import breadImage from '../../assets/-min.jpg'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+
 import AOS from 'aos'
 import 'aos/dist/aos.css'
-import zaglushka from '../../assets/zaglushka.png'
+import image from '../../assets/organika.png'
 
 export function Ingredients () {
   useEffect(() => {
@@ -33,30 +30,18 @@ export function Ingredients () {
               data-aos='fade-right'
               data-aos-delay='200'
             >
-              Ингредиенты и метод
+              Інгредієнти та метод
             </h2>
             <p
               className='text-gray-600 mb-8 leading-relaxed'
               data-aos='fade-right'
               data-aos-delay='300'
             >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit
-              ratione dolore unde, esse iure dolor ex. Fugit tempora sint esse.
-              Optio, hic iure! Sunt magni suscipit laboriosam ullam accusamus
-              distinctio!
+              Усі наші страви виготовлені з натуральних інгредієнтів без штучних
+              домішок. Ми використовуємо свіже м’ясо, домашні спеції, добірні
+              овочі та традиційні рецепти. Жодної хімії — тільки чистий смак і
+              якість, які ви можете відчути з першого шматочка.
             </p>
-            <Link
-              to='/ingredients'
-              className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full text-white hover:shadow-lg transition-all duration-300 group'
-              data-aos='zoom-in'
-              data-aos-delay='400'
-            >
-              <span>ЧИТАТЬ ДАЛЕЕ</span>
-              <FontAwesomeIcon
-                icon={faArrowRight}
-                className='ml-3 transition-transform group-hover:translate-x-1'
-              />
-            </Link>
           </div>
         </div>
 
@@ -67,7 +52,7 @@ export function Ingredients () {
         >
           <div className='relative rounded-2xl overflow-hidden shadow-2xl'>
             <img
-              src={zaglushka}
+              src={image}
               alt='Хлеб и ингредиенты'
               className='w-full h-auto object-cover transition-transform duration-1000 hover:scale-105'
               style={{ minHeight: '500px' }}

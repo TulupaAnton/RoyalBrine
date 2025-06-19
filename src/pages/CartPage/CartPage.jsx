@@ -4,20 +4,34 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faTrash,
   faArrowLeft,
-  faShoppingBag
+  faShoppingBag,
+  faCircleXmark,
+  faBroom
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import zaglushka from '../../assets/zaglushka.png'
 import { motion } from 'framer-motion'
+import { toast } from 'react-hot-toast'
 
 export function CartPage () {
   const { cartItems, removeFromCart, updateQuantity, clearCart } =
     useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
-  const handleCheckout = () => {
-    alert('Замовлення оформлено! Дякуємо за покупку!')
+
+  const handleClearCart = () => {
     clearCart()
+    toast('Кошик повністю очищено', {
+      icon: <FontAwesomeIcon icon={faBroom} className='text-green-600' />,
+      duration: 3000,
+      style: {
+        borderRadius: '12px',
+        background: '#fff',
+        color: '#000',
+        padding: '12px 16px',
+        border: '1px solid #22c55e' // зелений
+      }
+    })
   }
 
   const container = {
@@ -84,11 +98,9 @@ export function CartPage () {
                 Додайте товари з нашого каталогу, щоб продовжити покупки
               </p>
               <Link
-                // to='/All'
                 to='/'
                 className='inline-block px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium rounded-full transition-all shadow-md hover:shadow-lg'
               >
-                {/* Перейти до каталогу */}
                 Перейти на головну
               </Link>
             </motion.div>
@@ -124,7 +136,25 @@ export function CartPage () {
                       />
 
                       <motion.button
-                        onClick={() => removeFromCart(item.id, item.category)}
+                        onClick={() => {
+                          removeFromCart(item.id, item.category)
+                          toast(`${item.name} видалено з кошика`, {
+                            icon: (
+                              <FontAwesomeIcon
+                                icon={faCircleXmark}
+                                className='text-red-500'
+                              />
+                            ),
+                            duration: 3000,
+                            style: {
+                              borderRadius: '12px',
+                              background: '#fff',
+                              color: '#000',
+                              padding: '12px 16px',
+                              border: '1px solid #f87171'
+                            }
+                          })
+                        }}
                         className='absolute -top-2 -right-2 bg-white rounded-full p-2 shadow-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors'
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -200,7 +230,7 @@ export function CartPage () {
                 </div>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <motion.button
-                    onClick={clearCart}
+                    onClick={handleClearCart}
                     className='w-full py-3 border-2 border-red-500 text-red-500 hover:bg-red-50 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2'
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
