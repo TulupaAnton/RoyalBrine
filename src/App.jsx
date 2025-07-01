@@ -14,10 +14,14 @@ import { Toaster } from 'react-hot-toast'
 import { Terms } from './components/Terms/Terms'
 import { Privacy } from './components/Privacy/Privacy'
 import { Refund } from './components/Refund/Refund'
+import { ScrollToTop } from './components/ScrollToTop/ScrollToTop'
+import { CookieBanner } from './components/CookieBanner/CookieBanner'
+import { Footer } from './components/Footer/Footer'
 
 function App () {
   return (
     <>
+      <ScrollToTop />
       <Header />
       <Toaster position='bottom-right' reverseOrder={true} />
       <Routes>
@@ -34,6 +38,8 @@ function App () {
         <Route path='/payment' element={<Payment />} />
         <Route path='/ComingSoon' element={<ComingSoon />} />
       </Routes>
+      <Footer />
+      <CookieBanner />
     </>
   )
 }

@@ -44,9 +44,10 @@ export function Catalog () {
 
   React.useEffect(() => {
     AOS.init({
-      duration: 800,
-      easing: 'ease-in-out',
-      once: false
+      duration: 700,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 100
     })
   }, [])
 
@@ -84,7 +85,7 @@ export function Catalog () {
     <div className='py-12 bg-gradient-to-b from-amber-50 to-white min-h-screen'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex flex-col md:flex-row justify-between items-center mb-12 gap-6'>
-          <div className='mb-6 md:mb-0' data-aos='fade-right'>
+          <div className='mb-6 md:mb-0' data-aos='fade-down'>
             <h1 className='text-4xl font-bold text-gray-900 bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent'>
               {categoryNames[category] || 'Каталог'}
             </h1>
@@ -96,7 +97,7 @@ export function Catalog () {
           </div>
 
           <div className='flex flex-col md:flex-row items-center gap-4 w-full md:w-auto'>
-            <div className='relative w-full md:w-72' data-aos='fade-left'>
+            <div className='relative w-full md:w-72' data-aos='fade-down'>
               <div className='relative'>
                 <FontAwesomeIcon
                   icon={faSearch}
@@ -136,12 +137,12 @@ export function Catalog () {
             {filteredProducts.map((product, i) => (
               <div
                 key={`${category}-${product.id}`}
-                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
-                data-aos='fade-up'
-                data-aos-delay={i * 50}
+                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]'
+                data-aos='zoom-in-up'
+                data-aos-delay={i * 75}
               >
                 <div className='relative overflow-hidden h-64'>
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10'></div>
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 transition-opacity duration-300 group-hover:opacity-80'></div>
                   <img
                     src={
                       product.image
@@ -152,7 +153,8 @@ export function Catalog () {
                         : zaglushka
                     }
                     alt={product.name}
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                    loading='lazy'
+                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 group-hover:brightness-110'
                     onError={e => {
                       e.target.src = zaglushka
                     }}
@@ -160,18 +162,14 @@ export function Catalog () {
                 </div>
 
                 <div className='p-5'>
-                  <div className='flex justify-between items-start mb-3'>
-                    <h3 className='font-semibold text-sm md:text-base text-gray-900 line-clamp-1'>
+                  <div className='flex justify-between items-start mb-3 w-150 '>
+                    <h3 className='font-semibold text-sm md:text-base text-gray-900 flex-wrap line-clamp-1'>
                       {product.name}
                     </h3>
                     <span className='font-bold text-amber-600 whitespace-nowrap ml-2'>
                       {product.price}
                     </span>
                   </div>
-
-                  <p className='text-gray-600 text-sm mb-5 line-clamp-2'>
-                    {truncateDescription(product.description, 80)}
-                  </p>
 
                   <div className='flex justify-between items-center'>
                     <span className='text-sm text-gray-500'>
@@ -191,7 +189,7 @@ export function Catalog () {
                       <button
                         id={`add-to-cart-${product.id}`}
                         onClick={() => handleAddToCart(product)}
-                        className='px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm transition-all duration-200 shadow-md hover:shadow-lg'
+                        className='px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
                       >
                         У кошик
                       </button>

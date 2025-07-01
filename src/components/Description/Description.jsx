@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import rekaImage from '../../assets/reka.jpg'
+
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

@@ -1,14 +1,17 @@
 import React, { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faCheckCircle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeft,
+  faCheckCircle,
+  faCartShopping
+} from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.png'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
-import { toast } from 'react-toastify'
+import { toast, Toaster } from 'react-hot-toast'
 
-// ⬇️ витягуємо дані з .env
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
@@ -16,17 +19,39 @@ export function Payment () {
   const { cartItems, clearCart } = useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
-
   const formRef = useRef()
 
   const handlePaymentSubmit = async e => {
     e.preventDefault()
 
     const form = formRef.current
-    const name = form['name'].value
-    const phone = form['phone'].value
-    const email = form['email'].value
-    const address = form['address'].value
+    const name = form['name'].value.trim()
+    const phone = form['phone'].value.trim()
+    const email = form['email'].value.trim()
+    const address = form['address'].value.trim()
+
+    // Простий валідатор
+    const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
+    const phoneRegex = /^\+?\d{10,15}$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!nameRegex.test(name)) {
+      return toast.error(
+        'Ім’я має містити лише літери та бути не коротше 2 символів'
+      )
+    }
+
+    if (!phoneRegex.test(phone)) {
+      return toast.error('Введіть коректний номер телефону')
+    }
+
+    if (!emailRegex.test(email)) {
+      return toast.error('Введіть дійсний Email')
+    }
+
+    if (!address || address.length < 5) {
+      return toast.error('Адреса повинна містити більше 5 символів')
+    }
 
     const orderDetails = cartItems
       .map(
@@ -46,18 +71,31 @@ export function Payment () {
           parse_mode: 'Markdown'
         }
       )
+
+      toast.success('Замовлення успішно оформлено! 🎉', {
+        duration: 3500,
+        icon: (
+          <FontAwesomeIcon icon={faCartShopping} className='text-amber-500' />
+        ),
+        style: {
+          borderRadius: '12px',
+          background: '#fff',
+          color: '#000',
+          padding: '12px 16px',
+          border: '1px solid #22c55e'
+        }
+      })
+
+      clearCart()
+      form.reset()
     } catch (error) {
       toast.error('Помилка при відправці в Telegram 😢')
-      return
     }
-
-    toast.success('Замовлення успішно оформлено! 🎉')
-    clearCart()
-    form.reset()
   }
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-amber-50 to-white py-12'>
+      <Toaster position='top-center' />
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
           <Link
@@ -114,7 +152,7 @@ export function Payment () {
                               : zaglushka
                           }
                           alt={item.name}
-                          className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                          className='w-full h-full object-cover'
                           onError={e => {
                             e.target.src = zaglushka
                           }}

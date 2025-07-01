@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import rekaImage from '../../assets/reka.jpg'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
@@ -19,6 +19,7 @@ import { Description } from '../../components/Description/Description'
 import ContactSection from '../../components/ContactSection/ContactSection'
 import { Ingredients } from '../../components/Ingredients/Ingredients'
 import { Block } from '../Block/Block'
+import { Footer } from '../../components/Footer/Footer'
 
 export function Home () {
   useEffect(() => {
@@ -49,7 +50,6 @@ export function Home () {
       <div>{/* <Description /> */}</div>
 
       {/* Секция с контактами */}
-
       <ContactSection />
     </div>
   )

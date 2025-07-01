@@ -23,8 +23,46 @@ export function Contacts () {
     })
   }, [])
 
+  const validateForm = () => {
+    const form = formRef.current
+    const name = form['name'].value.trim()
+    const email = form['email'].value.trim()
+    const phone = form['phone'].value.trim()
+    const message = form['message'].value.trim()
+
+    const nameRegex = /^[А-Яа-яЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const phoneRegex = /^\+?\d{10,15}$/
+
+    if (!nameRegex.test(name)) {
+      toast.error("Ім'я має містити лише літери та бути не коротше 2 символів")
+      return false
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error('Введіть коректний email')
+      return false
+    }
+
+    if (phone && !phoneRegex.test(phone)) {
+      toast.error(
+        'Телефон має містити тільки цифри (можна з +) і бути довжиною від 10'
+      )
+      return false
+    }
+
+    if (message.length < 5) {
+      toast.error('Повідомлення має містити щонайменше 5 символів')
+      return false
+    }
+
+    return true
+  }
+
   const sendEmail = e => {
     e.preventDefault()
+
+    if (!validateForm()) return
 
     emailjs
       .sendForm(
@@ -47,10 +85,9 @@ export function Contacts () {
   }
 
   return (
-    <div className='py-16 bg-gradient-to-b from-amber-50 to-white min-h-screen'>
+    <div className='py-16 bg-gradient-to-b from-amber-50 to-white min-h-screen overflow-x-hidden'>
       <ToastContainer />
-      <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-        {/* Заголовок */}
+      <div className='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='text-center mb-16' data-aos='fade-up'>
           <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent'>
             Наші контакти
@@ -61,7 +98,6 @@ export function Contacts () {
         </div>
 
         <div className='grid md:grid-cols-2 gap-12 mb-20'>
-          {/* Контактная информация */}
           <div className='space-y-8' data-aos='fade-right'>
             <div className='grid sm:grid-cols-2 gap-6'>
               <div
@@ -101,8 +137,8 @@ export function Contacts () {
                   />
                   Email
                 </h3>
-                <ul className='space-y-5'>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors mt-10'>
+                <ul className='space-y-2'>
+                  <li className='text-gray-600 hover:text-amber-600 transition-colors break-all'>
                     <a href='mailto:royalbriner@gmail.com'>
                       royalbriner@gmail.com
                     </a>
@@ -143,7 +179,7 @@ export function Contacts () {
             </div>
           </div>
 
-          {/* Форма обратной связи */}
+          {/* Форма */}
           <div
             className='bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300'
             data-aos='fade-left'
@@ -221,9 +257,8 @@ export function Contacts () {
           </div>
         </div>
 
-        {/* Дополнительная информация */}
         <div
-          className='bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-8 md:p-12 text-center text-white'
+          className='bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-8 md:p-12 text-center text-white overflow-hidden'
           data-aos='fade-up'
         >
           <div className='max-w-4xl mx-auto'>

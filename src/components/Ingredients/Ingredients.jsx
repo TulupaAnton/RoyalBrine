@@ -33,7 +33,7 @@ export function Ingredients () {
               Інгредієнти та метод
             </h2>
             <p
-              className='text-gray-600 mb-8 leading-relaxed'
+              className='text-gray-600 mb-8 text-2xl  leading-relaxed'
               data-aos='fade-right'
               data-aos-delay='300'
             >
