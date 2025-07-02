@@ -161,9 +161,9 @@ export function Catalog () {
                   />
                 </div>
 
-                <div className='p-5'>
-                  <div className='flex justify-between items-start mb-3 w-150 '>
-                    <h3 className='font-semibold text-sm md:text-base text-gray-900 flex-wrap line-clamp-1'>
+                <div className='p-5  '>
+                  <div className='flex justify-between items-start mb-3  '>
+                    <h3 className='font-semibold text-sm md:text-base text-gray-900 line-clamp-2'>
                       {product.name}
                     </h3>
                     <span className='font-bold text-amber-600 whitespace-nowrap ml-2'>
