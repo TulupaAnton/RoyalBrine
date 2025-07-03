@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import productsData from '../../data/products.json'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,6 +17,8 @@ export function ProductDetail () {
   const { category, id } = useParams()
   const addToCart = useCartStore(state => state.addToCart)
   const product = productsData[category]?.find(item => item.id === parseInt(id))
+  const [selectedWeight, setSelectedWeight] = useState(1) // По умолчанию 1 кг
+  const [quantity, setQuantity] = useState(1)
 
   if (!product) {
     return (
@@ -37,8 +39,27 @@ export function ProductDetail () {
     )
   }
 
+  // Извлекаем базовую цену за 1 кг
+  const basePrice = parseFloat(
+    product.price.replace(' грн', '').replace(',', '.')
+  )
+
+  // Варианты веса
+  const weightOptions = [0.5, 1, 2, 3]
+
+  // Рассчитываем цену в зависимости от выбранного веса
+  const calculatedPrice = (basePrice * selectedWeight).toFixed(2) + ' грн'
+  const calculatedWeight = selectedWeight + ' кг'
+
   const handleAddToCart = () => {
-    addToCart(product, category)
+    // Создаем копию продукта с обновленными ценой и весом
+    const productToAdd = {
+      ...product,
+      price: calculatedPrice,
+      weight: calculatedWeight,
+      quantity: quantity
+    }
+    addToCart(productToAdd, category)
   }
 
   return (
@@ -77,13 +98,60 @@ export function ProductDetail () {
                   {product.name}
                 </h1>
 
-                <div className='flex items-center mb-6 space-x-4'>
-                  <span className='text-2xl font-bold text-amber-600'>
-                    {product.price}
-                  </span>
-                  <span className='text-gray-500 text-sm'>
-                    {product.weight}
-                  </span>
+                <div className='mb-6'>
+                  <div className='flex items-center space-x-4 mb-4'>
+                    <span className='text-2xl font-bold text-amber-600'>
+                      {calculatedPrice}
+                    </span>
+                    <span className='text-gray-500 text-sm'>
+                      {calculatedWeight}
+                    </span>
+                  </div>
+
+                  <div className='mb-4'>
+                    <label className='block text-gray-700 mb-2 font-medium'>
+                      Оберіть вагу:
+                    </label>
+                    <div className='flex flex-wrap gap-2'>
+                      {weightOptions.map(weight => (
+                        <button
+                          key={weight}
+                          type='button'
+                          onClick={() => setSelectedWeight(weight)}
+                          className={`px-4 py-2 rounded-full border ${
+                            selectedWeight === weight
+                              ? 'bg-amber-500 text-white border-amber-500'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                          } transition-colors`}
+                        >
+                          {weight} кг
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className='mb-4'>
+                    <label className='block text-gray-700 mb-2 font-medium'>
+                      Кількість:
+                    </label>
+                    <div className='flex items-center'>
+                      <button
+                        type='button'
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className='px-3 py-1 bg-gray-200 rounded-l-lg hover:bg-gray-300 transition'
+                      >
+                        -
+                      </button>
+                      <span className='px-4 py-1 bg-gray-100'>{quantity}</span>
+                      <button
+                        type='button'
+                        onClick={() => setQuantity(quantity + 1)}
+                        className='px-3 py-1 bg-gray-200 rounded-r-lg hover:bg-gray-300 transition'
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {product.description.split('\n\n').map((part, index) => (
@@ -105,7 +173,7 @@ export function ProductDetail () {
                 className='mt-auto w-full flex items-center justify-center px-6 py-3 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full font-semibold text-sm shadow-md transition duration-200'
               >
                 <FontAwesomeIcon icon={faShoppingCart} className='mr-2' />
-                Додати у кошик
+                Додати у кошик ({calculatedPrice})
               </button>
             </div>
           </div>

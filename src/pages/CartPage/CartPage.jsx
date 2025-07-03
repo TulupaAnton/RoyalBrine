@@ -168,9 +168,16 @@ export function CartPage () {
                           <h3 className='text-lg font-semibold text-gray-800 mb-1'>
                             {item.name}
                           </h3>
-                          <p className='text-amber-600 font-medium'>
-                            {item.price}
-                          </p>
+                          <div className='flex items-center space-x-2'>
+                            <p className='text-amber-600 font-medium'>
+                              {item.price}
+                            </p>
+                            {item.weight && (
+                              <span className='text-gray-500 text-sm'>
+                                ({item.weight})
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 
