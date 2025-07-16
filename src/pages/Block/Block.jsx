@@ -85,10 +85,9 @@ export function Block () {
           variants={item}
           className='text-xl md:text-2xl text-amber-900 opacity-90 mb-10 leading-relaxed'
         >
-          Зараз у продажу доступні тільки{' '}
-          <span className='font-semibold'>напівфабрикати</span>: пельмені,
-          вареники та багато іншого. Щодня ми розширюємо асортимент – зовсім
-          скоро з’являться нові категорії!
+          Відкрийте для себе вишукані смаки наших напівфабрикатів преміум-класу.
+          Ідеально збалансовані інгредієнти та ретельний підхід до виробництва
+          роблять кожен наш продукт маленьким кулінарним шедевром.
         </motion.p>
 
         <motion.div variants={item}>
@@ -96,7 +95,7 @@ export function Block () {
             to='/catalog/semi-finished'
             className='inline-flex items-center justify-center bg-amber-800 text-white px-8 py-4 rounded-full mt-4 hover:bg-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-amber-600/40 group'
           >
-            <span className='text-lg font-medium'>Переглянути асортимент</span>
+            <span className='text-lg font-medium'>До каталогу</span>
             <FontAwesomeIcon
               icon={faArrowRight}
               className='ml-3 text-base transition-transform group-hover:translate-x-1'

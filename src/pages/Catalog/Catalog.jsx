@@ -18,7 +18,7 @@ import { toast } from 'react-hot-toast'
 const categoryNames = {
   pickles: 'Соління',
   smoked: 'Копчення',
-  salads: 'Салати',
+  cooking: 'Кулінария',
   'semi-finished': 'Напівфабрикати'
 }
 

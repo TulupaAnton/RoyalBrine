@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../../assets/logo2.png'
 import zaglushka from '../../assets/zaglushka.png'
 import semiFinishedImage from '../../assets/semiFinished.png'
-
+import culinariya from '../../assets/culinariya.png'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { motion } from 'framer-motion'
@@ -26,12 +26,12 @@ const categories = [
     comingSoon: true
   },
   {
-    id: 'salads',
-    name: 'Салати',
-    description: 'Готові салати за традиційними рецептами',
-    image: zaglushka,
-    catalogLink: '/ComingSoon',
-    comingSoon: true
+    id: 'cooking',
+    name: 'Кулінарія',
+    description: 'Домашня кулінарія за домашніми рецептами',
+    image: culinariya,
+    catalogLink: '/catalog/cooking',
+    comingSoon: false
   },
   {
     id: 'semi-finished',

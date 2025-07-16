@@ -18,7 +18,7 @@ import { useCartStore } from '../../store/cartStore'
 const categoryNames = {
   pickles: 'Соленья',
   smoked: 'Копчености',
-  salads: 'Салаты',
+  cooking: 'Кулинария',
   'semi-finished': 'Полуфабрикаты'
 }
 
@@ -41,7 +41,7 @@ const categoryFilters = [
   { id: 'all', name: 'Все товары' },
   { id: 'pickles', name: 'Соленья' },
   { id: 'smoked', name: 'Копчености' },
-  { id: 'salads', name: 'Салаты' },
+  { id: 'cooking', name: 'Кулінарія' },
   { id: 'semi-finished', name: 'Полуфабрикаты' }
 ]
 
