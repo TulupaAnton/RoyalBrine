@@ -55,6 +55,7 @@ export function Product () {
 
   return (
     <div
+      id='categories' // <-- Цей ID потрібен для скролу
       className='min-h-[35rem] bg-cover bg-center bg-no-repeat bg-fixed relative py-20 overflow-hidden'
       style={{ backgroundImage: `url(${logo})` }}
     >

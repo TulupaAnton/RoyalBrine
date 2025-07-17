@@ -2,8 +2,14 @@ import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import productsData from '../../data/products.json'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeft,
+  faShoppingCart,
+  faChevronLeft,
+  faChevronRight
+} from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
+import { motion, AnimatePresence } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.png'
 
 const categoryNames = {
@@ -17,8 +23,10 @@ export function ProductDetail () {
   const { category, id } = useParams()
   const addToCart = useCartStore(state => state.addToCart)
   const product = productsData[category]?.find(item => item.id === parseInt(id))
-  const [selectedWeight, setSelectedWeight] = useState(1) // По умолчанию 1 кг
+  const [selectedWeight, setSelectedWeight] = useState(1)
   const [quantity, setQuantity] = useState(1)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [direction, setDirection] = useState(0) // для анимации
 
   if (!product) {
     return (
@@ -39,20 +47,15 @@ export function ProductDetail () {
     )
   }
 
-  // Извлекаем базовую цену за 1 кг
   const basePrice = parseFloat(
     product.price.replace(' грн', '').replace(',', '.')
   )
 
-  // Варианты веса
   const weightOptions = [0.5, 1, 2, 3]
-
-  // Рассчитываем цену в зависимости от выбранного веса
   const calculatedPrice = (basePrice * selectedWeight).toFixed(2) + ' грн'
   const calculatedWeight = selectedWeight + ' кг'
 
   const handleAddToCart = () => {
-    // Создаем копию продукта с обновленными ценой и весом
     const productToAdd = {
       ...product,
       price: calculatedPrice,
@@ -60,6 +63,18 @@ export function ProductDetail () {
       quantity: quantity
     }
     addToCart(productToAdd, category)
+  }
+
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.image]
+
+  const paginate = newDirection => {
+    setDirection(newDirection)
+    setCurrentImageIndex(
+      prev => (prev + newDirection + images.length) % images.length
+    )
   }
 
   return (
@@ -75,29 +90,92 @@ export function ProductDetail () {
 
         <div className='bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto group transition duration-300'>
           <div className='md:flex'>
-            <div className='md:w-1/2 overflow-hidden'>
-              <img
-                src={
-                  product.image
-                    ? new URL(
-                        `../../assets/products/${product.image}`,
-                        import.meta.url
-                      ).href
-                    : zaglushka
-                }
-                alt={product.name}
-                className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
-                onError={e => {
-                  e.target.src = zaglushka
-                }}
-              />
+            <div className='md:w-1/2 overflow-hidden flex flex-col items-center'>
+              <div className='relative w-full h-200'>
+                <AnimatePresence initial={false} custom={direction}>
+                  <motion.img
+                    key={currentImageIndex}
+                    src={
+                      images[currentImageIndex]
+                        ? new URL(
+                            `../../assets/products/${images[currentImageIndex]}`,
+                            import.meta.url
+                          ).href
+                        : zaglushka
+                    }
+                    alt={product.name}
+                    className='absolute w-full h-full object-cover'
+                    custom={direction}
+                    variants={{
+                      enter: dir => ({
+                        x: dir > 0 ? 300 : -300,
+                        opacity: 0
+                      }),
+                      center: {
+                        x: 0,
+                        opacity: 1
+                      },
+                      exit: dir => ({
+                        x: dir < 0 ? 300 : -300,
+                        opacity: 0
+                      })
+                    }}
+                    initial='enter'
+                    animate='center'
+                    exit='exit'
+                    transition={{
+                      x: { type: 'spring', stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.2 }
+                    }}
+                    onError={e => {
+                      e.target.src = zaglushka
+                    }}
+                  />
+                </AnimatePresence>
+                <button
+                  type='button'
+                  onClick={() => paginate(-1)}
+                  className='absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 rounded-full p-2 shadow'
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} size='lg' />
+                </button>
+                <button
+                  type='button'
+                  onClick={() => paginate(1)}
+                  className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 rounded-full p-2 shadow'
+                >
+                  <FontAwesomeIcon icon={faChevronRight} size='lg' />
+                </button>
+              </div>
+              <div className='flex gap-2 mt-4 justify-center'>
+                {images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={
+                      new URL(`../../assets/products/${img}`, import.meta.url)
+                        .href
+                    }
+                    alt={`Preview ${index}`}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-16 h-16 object-cover rounded cursor-pointer border ${
+                      index === currentImageIndex
+                        ? 'border-amber-500'
+                        : 'border-gray-300'
+                    }`}
+                    onError={e => {
+                      e.target.src = zaglushka
+                    }}
+                  />
+                ))}
+              </div>
             </div>
+
+            {/* Правая часть (название, цена, описание и кнопки) без изменений */}
             <div className='p-8 md:w-1/2 flex flex-col justify-between'>
               <div>
                 <h1 className='text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4'>
                   {product.name}
                 </h1>
-
                 <div className='mb-6'>
                   <div className='flex items-center space-x-4 mb-4'>
                     <span className='text-2xl font-bold text-amber-600'>
@@ -107,7 +185,6 @@ export function ProductDetail () {
                       {calculatedWeight}
                     </span>
                   </div>
-
                   <div className='mb-4'>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Оберіть вагу:
@@ -129,7 +206,6 @@ export function ProductDetail () {
                       ))}
                     </div>
                   </div>
-
                   <div className='mb-4'>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Кількість:
@@ -153,7 +229,6 @@ export function ProductDetail () {
                     </div>
                   </div>
                 </div>
-
                 {product.description.split('\n\n').map((part, index) => (
                   <p
                     key={index}
@@ -167,7 +242,6 @@ export function ProductDetail () {
                   </p>
                 ))}
               </div>
-
               <button
                 onClick={handleAddToCart}
                 className='mt-auto w-full flex items-center justify-center px-6 py-3 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full font-semibold text-sm shadow-md transition duration-200'

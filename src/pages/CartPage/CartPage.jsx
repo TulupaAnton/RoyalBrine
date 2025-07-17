@@ -121,18 +121,14 @@ export function CartPage () {
                     <div className='flex-shrink-0 mb-4 md:mb-0 md:mr-6 w-24 h-24 relative'>
                       <motion.img
                         src={
-                          item.image
+                          item.images?.[0]
                             ? new URL(
-                                `../../assets/products/${item.image}`,
+                                `../../assets/products/${item.images[0]}`,
                                 import.meta.url
                               ).href
                             : zaglushka
                         }
-                        alt={item.name}
-                        className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                        onError={e => {
-                          e.target.src = zaglushka
-                        }}
+                        className='w-24 h-24 object-cover rounded-lg flex-shrink-0'
                       />
 
                       <motion.button

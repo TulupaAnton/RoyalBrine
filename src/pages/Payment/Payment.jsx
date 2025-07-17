@@ -195,18 +195,13 @@ export function Payment () {
                         <div className='flex-shrink-0 mr-4 w-16 h-16 rounded-lg overflow-hidden border border-amber-100'>
                           <img
                             src={
-                              item.image
+                              item.images?.[0]
                                 ? new URL(
-                                    `../../assets/products/${item.image}`,
+                                    `../../assets/products/${item.images[0]}`,
                                     import.meta.url
                                   ).href
                                 : zaglushka
                             }
-                            alt={item.name}
-                            className='w-full h-full object-cover'
-                            onError={e => {
-                              e.target.src = zaglushka
-                            }}
                           />
                         </div>
                         <div className='flex-grow'>

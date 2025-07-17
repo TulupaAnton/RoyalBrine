@@ -145,9 +145,11 @@ export function Catalog () {
                   <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 transition-opacity duration-300 group-hover:opacity-80'></div>
                   <img
                     src={
-                      product.image
+                      product.images &&
+                      product.images.length > 0 &&
+                      product.images[0]
                         ? new URL(
-                            `../../assets/products/${product.image}`,
+                            `../../assets/products/${product.images[0]}`,
                             import.meta.url
                           ).href
                         : zaglushka
