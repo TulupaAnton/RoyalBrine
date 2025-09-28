@@ -4,6 +4,7 @@ import logo from '../../assets/logo2.png'
 import zaglushka from '../../assets/zaglushka.png'
 import semiFinishedImage from '../../assets/semiFinished.png'
 import culinariya from '../../assets/culinariya.png'
+import smoked from '../../assets/kopchena.png'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { motion } from 'framer-motion'
@@ -21,9 +22,9 @@ const categories = [
     id: 'smoked',
     name: 'Копченості',
     description: 'Мʼясні та рибні копченості гарячого та холодного копчення',
-    image: zaglushka,
-    catalogLink: '/ComingSoon',
-    comingSoon: true
+    image: smoked,
+    catalogLink: '/catalog/smoked',
+    comingSoon: false
   },
   {
     id: 'cooking',
