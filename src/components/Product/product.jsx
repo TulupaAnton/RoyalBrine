@@ -15,8 +15,8 @@ const categories = [
     name: 'Соління',
     description: 'Традиційні домашні соління та маринади',
     image: zaglushka,
-    catalogLink: '/ComingSoon',
-    comingSoon: true
+    catalogLink: '/catalog/pickles',
+    comingSoon: false
   },
   {
     id: 'smoked',
