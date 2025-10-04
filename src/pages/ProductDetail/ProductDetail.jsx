@@ -23,10 +23,18 @@ export function ProductDetail () {
   const { category, id } = useParams()
   const addToCart = useCartStore(state => state.addToCart)
   const product = productsData[category]?.find(item => item.id === parseInt(id))
+
+  // Автоматически определяем тип товара по формату цены и веса
+  const isPieceProduct =
+    product?.price.includes('/шт') ||
+    product?.weight.includes('шт') ||
+    product?.weight.includes('порц')
+
   const [selectedWeight, setSelectedWeight] = useState(1)
+  const [selectedPieces, setSelectedPieces] = useState(1)
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [direction, setDirection] = useState(0) // для анимации
+  const [direction, setDirection] = useState(0)
 
   if (!product) {
     return (
@@ -47,19 +55,41 @@ export function ProductDetail () {
     )
   }
 
-  const basePrice = parseFloat(
-    product.price.replace(' грн', '').replace(',', '.')
-  )
+  // Извлекаем базовую цену в зависимости от типа товара
+  const getBasePrice = () => {
+    if (isPieceProduct) {
+      // Для поштучных товаров убираем "/шт" и " грн"
+      return parseFloat(
+        product.price.replace('/шт', '').replace(' грн', '').replace(',', '.')
+      )
+    } else {
+      // Для весовых товаров убираем " грн"
+      return parseFloat(product.price.replace(' грн', '').replace(',', '.'))
+    }
+  }
 
+  const basePrice = getBasePrice()
+
+  // Опции в зависимости от типа товара
   const weightOptions = [0.5, 1, 2, 3]
-  const calculatedPrice = (basePrice * selectedWeight).toFixed(2) + ' грн'
-  const calculatedWeight = selectedWeight + ' кг'
+  const pieceOptions = [1, 2, 3, 5, 10]
+
+  // Расчет цены и отображаемой величины
+  const calculatedPrice = isPieceProduct
+    ? (basePrice * selectedPieces).toFixed(2) + ' грн'
+    : (basePrice * selectedWeight).toFixed(2) + ' грн'
+
+  const displayAmount = isPieceProduct
+    ? selectedPieces + ' шт'
+    : selectedWeight + ' кг'
 
   const handleAddToCart = () => {
     const productToAdd = {
       ...product,
       price: calculatedPrice,
-      weight: calculatedWeight,
+      weight: !isPieceProduct ? displayAmount : product.weight, // сохраняем оригинальный вес для поштучных
+      pieces: isPieceProduct ? selectedPieces : null,
+      unitType: isPieceProduct ? 'piece' : 'weight',
       quantity: quantity
     }
     addToCart(productToAdd, category)
@@ -170,7 +200,6 @@ export function ProductDetail () {
               </div>
             </div>
 
-            {/* Правая часть (название, цена, описание и кнопки) без изменений */}
             <div className='p-8 md:w-1/2 flex flex-col justify-between'>
               <div>
                 <h1 className='text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4'>
@@ -182,33 +211,64 @@ export function ProductDetail () {
                       {calculatedPrice}
                     </span>
                     <span className='text-gray-500 text-sm'>
-                      {calculatedWeight}
+                      {displayAmount}
+                      {isPieceProduct && product.weight && (
+                        <span className='ml-1 text-xs'>({product.weight})</span>
+                      )}
                     </span>
                   </div>
-                  <div className='mb-4'>
-                    <label className='block text-gray-700 mb-2 font-medium'>
-                      Оберіть вагу:
-                    </label>
-                    <div className='flex flex-wrap gap-2'>
-                      {weightOptions.map(weight => (
-                        <button
-                          key={weight}
-                          type='button'
-                          onClick={() => setSelectedWeight(weight)}
-                          className={`px-4 py-2 rounded-full border ${
-                            selectedWeight === weight
-                              ? 'bg-amber-500 text-white border-amber-500'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
-                          } transition-colors`}
-                        >
-                          {weight} кг
-                        </button>
-                      ))}
+
+                  {/* Блок выбора веса или количества штук */}
+                  {!isPieceProduct ? (
+                    <div className='mb-4'>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Оберіть вагу:
+                      </label>
+                      <div className='flex flex-wrap gap-2'>
+                        {weightOptions.map(weight => (
+                          <button
+                            key={weight}
+                            type='button'
+                            onClick={() => setSelectedWeight(weight)}
+                            className={`px-4 py-2 rounded-full border ${
+                              selectedWeight === weight
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                            } transition-colors`}
+                          >
+                            {weight} кг
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className='mb-4'>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Оберіть кількість:
+                      </label>
+                      <div className='flex flex-wrap gap-2'>
+                        {pieceOptions.map(pieces => (
+                          <button
+                            key={pieces}
+                            type='button'
+                            onClick={() => setSelectedPieces(pieces)}
+                            className={`px-4 py-2 rounded-full border ${
+                              selectedPieces === pieces
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                            } transition-colors`}
+                          >
+                            {pieces} шт
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Блок количества упаковок (общий для всех типов) */}
                   <div className='mb-4'>
                     <label className='block text-gray-700 mb-2 font-medium'>
-                      Кількість:
+                      Кількість {isPieceProduct ? 'упаковок' : 'порцій'}:
                     </label>
                     <div className='flex items-center'>
                       <button
