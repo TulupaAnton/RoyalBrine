@@ -133,15 +133,20 @@ export function Catalog () {
         </div>
 
         {filteredProducts.length > 0 ? (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8'>
+            {' '}
+            {/* Уменьшено с 4 до 3 колонок на больших экранах */}
             {filteredProducts.map((product, i) => (
               <div
                 key={`${category}-${product.id}`}
-                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]'
+                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] w-full' /* Добавлен w-full */
                 data-aos='zoom-in-up'
                 data-aos-delay={i * 75}
               >
-                <div className='relative overflow-hidden h-64'>
+                {/* Увеличенная секция изображения */}
+                <div className='relative overflow-hidden h-125 w-full'>
+                  {' '}
+                  {/* Увеличено до h-96 и добавлен w-full */}
                   <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 transition-opacity duration-300 group-hover:opacity-80'></div>
                   <img
                     src={
@@ -161,38 +166,78 @@ export function Catalog () {
                       e.target.src = zaglushka
                     }}
                   />
+                  {/* Бейдж акции/новинки */}
+                  {product.isNew && (
+                    <div className='absolute top-3 left-3 z-20'>
+                      <span className='px-3 py-1 bg-green-500 text-white text-sm font-medium rounded-full'>
+                        {' '}
+                        {/* Увеличен размер бейджа */}
+                        НОВИНКА
+                      </span>
+                    </div>
+                  )}
+                  {product.discount && (
+                    <div className='absolute top-3 right-3 z-20'>
+                      <span className='px-3 py-1 bg-red-500 text-white text-sm font-medium rounded-full'>
+                        {' '}
+                        {/* Увеличен размер бейджа */}-{product.discount}%
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className='p-5  '>
-                  <div className='flex justify-between items-start mb-3  '>
-                    <h3 className='font-semibold text-sm md:text-base text-gray-900 line-clamp-2'>
+                <div className='p-6'>
+                  {' '}
+                  {/* Увеличен padding */}
+                  <div className='flex justify-between items-start mb-4'>
+                    <h3 className='font-semibold text-lg md:text-xl text-gray-900 line-clamp-2 flex-1 mr-4'>
+                      {' '}
+                      {/* Увеличен текст */}
                       {product.name}
                     </h3>
-                    <span className='font-bold text-amber-600 whitespace-nowrap ml-2'>
-                      {product.price}
-                    </span>
+                    <div className='flex flex-col items-end min-w-max'>
+                      {product.oldPrice && (
+                        <span className='text-base text-gray-400 line-through mb-1'>
+                          {' '}
+                          {/* Увеличен текст */}
+                          {product.oldPrice}
+                        </span>
+                      )}
+                      <span className='font-bold text-xl text-amber-600 whitespace-nowrap'>
+                        {' '}
+                        {/* Увеличен текст цены */}
+                        {product.price}
+                      </span>
+                    </div>
                   </div>
-
                   <div className='flex justify-between items-center'>
-                    <span className='text-sm text-gray-500'>
+                    <span className='text-base text-gray-500 font-medium'>
+                      {' '}
+                      {/* Увеличен текст */}
                       {product.weight}
                     </span>
-                    <div className='flex space-x-2'>
+                    <div className='flex space-x-3'>
+                      {' '}
+                      {/* Увеличен gap */}
                       <Link
                         to={`/product/${category}/${product.id}`}
-                        className='px-4 py-2 border border-amber-400 text-amber-600 hover:bg-amber-50 rounded-xl text-sm transition-all duration-200 flex items-center group/readmore'
+                        className='px-5 py-2.5 border border-amber-400 text-amber-600 hover:bg-amber-50 rounded-xl text-base transition-all duration-200 flex items-center group/readmore hover:border-amber-500' /* Увеличены кнопки */
                       >
                         Детальніше
                         <FontAwesomeIcon
                           icon={faArrowRight}
-                          className='ml-2 text-xs transition-transform duration-200 group-hover/readmore:translate-x-1'
+                          className='ml-2 text-sm transition-transform duration-200 group-hover/readmore:translate-x-1'
                         />
                       </Link>
                       <button
                         id={`add-to-cart-${product.id}`}
                         onClick={() => handleAddToCart(product)}
-                        className='px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
+                        className='px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 flex items-center' /* Увеличены кнопки */
                       >
+                        <FontAwesomeIcon
+                          icon={faCartShopping}
+                          className='mr-2'
+                        />
                         У кошик
                       </button>
                     </div>

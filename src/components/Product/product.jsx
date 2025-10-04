@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import logo from '../../assets/logo2.png'
 import zaglushka from '../../assets/zaglushka.png'
 import semiFinishedImage from '../../assets/semiFinished.png'
-import culinariya from '../../assets/culinariya.png'
+import culinariya from '../../assets/culinary.png'
 import smoked from '../../assets/kopchena.png'
+import pickles from '../../assets/pickles.png'
+
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { motion } from 'framer-motion'
@@ -14,7 +16,7 @@ const categories = [
     id: 'pickles',
     name: 'Соління',
     description: 'Традиційні домашні соління та маринади',
-    image: zaglushka,
+    image: pickles,
     catalogLink: '/catalog/pickles',
     comingSoon: false
   },
