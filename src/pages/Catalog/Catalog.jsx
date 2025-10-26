@@ -22,19 +22,103 @@ const categoryNames = {
   'semi-finished': 'Напівфабрикати'
 }
 
-const truncateDescription = (text, maxLength = 80) => {
-  if (text.length <= maxLength) return text
-  let truncated = text.substr(0, maxLength)
-  const lastPunctuation = Math.max(
-    truncated.lastIndexOf('. '),
-    truncated.lastIndexOf(', '),
-    truncated.lastIndexOf('; '),
-    truncated.lastIndexOf(' ')
-  )
-  if (lastPunctuation > 0) {
-    truncated = truncated.substr(0, lastPunctuation)
+// Кэш для предзагруженных изображений
+const imageCache = new Map()
+
+// Функция предзагрузки изображений
+const preloadImage = src => {
+  return new Promise((resolve, reject) => {
+    if (imageCache.has(src)) {
+      resolve(imageCache.get(src))
+      return
+    }
+
+    const img = new Image()
+    img.src = src
+    img.onload = () => {
+      imageCache.set(src, img)
+      resolve(img)
+    }
+    img.onerror = reject
+  })
+}
+
+// Компонент для оптимизированного изображения
+const OptimizedImage = ({ src, alt, className, fallback = zaglushka }) => {
+  const [imageSrc, setImageSrc] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [hasError, setHasError] = React.useState(false)
+
+  React.useEffect(() => {
+    let isMounted = true
+
+    const loadImage = async () => {
+      if (!src) {
+        if (isMounted) {
+          setImageSrc(fallback)
+          setIsLoading(false)
+        }
+        return
+      }
+
+      try {
+        if (isMounted) {
+          setIsLoading(true)
+          setHasError(false)
+        }
+
+        // Пытаемся загрузить изображение
+        const imageUrl = new URL(
+          `../../assets/products/${src}`,
+          import.meta.url
+        ).href
+        await preloadImage(imageUrl)
+
+        if (isMounted) {
+          setImageSrc(imageUrl)
+          setIsLoading(false)
+        }
+      } catch (error) {
+        console.warn(`Failed to load image: ${src}`, error)
+        if (isMounted) {
+          setImageSrc(fallback)
+          setIsLoading(false)
+          setHasError(true)
+        }
+      }
+    }
+
+    loadImage()
+
+    return () => {
+      isMounted = false
+    }
+  }, [src, fallback])
+
+  const handleError = () => {
+    setImageSrc(fallback)
+    setHasError(true)
+    setIsLoading(false)
   }
-  return truncated + '...'
+
+  return (
+    <div className={`relative ${className}`}>
+      {isLoading && (
+        <div className='absolute inset-0 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center'>
+          <div className='w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin'></div>
+        </div>
+      )}
+      <img
+        src={imageSrc || fallback}
+        alt={alt}
+        loading='lazy'
+        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        } ${hasError ? 'scale-100' : ''}`}
+        onError={handleError}
+      />
+    </div>
+  )
 }
 
 export function Catalog () {
@@ -42,12 +126,37 @@ export function Catalog () {
   const [searchTerm, setSearchTerm] = React.useState('')
   const { addToCart } = useCartStore()
 
+  // Предзагрузка изображений при изменении категории
+  React.useEffect(() => {
+    const preloadCategoryImages = async () => {
+      const categoryProducts = productsData[category] || []
+      const preloadPromises = categoryProducts.slice(0, 6).map(product => {
+        if (product.images && product.images[0]) {
+          const imageUrl = new URL(
+            `../../assets/products/${product.images[0]}`,
+            import.meta.url
+          ).href
+          return preloadImage(imageUrl).catch(() => null)
+        }
+        return Promise.resolve(null)
+      })
+
+      try {
+        await Promise.all(preloadPromises)
+      } catch (error) {
+        console.warn('Some images failed to preload:', error)
+      }
+    }
+
+    preloadCategoryImages()
+  }, [category])
+
   React.useEffect(() => {
     AOS.init({
-      duration: 700,
+      duration: 600,
       easing: 'ease-out-cubic',
       once: true,
-      offset: 100
+      offset: 50
     })
   }, [])
 
@@ -84,6 +193,7 @@ export function Catalog () {
   return (
     <div className='py-12 bg-gradient-to-b from-amber-50 to-white min-h-screen'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+        {/* Header Section */}
         <div className='flex flex-col md:flex-row justify-between items-center mb-12 gap-6'>
           <div className='mb-6 md:mb-0' data-aos='fade-down'>
             <h1 className='text-4xl font-bold text-gray-900 bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent'>
@@ -108,23 +218,19 @@ export function Catalog () {
                   placeholder='Пошук продуктів...'
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className='w-full pl-12 pr-10 py-3 rounded-2xl bg-white border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200'
+                  className='w-full pl-12 pr-10 py-3 rounded-2xl bg-white border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-300'
                 />
               </div>
             </div>
 
-            <div
-              className='w-full md:w-auto'
-              data-aos='fade-up'
-              data-aos-delay='150'
-            >
+            <div className='w-full md:w-auto' data-aos='fade-up'>
               <Link
                 to='/'
-                className='group inline-flex items-center px-5 py-3 bg-white border border-amber-300 rounded-xl text-amber-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400 transition-all duration-200 shadow-sm hover:shadow-md'
+                className='group inline-flex items-center px-5 py-3 bg-white border border-amber-300 rounded-xl text-amber-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400 transition-all duration-300 shadow-sm hover:shadow-md'
               >
                 <FontAwesomeIcon
                   icon={faArrowRight}
-                  className='mr-2 transform -rotate-180 transition-transform duration-200 group-hover:translate-x-1'
+                  className='mr-2 transform -rotate-180 transition-transform duration-300 group-hover:translate-x-1'
                 />
                 Повернутись на головну
               </Link>
@@ -132,46 +238,28 @@ export function Catalog () {
           </div>
         </div>
 
+        {/* Products Grid */}
         {filteredProducts.length > 0 ? (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8'>
-            {' '}
-            {/* Уменьшено с 4 до 3 колонок на больших экранах */}
             {filteredProducts.map((product, i) => (
               <div
                 key={`${category}-${product.id}`}
-                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] w-full' /* Добавлен w-full */
+                className='group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full'
                 data-aos='zoom-in-up'
-                data-aos-delay={i * 75}
               >
-                {/* Увеличенная секция изображения */}
-                <div className='relative overflow-hidden h-125 w-full'>
-                  {' '}
-                  {/* Увеличено до h-96 и добавлен w-full */}
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 transition-opacity duration-300 group-hover:opacity-80'></div>
-                  <img
-                    src={
-                      product.images &&
-                      product.images.length > 0 &&
-                      product.images[0]
-                        ? new URL(
-                            `../../assets/products/${product.images[0]}`,
-                            import.meta.url
-                          ).href
-                        : zaglushka
-                    }
+                {/* Image Section с оптимизированным изображением */}
+                <div className='relative overflow-hidden h-96 w-full'>
+                  <OptimizedImage
+                    src={product.images && product.images[0]}
                     alt={product.name}
-                    loading='lazy'
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 group-hover:brightness-110'
-                    onError={e => {
-                      e.target.src = zaglushka
-                    }}
+                    className='h-full w-full'
+                    fallback={zaglushka}
                   />
-                  {/* Бейдж акции/новинки */}
+
+                  {/* Badges */}
                   {product.isNew && (
                     <div className='absolute top-3 left-3 z-20'>
                       <span className='px-3 py-1 bg-green-500 text-white text-sm font-medium rounded-full'>
-                        {' '}
-                        {/* Увеличен размер бейджа */}
                         НОВИНКА
                       </span>
                     </div>
@@ -179,60 +267,49 @@ export function Catalog () {
                   {product.discount && (
                     <div className='absolute top-3 right-3 z-20'>
                       <span className='px-3 py-1 bg-red-500 text-white text-sm font-medium rounded-full'>
-                        {' '}
-                        {/* Увеличен размер бейджа */}-{product.discount}%
+                        -{product.discount}%
                       </span>
                     </div>
                   )}
                 </div>
 
+                {/* Product Info */}
                 <div className='p-6'>
-                  {' '}
-                  {/* Увеличен padding */}
                   <div className='flex justify-between items-start mb-4'>
                     <h3 className='font-semibold text-lg md:text-xl text-gray-900 line-clamp-2 flex-1 mr-4'>
-                      {' '}
-                      {/* Увеличен текст */}
                       {product.name}
                     </h3>
                     <div className='flex flex-col items-end min-w-max'>
                       {product.oldPrice && (
                         <span className='text-base text-gray-400 line-through mb-1'>
-                          {' '}
-                          {/* Увеличен текст */}
                           {product.oldPrice}
                         </span>
                       )}
                       <span className='font-bold text-xl text-amber-600 whitespace-nowrap'>
-                        {' '}
-                        {/* Увеличен текст цены */}
                         {product.price}
                       </span>
                     </div>
                   </div>
+
                   <div className='flex justify-between items-center'>
                     <span className='text-base text-gray-500 font-medium'>
-                      {' '}
-                      {/* Увеличен текст */}
                       {product.weight}
                     </span>
                     <div className='flex space-x-3'>
-                      {' '}
-                      {/* Увеличен gap */}
                       <Link
                         to={`/product/${category}/${product.id}`}
-                        className='px-5 py-2.5 border border-amber-400 text-amber-600 hover:bg-amber-50 rounded-xl text-base transition-all duration-200 flex items-center group/readmore hover:border-amber-500' /* Увеличены кнопки */
+                        className='px-5 py-2.5 border border-amber-400 text-amber-600 hover:bg-amber-50 rounded-xl text-base transition-all duration-300 flex items-center group/readmore hover:border-amber-500'
                       >
                         Детальніше
                         <FontAwesomeIcon
                           icon={faArrowRight}
-                          className='ml-2 text-sm transition-transform duration-200 group-hover/readmore:translate-x-1'
+                          className='ml-2 text-sm transition-transform duration-300 group-hover/readmore:translate-x-1'
                         />
                       </Link>
                       <button
                         id={`add-to-cart-${product.id}`}
                         onClick={() => handleAddToCart(product)}
-                        className='px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 flex items-center' /* Увеличены кнопки */
+                        className='px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center'
                       >
                         <FontAwesomeIcon
                           icon={faCartShopping}
@@ -263,7 +340,7 @@ export function Catalog () {
               </p>
               <button
                 onClick={() => setSearchTerm('')}
-                className='px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg'
+                className='px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg'
               >
                 Скинути пошук
               </button>

@@ -6,7 +6,8 @@ import {
   faArrowLeft,
   faShoppingCart,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faLeaf
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -205,6 +206,9 @@ export function ProductDetail () {
                 <h1 className='text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4'>
                   {product.name}
                 </h1>
+
+                {/* Блок с составом продукции */}
+
                 <div className='mb-6'>
                   <div className='flex items-center space-x-4 mb-4'>
                     <span className='text-2xl font-bold text-amber-600'>
@@ -288,7 +292,34 @@ export function ProductDetail () {
                       </button>
                     </div>
                   </div>
+
+                  {product.compound && (
+                    <div className='mb-6 p-4 bg-green-50 rounded-lg border border-green-200'>
+                      <div className='flex items-center mb-3'>
+                        <FontAwesomeIcon
+                          icon={faLeaf}
+                          className='text-green-600 mr-2'
+                        />
+                        <h3 className='text-lg font-semibold text-green-800'>
+                          Склад продукції:
+                        </h3>
+                      </div>
+                      <div className='flex flex-wrap gap-2'>
+                        {product.compound
+                          .split(', ')
+                          .map((ingredient, index) => (
+                            <span
+                              key={index}
+                              className='inline-flex items-center px-3 py-1 bg-white text-green-700 text-sm font-medium rounded-full border border-green-200 shadow-sm'
+                            >
+                              {ingredient.trim()}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 {product.description.split('\n\n').map((part, index) => (
                   <p
                     key={index}

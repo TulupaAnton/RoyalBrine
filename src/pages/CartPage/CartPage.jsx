@@ -14,10 +14,19 @@ import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
 
 export function CartPage () {
-  const { cartItems, removeFromCart, updateQuantity, clearCart } =
-    useCartStore()
+  const {
+    cartItems,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getGroupedItems
+  } = useCartStore()
+
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
+
+  // Используем сгруппированные товары
+  const groupedItems = getGroupedItems()
 
   const handleClearCart = () => {
     clearCart()
@@ -29,7 +38,7 @@ export function CartPage () {
         background: '#fff',
         color: '#000',
         padding: '12px 16px',
-        border: '1px solid #22c55e' // зелений
+        border: '1px solid #22c55e'
       }
     })
   }
@@ -47,6 +56,11 @@ export function CartPage () {
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  }
+
+  // Функция для генерации уникального ключа (такая же как в store)
+  const generateItemKey = item => {
+    return `${item.id}-${item.price}-${item.weight || ''}`
   }
 
   return (
@@ -68,10 +82,10 @@ export function CartPage () {
             <h1 className='text-3xl font-bold text-gray-800'>Ваш кошик</h1>
             {cartCount > 0 && (
               <span className='ml-3 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full'>
-                {cartCount}{' '}
-                {cartCount === 1
+                {groupedItems.length}{' '}
+                {groupedItems.length === 1
                   ? 'товар'
-                  : cartCount < 5
+                  : groupedItems.length < 5
                   ? 'товари'
                   : 'товарів'}
               </span>
@@ -111,9 +125,9 @@ export function CartPage () {
               animate='show'
               className='bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-amber-100'
             >
-              {cartItems.map(item => (
+              {groupedItems.map(item => (
                 <motion.div
-                  key={`${item.category}-${item.id}`}
+                  key={generateItemKey(item)}
                   variants={itemAnimation}
                   className='p-6 hover:bg-amber-50 transition-colors duration-200'
                 >
@@ -133,7 +147,12 @@ export function CartPage () {
 
                       <motion.button
                         onClick={() => {
-                          removeFromCart(item.id, item.category)
+                          removeFromCart(
+                            item.id,
+                            item.category,
+                            item.price,
+                            item.weight
+                          )
                           toast(`${item.name} видалено з кошика`, {
                             icon: (
                               <FontAwesomeIcon
@@ -183,7 +202,9 @@ export function CartPage () {
                             updateQuantity(
                               item.id,
                               item.category,
-                              item.quantity - 1
+                              item.quantity - 1,
+                              item.price,
+                              item.weight
                             )
                           }
                           className='w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l-md hover:bg-gray-100 disabled:opacity-50'
@@ -200,7 +221,9 @@ export function CartPage () {
                             updateQuantity(
                               item.id,
                               item.category,
-                              item.quantity + 1
+                              item.quantity + 1,
+                              item.price,
+                              item.weight
                             )
                           }
                           className='w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r-md hover:bg-gray-100'

@@ -2,6 +2,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Генерируем уникальный ключ для товара с учетом цены и веса
+const generateItemKey = item => {
+  return `${item.id}-${item.price}-${item.weight || ''}`
+}
+
 export const useCartStore = create(
   persist(
     (set, get) => ({
@@ -9,19 +14,23 @@ export const useCartStore = create(
 
       // Добавление товара в корзину
       addToCart: (product, category) => {
+        const itemKey = generateItemKey(product)
         const existingItem = get().cartItems.find(
-          item => item.id === product.id && item.category === category
+          item =>
+            generateItemKey(item) === itemKey && item.category === category
         )
 
         if (existingItem) {
+          // Если товар с такой же ценой и весом уже есть, увеличиваем количество
           set({
             cartItems: get().cartItems.map(item =>
-              item.id === product.id && item.category === category
+              generateItemKey(item) === itemKey && item.category === category
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
             )
           })
         } else {
+          // Если товара с такой ценой и весом нет, добавляем как новый
           set({
             cartItems: [
               ...get().cartItems,
@@ -32,28 +41,56 @@ export const useCartStore = create(
       },
 
       // Удаление товара из корзины
-      removeFromCart: (productId, category) => {
-        set({
-          cartItems: get().cartItems.filter(
-            item => !(item.id === productId && item.category === category)
-          )
-        })
+      removeFromCart: (productId, category, price, weight) => {
+        // Если переданы price и weight, удаляем конкретный вариант
+        if (price && weight) {
+          const itemKey = generateItemKey({ id: productId, price, weight })
+          set({
+            cartItems: get().cartItems.filter(
+              item =>
+                !(
+                  generateItemKey(item) === itemKey &&
+                  item.category === category
+                )
+            )
+          })
+        } else {
+          // Если не переданы, удаляем все варианты этого товара (старая логика)
+          set({
+            cartItems: get().cartItems.filter(
+              item => !(item.id === productId && item.category === category)
+            )
+          })
+        }
       },
 
       // Обновление количества товара
-      updateQuantity: (productId, category, newQuantity) => {
+      updateQuantity: (productId, category, newQuantity, price, weight) => {
         if (newQuantity < 1) {
-          get().removeFromCart(productId, category)
+          get().removeFromCart(productId, category, price, weight)
           return
         }
 
-        set({
-          cartItems: get().cartItems.map(item =>
-            item.id === productId && item.category === category
-              ? { ...item, quantity: newQuantity }
-              : item
-          )
-        })
+        // Если переданы price и weight, обновляем конкретный вариант
+        if (price && weight) {
+          const itemKey = generateItemKey({ id: productId, price, weight })
+          set({
+            cartItems: get().cartItems.map(item =>
+              generateItemKey(item) === itemKey && item.category === category
+                ? { ...item, quantity: newQuantity }
+                : item
+            )
+          })
+        } else {
+          // Если не переданы, используем старую логику (для обратной совместимости)
+          set({
+            cartItems: get().cartItems.map(item =>
+              item.id === productId && item.category === category
+                ? { ...item, quantity: newQuantity }
+                : item
+            )
+          })
+        }
       },
 
       // Очистка корзины
@@ -71,6 +108,23 @@ export const useCartStore = create(
 
       cartCount: () => {
         return get().cartItems.reduce((sum, item) => sum + item.quantity, 0)
+      },
+
+      // Новая функция для получения сгруппированных товаров
+      getGroupedItems: () => {
+        const items = get().cartItems
+        const grouped = {}
+
+        items.forEach(item => {
+          const key = generateItemKey(item)
+          if (!grouped[key]) {
+            grouped[key] = { ...item }
+          } else {
+            grouped[key].quantity += item.quantity
+          }
+        })
+
+        return Object.values(grouped)
       }
     }),
     {
