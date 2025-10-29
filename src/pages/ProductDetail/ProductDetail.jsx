@@ -6,7 +6,8 @@ import {
   faArrowLeft,
   faShoppingCart,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faLeaf
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -30,8 +31,14 @@ export function ProductDetail () {
     product?.weight.includes('шт') ||
     product?.weight.includes('порц')
 
+  const isLiquidProduct =
+    product?.price.includes('/л') ||
+    product?.weight.includes('л') ||
+    product?.weight.includes('літр')
+
   const [selectedWeight, setSelectedWeight] = useState(1)
   const [selectedPieces, setSelectedPieces] = useState(1)
+  const [selectedLiters, setSelectedLiters] = useState(1)
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
@@ -62,6 +69,11 @@ export function ProductDetail () {
       return parseFloat(
         product.price.replace('/шт', '').replace(' грн', '').replace(',', '.')
       )
+    } else if (isLiquidProduct) {
+      // Для жидких товаров убираем "/л" и " грн"
+      return parseFloat(
+        product.price.replace('/л', '').replace(' грн', '').replace(',', '.')
+      )
     } else {
       // Для весовых товаров убираем " грн"
       return parseFloat(product.price.replace(' грн', '').replace(',', '.'))
@@ -73,23 +85,34 @@ export function ProductDetail () {
   // Опции в зависимости от типа товара
   const weightOptions = [0.5, 1, 2, 3]
   const pieceOptions = [1, 2, 3, 5, 10]
+  const literOptions = [0.5, 1, 2, 3, 5]
 
   // Расчет цены и отображаемой величины
   const calculatedPrice = isPieceProduct
     ? (basePrice * selectedPieces).toFixed(2) + ' грн'
+    : isLiquidProduct
+    ? (basePrice * selectedLiters).toFixed(2) + ' грн'
     : (basePrice * selectedWeight).toFixed(2) + ' грн'
 
   const displayAmount = isPieceProduct
     ? selectedPieces + ' шт'
+    : isLiquidProduct
+    ? selectedLiters + ' л'
     : selectedWeight + ' кг'
 
   const handleAddToCart = () => {
     const productToAdd = {
       ...product,
       price: calculatedPrice,
-      weight: !isPieceProduct ? displayAmount : product.weight, // сохраняем оригинальный вес для поштучных
+      weight:
+        !isPieceProduct && !isLiquidProduct ? displayAmount : product.weight, // сохраняем оригинальный вес для поштучных и жидких
       pieces: isPieceProduct ? selectedPieces : null,
-      unitType: isPieceProduct ? 'piece' : 'weight',
+      liters: isLiquidProduct ? selectedLiters : null,
+      unitType: isPieceProduct
+        ? 'piece'
+        : isLiquidProduct
+        ? 'liquid'
+        : 'weight',
       quantity: quantity
     }
     addToCart(productToAdd, category)
@@ -205,6 +228,9 @@ export function ProductDetail () {
                 <h1 className='text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4'>
                   {product.name}
                 </h1>
+
+                {/* Блок с составом продукции */}
+
                 <div className='mb-6'>
                   <div className='flex items-center space-x-4 mb-4'>
                     <span className='text-2xl font-bold text-amber-600'>
@@ -212,14 +238,17 @@ export function ProductDetail () {
                     </span>
                     <span className='text-gray-500 text-sm'>
                       {displayAmount}
-                      {isPieceProduct && product.weight && (
-                        <span className='ml-1 text-xs'>({product.weight})</span>
-                      )}
+                      {(isPieceProduct || isLiquidProduct) &&
+                        product.weight && (
+                          <span className='ml-1 text-xs'>
+                            ({product.weight})
+                          </span>
+                        )}
                     </span>
                   </div>
 
-                  {/* Блок выбора веса или количества штук */}
-                  {!isPieceProduct ? (
+                  {/* Блок выбора веса, количества штук или литров */}
+                  {!isPieceProduct && !isLiquidProduct ? (
                     <div className='mb-4'>
                       <label className='block text-gray-700 mb-2 font-medium'>
                         Оберіть вагу:
@@ -241,7 +270,7 @@ export function ProductDetail () {
                         ))}
                       </div>
                     </div>
-                  ) : (
+                  ) : isPieceProduct ? (
                     <div className='mb-4'>
                       <label className='block text-gray-700 mb-2 font-medium'>
                         Оберіть кількість:
@@ -263,12 +292,40 @@ export function ProductDetail () {
                         ))}
                       </div>
                     </div>
+                  ) : (
+                    <div className='mb-4'>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Оберіть об'єм:
+                      </label>
+                      <div className='flex flex-wrap gap-2'>
+                        {literOptions.map(liters => (
+                          <button
+                            key={liters}
+                            type='button'
+                            onClick={() => setSelectedLiters(liters)}
+                            className={`px-4 py-2 rounded-full border ${
+                              selectedLiters === liters
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                            } transition-colors`}
+                          >
+                            {liters} л
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
 
                   {/* Блок количества упаковок (общий для всех типов) */}
                   <div className='mb-4'>
                     <label className='block text-gray-700 mb-2 font-medium'>
-                      Кількість {isPieceProduct ? 'упаковок' : 'порцій'}:
+                      Кількість{' '}
+                      {isPieceProduct
+                        ? 'упаковок'
+                        : isLiquidProduct
+                        ? 'пляшок'
+                        : 'порцій'}
+                      :
                     </label>
                     <div className='flex items-center'>
                       <button
@@ -288,7 +345,34 @@ export function ProductDetail () {
                       </button>
                     </div>
                   </div>
+
+                  {product.compound && (
+                    <div className='mb-6 p-4 bg-green-50 rounded-lg border border-green-200'>
+                      <div className='flex items-center mb-3'>
+                        <FontAwesomeIcon
+                          icon={faLeaf}
+                          className='text-green-600 mr-2'
+                        />
+                        <h3 className='text-lg font-semibold text-green-800'>
+                          Склад продукції:
+                        </h3>
+                      </div>
+                      <div className='flex flex-wrap gap-2'>
+                        {product.compound
+                          .split(', ')
+                          .map((ingredient, index) => (
+                            <span
+                              key={index}
+                              className='inline-flex items-center px-3 py-1 bg-white text-green-700 text-sm font-medium rounded-full border border-green-200 shadow-sm'
+                            >
+                              {ingredient.trim()}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 {product.description.split('\n\n').map((part, index) => (
                   <p
                     key={index}
