@@ -132,4 +132,3 @@ export const useCartStore = create(
     }
   )
 )
-пше
