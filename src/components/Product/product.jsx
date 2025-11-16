@@ -6,7 +6,7 @@ import semiFinishedImage from '../../assets/semiFinished.png'
 import culinariya from '../../assets/culinary.png'
 import smoked from '../../assets/kopchena.png'
 import pickles from '../../assets/pickles.png'
-
+import salad from '../../assets/salad.jpg'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { motion } from 'framer-motion'
@@ -43,6 +43,14 @@ const categories = [
     image: semiFinishedImage,
     catalogLink: '/catalog/semi-finished',
     comingSoon: false
+  },
+  {
+    id: 'salads',
+    name: 'Салати',
+    description: 'Смачні салати на будь-який смак',
+    image: salad,
+    catalogLink: '/catalog/salad',
+    comingSoon: false
   }
 ]
 
@@ -58,7 +66,7 @@ export function Product () {
 
   return (
     <div
-      id='categories' // <-- Цей ID потрібен для скролу
+      id='categories'
       className='min-h-[35rem] bg-cover bg-center bg-no-repeat bg-fixed relative py-20 overflow-hidden'
       style={{ backgroundImage: `url(${logo})` }}
     >
@@ -98,7 +106,7 @@ export function Product () {
               data-aos='zoom-in'
               data-aos-delay={200 + i * 100}
             >
-              <div className='bg-white/90 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col border border-white/20 relative'>
+              <div className='bg-white/90 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col   relative'>
                 {/* Стрічка "Скоро" */}
                 {category.comingSoon && (
                   <div className='absolute top-2 left-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-20'>

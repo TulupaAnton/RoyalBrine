@@ -8,7 +8,7 @@
       "weight": "1 кг",
       "images": [
         "kornishon1.png",
-        "kornishon2.png"
+        "Марин.jpg"
       ],
       "compound": "Огірок корнішон, сіль, часник, кріп, листя хрону, перець духмяний"
     },
@@ -44,7 +44,7 @@
       "weight": "1 кг",
       "images": [
         "ЧилиО2.png",
-        "ЧилиО.png"
+        "чилиВедро.jpg"
       ],
       "compound": "Огірки, соус чилі, оцет, суміш ароматних спецій."
     },
@@ -175,7 +175,8 @@
       "images": [
         "квашСин.jpg",
         "квашСин1.jpg"
-      ]
+      ],
+      "compound": " баклажан, натурально скавешний  "
     },
     {
       "id": 16,
@@ -423,6 +424,166 @@
         "Лазанья.png",
         "Лазанья1.png"
       ]
+    },
+    {
+      "id": 9,
+      "name": "Шпинатний рулет із лососем",
+      "description": "",
+      "price": "180 грн ",
+      "weight": "1 шт",
+      "images": [
+        "Шпинат.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 10,
+      "name": "Жульєн",
+      "description": "",
+      "price": "95 грн",
+      "weight": "1 шт",
+      "images": [
+        "жульен.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 11,
+      "name": "Рулет печінковий",
+      "description": "",
+      "price": "75 грн",
+      "weight": "1 шт",
+      "images": [
+        "рулетПеченочн.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 12,
+      "name": "Тефтелі свинячо-яловичі",
+      "description": "",
+      "price": "350 грн",
+      "weight": "1 кг",
+      "images": [
+        "тефтельки.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 13,
+      "name": "Голубці з свининою та яловичиною",
+      "description": "",
+      "price": "350 грн",
+      "weight": "1 кг",
+      "images": [
+        "Голубц.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 14,
+      "name": "Ковбаса кров'янка",
+      "description": "",
+      "price": "250 грн",
+      "weight": "1кг",
+      "images": [
+        "кровянка2.png",
+        "кровянка.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 15,
+      "name": "Курячий рулет гриби+сир",
+      "description": "",
+      "price": "550 грн",
+      "weight": "1 кг",
+      "images": [
+        "рулет1.jpg",
+        "рулет2.png",
+        "рулет3.png"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 16,
+      "name": "Рибні котлети",
+      "description": "",
+      "price": "420 грн",
+      "weight": "1 кг",
+      "images": [
+        "рибние.jpg",
+        "рибние2.png"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 17,
+      "name": "свинячі котлети",
+      "description": "",
+      "price": "380 грн",
+      "weight": "1 кг",
+      "images": [
+        "катлсвин2.jpg",
+        "катлсвин.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 18,
+      "name": "Колбаса з куриці (смажена)",
+      "description": "",
+      "price": "",
+      "weight": "",
+      "images": [
+        "Кабл1.jpg",
+        "Кабл2.jpg"
+      ],
+      "compound": "М'ясо куриці, спеції, натуральна оболонка."
+    },
+    {
+      "id": 19,
+      "name": "Фарширований перець",
+      "description": "",
+      "price": "350 грн",
+      "weight": "1 кг",
+      "images": [
+        "перец.jpg"
+      ],
+      "compound": "Солодкий перець , м'ясо свинини , рис , цибуля , морква , томатний соус , спеції."
+    },
+    {
+      "id": 20,
+      "name": "Сало",
+      "description": "",
+      "price": "420 грн",
+      "weight": "1 кг",
+      "images": [
+        "сало2.jpg"
+      ],
+      "compound": "часник , зелень"
+    },
+    {
+      "id": 21,
+      "name": "Холодець",
+      "description": "",
+      "price": "130 грн",
+      "weight": "1 шт",
+      "images": [
+        "холодец.jpg"
+      ],
+      "compound": "Мясо Куриці , мясо Індички , Телятина,"
+    },
+    {
+      "id": 22,
+      "name": "Паштет",
+      "description": "",
+      "price": "",
+      "weight": "",
+      "images": [
+        "печенКар.jpg"
+      ],
+      "compound": "Печінка , цибуля , вершкове масло , вершки , морква , спеції  "
     }
   ],
   "semi-finished": [
@@ -555,6 +716,41 @@
       "images": [
         "treugolnik.jpg"
       ]
+    }
+  ],
+  "salad": [
+    {
+      "id": 1,
+      "name": "Печінковий салат",
+      "description": "",
+      "price": "140 грн",
+      "weight": "1 шт",
+      "images": [
+        "печенСал.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 2,
+      "name": "Вінігрет",
+      "description": "",
+      "price": "80 грн",
+      "weight": "1 шт ",
+      "images": [
+        "Венигред.jpg"
+      ],
+      "compound": ""
+    },
+    {
+      "id": 3,
+      "name": "Олів'є",
+      "description": "",
+      "price": "130 грн",
+      "weight": "1 шт",
+      "images": [
+        "оливье.jpg"
+      ],
+      "compound": ""
     }
   ]
 }
