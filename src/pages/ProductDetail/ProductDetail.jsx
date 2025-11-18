@@ -22,6 +22,7 @@ const categoryNames = {
   pickles: 'Соління',
   smoked: 'Копченості',
   salads: 'Салати',
+  kylinary: 'Кулінарія',
   'semi-finished': 'Напівфабрикати'
 }
 
@@ -41,9 +42,13 @@ export function ProductDetail () {
     product?.weight.includes('л') ||
     product?.weight.includes('літр')
 
+  const isBucketProduct = product?.bucket === true
+
   const [selectedWeight, setSelectedWeight] = useState(1)
   const [selectedPieces, setSelectedPieces] = useState(1)
   const [selectedLiters, setSelectedLiters] = useState(1)
+  const [selectedBucketOption, setSelectedBucketOption] = useState('weight') // 'weight' или 'bucket'
+  const [selectedBucketSize, setSelectedBucketSize] = useState(0.7) // размер ведра в кг
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
@@ -91,32 +96,62 @@ export function ProductDetail () {
   const weightOptions = [0.5, 1, 2, 3]
   const pieceOptions = [1, 2, 3, 5, 10]
   const literOptions = [0.5, 1, 2, 3, 5]
+  const bucketSizeOptions = [
+    { value: 0.7, label: '700 г' },
+    { value: 3, label: '3 кг' },
+    { value: 5, label: '5 кг' },
+    { value: 10, label: '10 кг' }
+  ]
 
   // Расчет цены и отображаемой величины
-  const calculatedPrice = isPieceProduct
-    ? (basePrice * selectedPieces).toFixed(2) + ' грн'
-    : isLiquidProduct
-    ? (basePrice * selectedLiters).toFixed(2) + ' грн'
-    : (basePrice * selectedWeight).toFixed(2) + ' грн'
+  const getCalculatedPrice = () => {
+    if (isPieceProduct) {
+      return (basePrice * selectedPieces).toFixed(2) + ' грн'
+    } else if (isLiquidProduct) {
+      return (basePrice * selectedLiters).toFixed(2) + ' грн'
+    } else if (isBucketProduct && selectedBucketOption === 'bucket') {
+      // Для ведра цена рассчитывается как базовая цена * размер ведра
+      return (basePrice * selectedBucketSize).toFixed(2) + ' грн'
+    } else {
+      return (basePrice * selectedWeight).toFixed(2) + ' грн'
+    }
+  }
 
-  const displayAmount = isPieceProduct
-    ? selectedPieces + ' шт'
-    : isLiquidProduct
-    ? selectedLiters + ' л'
-    : selectedWeight + ' кг'
+  const getDisplayAmount = () => {
+    if (isPieceProduct) {
+      return selectedPieces + ' шт'
+    } else if (isLiquidProduct) {
+      return selectedLiters + ' л'
+    } else if (isBucketProduct && selectedBucketOption === 'bucket') {
+      return selectedBucketSize + ' кг (у відрі)'
+    } else {
+      return selectedWeight + ' кг'
+    }
+  }
+
+  const calculatedPrice = getCalculatedPrice()
+  const displayAmount = getDisplayAmount()
 
   const handleAddToCart = () => {
     const productToAdd = {
       ...product,
       price: calculatedPrice,
-      weight:
-        !isPieceProduct && !isLiquidProduct ? displayAmount : product.weight, // сохраняем оригинальный вес для поштучных и жидких
+      weight: displayAmount,
       pieces: isPieceProduct ? selectedPieces : null,
       liters: isLiquidProduct ? selectedLiters : null,
+      bucketSize:
+        isBucketProduct && selectedBucketOption === 'bucket'
+          ? selectedBucketSize
+          : null,
+      bucketOption: isBucketProduct ? selectedBucketOption : null,
       unitType: isPieceProduct
         ? 'piece'
         : isLiquidProduct
         ? 'liquid'
+        : isBucketProduct
+        ? selectedBucketOption === 'bucket'
+          ? 'bucket'
+          : 'weight'
         : 'weight',
       quantity: quantity
     }
@@ -250,8 +285,91 @@ export function ProductDetail () {
                     </span>
                   </div>
 
-                  {/* Блок выбора веса, количества штук или литров */}
-                  {!isPieceProduct && !isLiquidProduct ? (
+                  {/* Блок выбора для товаров в ведре */}
+                  {isBucketProduct && (
+                    <div className='mb-4'>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Способ покупки:
+                      </label>
+                      <div className='flex flex-wrap gap-2 mb-3'>
+                        <button
+                          type='button'
+                          onClick={() => setSelectedBucketOption('weight')}
+                          className={`px-4 py-2 rounded-full border ${
+                            selectedBucketOption === 'weight'
+                              ? 'bg-amber-500 text-white border-amber-500'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                          } transition-colors`}
+                        >
+                          На вагу (без відра)
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => setSelectedBucketOption('bucket')}
+                          className={`px-4 py-2 rounded-full border ${
+                            selectedBucketOption === 'bucket'
+                              ? 'bg-amber-500 text-white border-amber-500'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                          } transition-colors`}
+                        >
+                          У відрі
+                        </button>
+                      </div>
+
+                      {selectedBucketOption === 'weight' && (
+                        <div className='mt-2'>
+                          <label className='block text-gray-700 mb-2 font-medium'>
+                            Оберіть вагу:
+                          </label>
+                          <div className='flex flex-wrap gap-2'>
+                            {weightOptions.map(weight => (
+                              <button
+                                key={weight}
+                                type='button'
+                                onClick={() => setSelectedWeight(weight)}
+                                className={`px-4 py-2 rounded-full border ${
+                                  selectedWeight === weight
+                                    ? 'bg-amber-500 text-white border-amber-500'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                                } transition-colors`}
+                              >
+                                {weight} кг
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedBucketOption === 'bucket' && (
+                        <div className='mt-2'>
+                          <label className='block text-gray-700 mb-2 font-medium'>
+                            Оберіть розмір відра:
+                          </label>
+                          <div className='flex flex-wrap gap-2'>
+                            {bucketSizeOptions.map(option => (
+                              <button
+                                key={option.value}
+                                type='button'
+                                onClick={() =>
+                                  setSelectedBucketSize(option.value)
+                                }
+                                className={`px-4 py-2 rounded-full border ${
+                                  selectedBucketSize === option.value
+                                    ? 'bg-amber-500 text-white border-amber-500'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:border-amber-300'
+                                } transition-colors`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Блок выбора веса, количества штук или литров для обычных товаров */}
+                  {!isBucketProduct && !isPieceProduct && !isLiquidProduct && (
                     <div className='mb-4'>
                       <label className='block text-gray-700 mb-2 font-medium'>
                         Оберіть вагу:
@@ -273,7 +391,9 @@ export function ProductDetail () {
                         ))}
                       </div>
                     </div>
-                  ) : isPieceProduct ? (
+                  )}
+
+                  {isPieceProduct && (
                     <div className='mb-4'>
                       <label className='block text-gray-700 mb-2 font-medium'>
                         Оберіть кількість:
@@ -295,7 +415,9 @@ export function ProductDetail () {
                         ))}
                       </div>
                     </div>
-                  ) : (
+                  )}
+
+                  {isLiquidProduct && (
                     <div className='mb-4'>
                       <label className='block text-gray-700 mb-2 font-medium'>
                         Оберіть об'єм:
@@ -327,6 +449,8 @@ export function ProductDetail () {
                         ? 'упаковок'
                         : isLiquidProduct
                         ? 'пляшок'
+                        : isBucketProduct && selectedBucketOption === 'bucket'
+                        ? 'відер'
                         : 'порцій'}
                       :
                     </label>
@@ -349,7 +473,7 @@ export function ProductDetail () {
                     </div>
                   </div>
                   {product.compound && (
-                    <div className='mb-6 p-6 bg-amber-50 rounded-xl border border-amber-200 shadow-sm'>
+                    <div className='mb-6 p-6 bg-amber-100 rounded-xl border border-amber-200 shadow-sm'>
                       <div className='flex items-center mb-5'>
                         <FontAwesomeIcon
                           icon={faSeedling} // Иконка ростка

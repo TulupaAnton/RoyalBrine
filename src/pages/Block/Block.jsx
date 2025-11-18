@@ -157,7 +157,7 @@ export function Block () {
           }}
           className='text-xl md:text-2xl text-amber-900 opacity-90 mb-10 leading-relaxed'
         >
-          Смачно. Швидко. Домашнє.
+          Смачно. Швидко. По-домашньому.
         </motion.p>
 
         <motion.div variants={item}>
