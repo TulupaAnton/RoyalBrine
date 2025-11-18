@@ -3,98 +3,119 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 
+// Детекция iOS
+const isIOS =
+  typeof navigator !== 'undefined' &&
+  /iPhone|iPad|iPod/i.test(navigator.userAgent)
+
 export function Block () {
+  // Контейнер
   const container = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         staggerChildren: 0.15,
-        delayChildren: 0.3
+        delayChildren: 0.2
       }
     }
   }
 
+  // Элементы
   const item = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 25 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 14
+        duration: 0.5,
+        ease: 'easeOut'
       }
     }
   }
 
+  // Оптимизированные blobs (без spring)
   const blob = {
-    hidden: { scale: 0 },
+    hidden: { opacity: 0, scale: 0.8 },
     visible: {
+      opacity: 1,
       scale: 1,
       transition: {
-        type: 'spring',
-        stiffness: 60,
-        damping: 12
+        duration: 0.6,
+        ease: 'easeOut'
       }
     }
   }
 
-  // 🎯 Розумний CTA за часом доби
+  // Смарт-CTA
   const hour = new Date().getHours()
   let ctaText = 'До каталогу'
-
   if (hour < 10) ctaText = 'Смакуйте зранку'
   else if (hour < 16) ctaText = 'Обідній вибір'
   else ctaText = 'Ситна вечеря'
 
   const scrollToCategories = () => {
     const el = document.getElementById('categories')
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
     <div className='relative w-full px-4 py-24 md:p-32 text-center min-h-[80vh] overflow-hidden flex items-center justify-center font-serif'>
-      {/* 🎥 ВИДЕО-ФОН */}
+      {/* Видео фон — облегчённая версия для iPhone */}
       <video
         autoPlay
         muted
         loop
         playsInline
-        className='absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px] z-0'
+        className={
+          'absolute inset-0 w-full h-full object-cover z-0 ' +
+          (isIOS ? 'opacity-10' : 'opacity-20 blur-[2px]')
+        }
       >
         <source src='./src/assets/footage.mp4' type='video/mp4' />
         Ваш браузер не підтримує відео.
       </video>
 
-      {/* Анімовані фоновані елементи */}
+      {/* Блики/шары — blur выключен для iOS */}
       <div className='absolute inset-0 overflow-hidden z-0'>
         <motion.div
           variants={blob}
           initial='hidden'
           animate='visible'
-          transition={{ delay: 0.2 }}
-          className='absolute top-[-40px] left-[-40px] w-48 h-48 rounded-full bg-amber-400 opacity-30 blur-2xl animate-pulse'
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)',
+            filter: isIOS ? 'none' : 'blur(40px)'
+          }}
+          className='absolute top-[-40px] left-[-40px] w-48 h-48 rounded-full bg-amber-400 opacity-30'
         />
+
         <motion.div
           variants={blob}
           initial='hidden'
           animate='visible'
-          transition={{ delay: 0.4 }}
-          className='absolute top-1/3 right-0 w-60 h-60 rounded-full bg-orange-400 opacity-25 blur-2xl animate-pulse'
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)',
+            filter: isIOS ? 'none' : 'blur(40px)'
+          }}
+          className='absolute top-1/3 right-0 w-60 h-60 rounded-full bg-orange-400 opacity-25'
         />
+
         <motion.div
           variants={blob}
           initial='hidden'
           animate='visible'
-          transition={{ delay: 0.6 }}
-          className='absolute bottom-[-40px] left-1/4 w-64 h-64 rounded-full bg-amber-600 opacity-20 blur-2xl animate-pulse'
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)',
+            filter: isIOS ? 'none' : 'blur(40px)'
+          }}
+          className='absolute bottom-[-40px] left-1/4 w-64 h-64 rounded-full bg-amber-600 opacity-20'
         />
       </div>
 
-      {/* Основний контент */}
+      {/* Контент */}
       <motion.div
         variants={container}
         initial='hidden'
@@ -103,34 +124,52 @@ export function Block () {
       >
         <motion.p
           variants={item}
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)'
+          }}
           className='text-sm md:text-lg italic text-amber-700 mb-3'
         >
-          «Коли дім починається з запаху вареників...»
+          Свіжі домашні страви з доставкою по Запоріжжю.
         </motion.p>
 
         <motion.h1
           variants={item}
-          animate={{ opacity: [1, 0.7, 1] }}
-          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          className='text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-800 via-orange-700 to-yellow-600 drop-shadow-md'
+          animate={isIOS ? {} : { opacity: [1, 0.7, 1] }}
+          transition={
+            isIOS ? {} : { repeat: Infinity, duration: 2, ease: 'easeInOut' }
+          }
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)'
+          }}
+          className='text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent 
+                     bg-gradient-to-r from-amber-800 via-orange-700 to-yellow-600 drop-shadow-md'
         >
           Royal Brine
         </motion.h1>
 
         <motion.p
           variants={item}
+          style={{
+            willChange: 'transform, opacity',
+            WebkitTransform: 'translateZ(0)'
+          }}
           className='text-xl md:text-2xl text-amber-900 opacity-90 mb-10 leading-relaxed'
         >
-          Відкрийте для себе смачний світ домашніх напівфабрикатів, ароматних
-          солінь, вишуканої кулінарії та натуральних копченостей. Ми готуємо з
-          душею, щоб на вашому столі завжди були якість, традиція та справжній
-          смак.
+          Смачно. Швидко. По-домашньому.
         </motion.p>
 
         <motion.div variants={item}>
           <button
             onClick={scrollToCategories}
-            className='inline-flex items-center justify-center bg-amber-800 text-white px-8 py-4 rounded-full mt-4 hover:bg-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-amber-600/40 group'
+            style={{
+              WebkitTransform: 'translateZ(0)',
+              willChange: 'transform'
+            }}
+            className='inline-flex items-center justify-center bg-amber-800 text-white px-8 py-4 rounded-full 
+                       mt-4 hover:bg-orange-700 transition-all duration-300 hover:scale-105 shadow-lg 
+                       hover:shadow-amber-600/40 group'
           >
             <span className='text-lg font-medium'>{ctaText}</span>
             <FontAwesomeIcon
