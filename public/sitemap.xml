@@ -1,18 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Главная -->
-  <url><loc>https://royal-brine.vercel.app/</loc></url>
+  <url>
+    <loc>https://royal-brine.vercel.app/</loc>
+  </url>
 
-  <!-- Категории -->
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/salad</loc></url>
+  <url>
+    <loc>https://royal-brine.vercel.app/catalog/pickles</loc>
+  </url>
+
+  <url>
+    <loc>https://royal-brine.vercel.app/catalog/smoked</loc>
+  </url>
+
+  <url>
+    <loc>https://royal-brine.vercel.app/catalog/cooking</loc>
+  </url>
+
+  <url>
+    <loc>https://royal-brine.vercel.app/catalog/semi-finished</loc>
+  </url>
+
+  <url>
+    <loc>https://royal-brine.vercel.app/catalog/salad</loc>
+  </url>
 
 
-  <!-- PICKLES товары -->
+  <!-- PICKLES -->
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/3</loc></url>
@@ -38,7 +52,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/23</loc></url>
 
 
-  <!-- SMOKED товары -->
+  <!-- SMOKED -->
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/3</loc></url>
@@ -47,7 +61,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/6</loc></url>
 
 
-  <!-- COOKING товары -->
+  <!-- COOKING -->
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/3</loc></url>
@@ -72,7 +86,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/22</loc></url>
 
 
-  <!-- SEMI-FINISHED товары -->
+  <!-- SEMI-FINISHED -->
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/3</loc></url>
@@ -88,7 +102,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/14</loc></url>
 
 
-  <!-- SALAD товары -->
+  <!-- SALAD -->
   <url><loc>https://royal-brine.vercel.app/catalog/salad/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/salad/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/salad/3</loc></url>
