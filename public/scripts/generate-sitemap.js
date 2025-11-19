@@ -1,6 +1,6 @@
 import { SitemapStream, streamToPromise } from 'sitemap'
 import { createWriteStream } from 'fs'
-import products from '../src/data/products.json' assert { type: 'json' }
+import products from '../../src/data/products.json' assert { type: 'json' }
 
 const links = [
   { url: '/', changefreq: 'weekly', priority: 1.0 },
