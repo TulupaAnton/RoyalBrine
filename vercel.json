@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/sitemap.xml/",
+      "destination": "/sitemap.xml",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/product/:category/:id",
@@ -7,14 +14,6 @@
     {
       "source": "/catalog/:category",
       "destination": "/"
-    },
-    {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
     }
   ]
 }
