@@ -1,23 +1,16 @@
 {
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
+      "source": "/product/:category/:id",
+      "destination": "/"
     },
     {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    }
-  ],
-  "headers": [
+      "source": "/catalog/:category",
+      "destination": "/"
+    },
     {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
-        }
-      ]
+      "source": "/(.*)",
+      "destination": "/"
     }
   ]
 }
