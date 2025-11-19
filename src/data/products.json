@@ -784,5 +784,9 @@
       ],
       "compound": "Ковбаса , картопля , яйце , огірок"
     }
-  ]
+  ],
+  "scripts": {
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "build": "npm run generate:sitemap && vite build"
+  }
 }
