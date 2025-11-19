@@ -26,7 +26,7 @@
   </url>
 
 
-  <!-- PICKLES -->
+
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/3</loc></url>
@@ -52,7 +52,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/pickles/23</loc></url>
 
 
-  <!-- SMOKED -->
+
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/3</loc></url>
@@ -61,7 +61,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/smoked/6</loc></url>
 
 
-  <!-- COOKING -->
+
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/3</loc></url>
@@ -86,7 +86,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/cooking/22</loc></url>
 
 
-  <!-- SEMI-FINISHED -->
+
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/3</loc></url>
@@ -102,7 +102,7 @@
   <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/14</loc></url>
 
 
-  <!-- SALAD -->
+
   <url><loc>https://royal-brine.vercel.app/catalog/salad/1</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/salad/2</loc></url>
   <url><loc>https://royal-brine.vercel.app/catalog/salad/3</loc></url>
