@@ -1,12 +1,34 @@
 {
   "rewrites": [
     {
-      "source": "/product/:category/:id",
+      "source": "/product/(.*)",
       "destination": "/"
     },
     {
-      "source": "/catalog/:category",
+      "source": "/catalog/(.*)",
       "destination": "/"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        }
+      ]
     }
   ]
 }
