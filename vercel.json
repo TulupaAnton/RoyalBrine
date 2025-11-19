@@ -7,10 +7,12 @@
     {
       "source": "/catalog/:category",
       "destination": "/"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
     }
-  ]
+  ],
+  "static": {
+    "include": [
+      "public/sitemap.xml",
+      "public/robots.txt"
+    ]
+  }
 }
