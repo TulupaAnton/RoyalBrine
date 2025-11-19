@@ -27,85 +27,87 @@
 
 
 
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/1</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/2</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/3</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/4</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/5</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/6</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/7</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/8</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/9</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/10</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/11</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/12</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/13</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/14</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/15</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/16</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/17</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/18</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/19</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/20</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/21</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/22</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/pickles/23</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/1</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/2</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/3</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/4</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/5</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/6</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/7</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/8</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/9</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/10</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/11</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/12</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/13</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/14</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/15</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/16</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/17</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/18</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/19</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/20</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/21</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/22</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/23</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/pickles/24</loc></url>
 
 
 
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/1</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/2</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/3</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/4</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/5</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/smoked/6</loc></url>
+
+  <url><loc>https://royal-brine.vercel.app/product/smoked/1</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/smoked/2</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/smoked/3</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/smoked/4</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/smoked/5</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/smoked/6</loc></url>
 
 
 
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/1</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/2</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/3</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/4</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/5</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/6</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/7</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/8</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/9</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/10</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/11</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/12</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/13</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/14</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/15</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/16</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/17</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/18</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/19</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/20</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/21</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/cooking/22</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/1</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/2</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/3</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/4</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/5</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/6</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/7</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/8</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/9</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/10</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/11</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/12</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/13</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/14</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/15</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/16</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/17</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/18</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/19</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/20</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/21</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/cooking/22</loc></url>
 
 
 
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/1</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/2</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/3</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/4</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/5</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/6</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/7</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/8</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/9</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/10</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/11</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/12</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/13</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/semi-finished/14</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/1</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/2</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/3</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/4</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/5</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/6</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/7</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/8</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/9</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/10</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/11</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/12</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/13</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/semi-finished/14</loc></url>
 
 
 
-  <url><loc>https://royal-brine.vercel.app/catalog/salad/1</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/salad/2</loc></url>
-  <url><loc>https://royal-brine.vercel.app/catalog/salad/3</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/salad/1</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/salad/2</loc></url>
+  <url><loc>https://royal-brine.vercel.app/product/salad/3</loc></url>
 
 </urlset>
