@@ -8,7 +8,7 @@ import { ProductDetail } from './pages/ProductDetail/ProductDetail'
 import { CartPage } from './pages/CartPage/CartPage'
 import { Catalog } from './pages/Catalog/Catalog'
 import { Payment } from './pages/Payment/Payment'
-import { All } from './pages/Catalog/All'
+// import { All } from './pages/Catalog/All'
 import ComingSoon from './pages/ComingSoon/ComingSoon'
 import { Toaster } from 'react-hot-toast'
 import { Terms } from './components/Terms/Terms'
@@ -28,7 +28,7 @@ function App () {
         <Route path='/' element={<Home />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contacts />} />
-        <Route path='/All' element={<All />} />
+        {/* <Route path='/All' element={<All />} /> */}
         <Route path='/catalog/:category' element={<Catalog />} />
         <Route path='/Terms' element={<Terms />} />
         <Route path='/Privacy' element={<Privacy />} />
