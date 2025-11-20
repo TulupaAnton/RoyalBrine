@@ -69,7 +69,7 @@ export function Payment () {
     const orderDetails = cartItems
       .map(
         item =>
-          `${item.name} (${item.quantity} шт.) — ${item.price} x ${item.quantity}`
+          `${item.name} (${item.weight} ) — ${item.price} x ${item.quantity}`
       )
       .join('\n')
 
@@ -209,7 +209,7 @@ export function Payment () {
                             {item.name}
                           </h3>
                           <p className='text-sm text-gray-600'>
-                            {item.price} × {item.quantity}
+                            {item.price} × {item.weight}
                           </p>
                         </div>
                         <div className='font-medium text-amber-600'>

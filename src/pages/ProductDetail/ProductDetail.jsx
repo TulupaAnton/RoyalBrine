@@ -17,6 +17,7 @@ import {
 import { useCartStore } from '../../store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.jpg'
+import { toast } from 'react-hot-toast'
 
 const categoryNames = {
   pickles: 'Соління',
@@ -155,7 +156,22 @@ export function ProductDetail () {
         : 'weight',
       quantity: quantity
     }
+
     addToCart(productToAdd, category)
+
+    toast.success(`${product.name} додано до кошика`, {
+      duration: 3000,
+      icon: (
+        <FontAwesomeIcon icon={faShoppingCart} className='text-amber-500' />
+      ),
+      style: {
+        borderRadius: '12px',
+        background: '#fff',
+        color: '#000',
+        padding: '12px 16px',
+        border: '1px solid #22c55e'
+      }
+    })
   }
 
   const images =
