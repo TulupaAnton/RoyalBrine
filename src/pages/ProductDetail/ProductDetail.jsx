@@ -16,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import zaglushka from '../../assets/zaglushka.png'
+import zaglushka from '../../assets/zaglushka.jpg'
 
 const categoryNames = {
   pickles: 'Соління',

@@ -9,7 +9,7 @@ import {
   faBroom
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
-import zaglushka from '../../assets/zaglushka.png'
+import zaglushka from '../../assets/zaglushka.jpg'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
 

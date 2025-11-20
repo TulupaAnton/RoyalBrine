@@ -12,7 +12,7 @@ import {
   FaHeart
 } from 'react-icons/fa'
 import { useCartStore } from '../../store/cartStore'
-import logo from '../../assets/logo1.png'
+import logo from '../../assets/logo1.jpg'
 
 export function Header () {
   const [isOpen, setIsOpen] = useState(false)

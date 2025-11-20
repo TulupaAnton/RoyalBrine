@@ -10,7 +10,7 @@ import {
   faWallet
 } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
-import zaglushka from '../../assets/zaglushka.png'
+import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'

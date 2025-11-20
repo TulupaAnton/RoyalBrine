@@ -9,7 +9,7 @@ import {
   faArrowRight,
   faCartShopping
 } from '@fortawesome/free-solid-svg-icons'
-import zaglushka from '../../assets/zaglushka.png'
+import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import { toast } from 'react-hot-toast'
 
@@ -17,7 +17,7 @@ import { toast } from 'react-hot-toast'
 const categoryNames = {
   pickles: 'Соління',
   smoked: 'Копчення',
-  cooking: 'Кулінария',
+  cooking: 'Кулінарія',
   'semi-finished': 'Напівфабрикати'
 }
 
