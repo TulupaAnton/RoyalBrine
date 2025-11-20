@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
       "source": "/product/:path*",
       "destination": "/index.html"
     },
@@ -9,7 +17,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!sitemap\\.xml|robots\\.txt|favicon\\.ico|logo200\\.png).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
