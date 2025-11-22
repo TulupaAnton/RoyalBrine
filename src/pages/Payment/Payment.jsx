@@ -37,6 +37,7 @@ export function Payment () {
     const phone = form['phone'].value.trim()
     const email = form['email'].value.trim()
     const address = form['address'].value.trim()
+    const wish = form['wish'].value.trim()
     const deliveryDay = form['deliveryDay'].value.trim()
     const paymentMethod = form['payment'].value
 
@@ -78,7 +79,7 @@ export function Payment () {
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
           chat_id: TELEGRAM_CHAT_ID,
-          text: `🛒 *Нове замовлення!*\n\n👤 Ім'я: ${name}\n📞 Телефон: ${phone}\n📧 Email: ${email}\n🏠 Адреса: ${address}\n📅 День доставки: ${deliveryDay}\n💳 Спосіб оплати: ${paymentMethod}\n\n🧾 Замовлення:\n${orderDetails}\n\n💰 Сума товарів: ${totalPrice.toFixed(
+          text: `🛒 *Нове замовлення!*\n\n👤 Ім'я: ${name}\n📞 Телефон: ${phone}\n📧 Email: ${email}\n🏠 Адреса: ${address}\n📅 Побажання клієнта: ${wish}\n День доставки: ${deliveryDay}\n💳 Спосіб оплати: ${paymentMethod}\n\n🧾 Замовлення:\n${orderDetails}\n\n💰 Сума товарів: ${totalPrice.toFixed(
             2
           )} грн\n🚚 Доставка: ${
             deliveryCost === 0 ? 'Безкоштовно' : '50 грн'
@@ -379,6 +380,17 @@ export function Payment () {
                         </div>
                       </label>
                     </div>
+                  </div>
+                  <div>
+                    <label className='block text-gray-700 mb-2 font-medium'>
+                      Коментар до замовлення
+                    </label>
+                    <textarea
+                      name='wish'
+                      rows='3'
+                      placeholder='Введіть коментар до замовлення'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                    ></textarea>
                   </div>
 
                   <div className='border-t border-amber-200 pt-6'>

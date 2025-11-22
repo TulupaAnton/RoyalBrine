@@ -37,7 +37,7 @@ export function Footer () {
           <ul className='text-gray-400 text-sm space-y-3'>
             <li>
               <a
-                href='#'
+                href='https://www.instagram.com/royal_brine/'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='hover:text-amber-400 flex items-center space-x-2 transition'
@@ -48,7 +48,7 @@ export function Footer () {
             </li>
             <li>
               <a
-                href='#'
+                href='https://www.tiktok.com/@royal.brine'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='hover:text-amber-400 flex items-center space-x-2 transition'

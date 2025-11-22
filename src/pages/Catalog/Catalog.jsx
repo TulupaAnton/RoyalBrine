@@ -18,7 +18,8 @@ const categoryNames = {
   pickles: 'Соління',
   smoked: 'Копчення',
   cooking: 'Кулінарія',
-  'semi-finished': 'Напівфабрикати'
+  'semi-finished': 'Напівфабрикати',
+  salad: 'Салати'
 }
 
 // Кеш для предзагруженных изображений
