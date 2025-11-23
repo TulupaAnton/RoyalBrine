@@ -25,7 +25,19 @@ export function Payment () {
   const formRef = useRef()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const deliveryCost = totalPrice >= 500 ? 0 : 50
+  // Нове: стежимо за містом
+  const [isOtherCity, setIsOtherCity] = useState(false)
+
+  const handleCityChange = e => {
+    const value = e.target.value.trim().toLowerCase()
+    if (value && value !== 'запоріжжя' && value !== 'запорожье') {
+      setIsOtherCity(true)
+    } else {
+      setIsOtherCity(false)
+    }
+  }
+
+  const deliveryCost = totalPrice >= 500 ? 0 : 80
   const totalWithDelivery = totalPrice + deliveryCost
 
   const handlePaymentSubmit = async e => {
@@ -36,10 +48,13 @@ export function Payment () {
     const name = form['name'].value.trim()
     const phone = form['phone'].value.trim()
     const email = form['email'].value.trim()
+    const city = form['city'].value.trim()
     const address = form['address'].value.trim()
     const wish = form['wish'].value.trim()
-    const deliveryDay = form['deliveryDay'].value.trim()
     const paymentMethod = form['payment'].value
+
+    // День доставки тепер = сьогодні
+    const deliveryDay = new Date().toLocaleDateString('uk-UA')
 
     const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
     const phoneRegex = /^\+?\d{10,15}$/
@@ -51,17 +66,14 @@ export function Payment () {
         'Ім’я має містити лише літери та бути не коротше 2 символів'
       )
     }
-
     if (!phoneRegex.test(phone)) {
       setIsSubmitting(false)
       return toast.error('Введіть коректний номер телефону')
     }
-
     if (!emailRegex.test(email)) {
       setIsSubmitting(false)
       return toast.error('Введіть дійсний Email')
     }
-
     if (!address || address.length < 5) {
       setIsSubmitting(false)
       return toast.error('Адреса повинна містити більше 5 символів')
@@ -70,7 +82,7 @@ export function Payment () {
     const orderDetails = cartItems
       .map(
         item =>
-          `${item.name} (${item.weight} ) — ${item.price} x ${item.quantity}`
+          `${item.name} (${item.weight}) — ${item.price} x ${item.quantity}`
       )
       .join('\n')
 
@@ -79,11 +91,24 @@ export function Payment () {
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
           chat_id: TELEGRAM_CHAT_ID,
-          text: `🛒 *Нове замовлення!*\n\n👤 Ім'я: ${name}\n📞 Телефон: ${phone}\n📧 Email: ${email}\n🏠 Адреса: ${address}\n📅 Побажання клієнта: ${wish}\n День доставки: ${deliveryDay}\n💳 Спосіб оплати: ${paymentMethod}\n\n🧾 Замовлення:\n${orderDetails}\n\n💰 Сума товарів: ${totalPrice.toFixed(
-            2
-          )} грн\n🚚 Доставка: ${
-            deliveryCost === 0 ? 'Безкоштовно' : '50 грн'
-          }\n💳 Разом з доставкою: ${totalWithDelivery.toFixed(2)} грн`,
+          text: `🛒 *Нове замовлення!*\n
+👤 Ім'я: ${name}
+📞 Телефон: ${phone}
+📧 Email: ${email}
+🏙 Місто: ${city}
+🏠 Адреса: ${address}
+📝 Коментар: ${wish || 'Без коментарів'}
+
+🚚 Тип доставки: ${isOtherCity ? 'Пошта (передоплата)' : 'Курʼєр по Запоріжжю'}
+📅 День доставки: Сьогодні (${deliveryDay})
+💳 Спосіб оплати: ${paymentMethod}
+
+🧾 Замовлення:
+${orderDetails}
+
+💰 Сума товарів: ${totalPrice.toFixed(2)} грн
+🚚 Доставка: ${deliveryCost === 0 ? 'Безкоштовно' : '80 грн'}
+💳 Разом: ${totalWithDelivery.toFixed(2)} грн`,
           parse_mode: 'Markdown'
         }
       )
@@ -92,24 +117,7 @@ export function Payment () {
         <div>
           <p className='font-bold'>Замовлення успішно оформлено! 🎉</p>
           <p className='text-sm mt-1'>Очікуйте дзвінка для підтвердження</p>
-        </div>,
-        {
-          duration: 5000,
-          icon: (
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              className='text-green-500 text-xl'
-            />
-          ),
-          style: {
-            borderRadius: '12px',
-            background: '#f0fdf4',
-            color: '#166534',
-            padding: '16px 20px',
-            border: '1px solid #bbf7d0',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }
-        }
+        </div>
       )
 
       clearCart()
@@ -119,16 +127,7 @@ export function Payment () {
         <div>
           <p className='font-bold'>Помилка при оформленні 😢</p>
           <p className='text-sm mt-1'>Будь ласка, спробуйте ще раз</p>
-        </div>,
-        {
-          style: {
-            borderRadius: '12px',
-            background: '#fef2f2',
-            color: '#b91c1c',
-            padding: '16px 20px',
-            border: '1px solid #fecaca'
-          }
-        }
+        </div>
       )
     } finally {
       setIsSubmitting(false)
@@ -148,6 +147,7 @@ export function Payment () {
             Повернутися до кошика
           </Link>
 
+          {/* HEADER */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -161,7 +161,7 @@ export function Payment () {
           </motion.div>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            {/* Order Summary */}
+            {/* ORDER SUMMARY */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -228,7 +228,6 @@ export function Payment () {
               </div>
 
               <div className='p-6 bg-amber-50 border-t border-amber-200'>
-                {/* Блок с информацией о бесплатной доставке */}
                 {totalPrice < 500 && (
                   <div className='mb-4 p-3 bg-amber-100 rounded-lg flex items-start'>
                     <FontAwesomeIcon
@@ -241,7 +240,7 @@ export function Payment () {
                         {(500 - totalPrice).toFixed(2)} грн
                       </p>
                       <p className='text-sm text-amber-700 mt-1'>
-                        При замовленні від 500 грн - доставка безкоштовна
+                        При замовленні від 500 грн — доставка безкоштовна
                       </p>
                     </div>
                   </div>
@@ -260,11 +259,12 @@ export function Payment () {
                       {deliveryCost === 0 ? (
                         <span className='text-green-600'>Безкоштовно</span>
                       ) : (
-                        '50 грн'
+                        '80 грн'
                       )}
                     </span>
                   </div>
                 </div>
+
                 <div className='flex justify-between items-center pt-4 border-t border-amber-200'>
                   <span className='text-lg font-semibold'>Разом:</span>
                   <span className='text-xl font-bold text-amber-700'>
@@ -274,7 +274,7 @@ export function Payment () {
               </div>
             </motion.div>
 
-            {/* Payment Form */}
+            {/* PAYMENT FORM */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -297,6 +297,7 @@ export function Payment () {
                 className='p-6'
               >
                 <div className='space-y-6'>
+                  {/* NAME */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Ім’я та прізвище *
@@ -306,10 +307,13 @@ export function Payment () {
                       name='name'
                       required
                       placeholder="Введіть ваше ім'я"
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
                     />
                   </div>
 
+                  {/* PHONE */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Номер телефону *
@@ -319,10 +323,13 @@ export function Payment () {
                       name='phone'
                       required
                       placeholder='+380XXXXXXXXX'
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
                     />
                   </div>
 
+                  {/* EMAIL */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Email *
@@ -332,10 +339,30 @@ export function Payment () {
                       name='email'
                       required
                       placeholder='your@email.com'
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
                     />
                   </div>
 
+                  {/* CITY */}
+                  <div>
+                    <label className='block text-gray-700 mb-2 font-medium'>
+                      Місто *
+                    </label>
+                    <input
+                      type='text'
+                      name='city'
+                      required
+                      onChange={handleCityChange}
+                      placeholder='Наприклад: Запоріжжя'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
+                    />
+                  </div>
+
+                  {/* ADDRESS */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Адреса доставки *
@@ -345,42 +372,13 @@ export function Payment () {
                       rows='3'
                       required
                       placeholder='Введіть повну адресу доставки'
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
                     ></textarea>
                   </div>
 
-                  <div>
-                    <label className='block text-gray-700 mb-2 font-medium'>
-                      Оберіть день доставки *
-                    </label>
-                    <div className='grid grid-cols-2 gap-3'>
-                      <label className='flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'>
-                        <input
-                          type='radio'
-                          name='deliveryDay'
-                          value='Середа'
-                          required
-                          className='h-5 w-5 text-amber-600 focus:ring-amber-500'
-                        />
-                        <div>
-                          <span className='font-medium'>Середа</span>
-                          <p className='text-sm text-gray-500'>10:00 - 20:00</p>
-                        </div>
-                      </label>
-                      <label className='flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'>
-                        <input
-                          type='radio'
-                          name='deliveryDay'
-                          value='Субота'
-                          className='h-5 w-5 text-amber-600 focus:ring-amber-500'
-                        />
-                        <div>
-                          <span className='font-medium'>Субота</span>
-                          <p className='text-sm text-gray-500'>10:00 - 20:00</p>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
+                  {/* COMMENT */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
                       Коментар до замовлення
@@ -389,10 +387,13 @@ export function Payment () {
                       name='wish'
                       rows='3'
                       placeholder='Введіть коментар до замовлення'
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition'
+                      className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                      focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                      outline-none transition'
                     ></textarea>
                   </div>
 
+                  {/* PAYMENT METHOD — UPDATED */}
                   <div className='border-t border-amber-200 pt-6'>
                     <h3 className='text-lg font-medium text-gray-800 mb-4 flex items-center'>
                       <FontAwesomeIcon
@@ -401,32 +402,67 @@ export function Payment () {
                       />
                       Спосіб оплати
                     </h3>
+
                     <div className='space-y-3'>
-                      <label className='flex items-start space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'>
+                      {!isOtherCity && (
+                        <label
+                          className='flex items-start space-x-3 p-3 border border-amber-200 
+                        rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'
+                        >
+                          <input
+                            type='radio'
+                            name='payment'
+                            value='Готівкою при отриманні'
+                            defaultChecked
+                            className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
+                          />
+                          <div>
+                            <span className='font-medium'>
+                              Готівкою при отриманні
+                            </span>
+                            <p className='text-sm text-gray-500 mt-1'>
+                              Доступно лише у Запоріжжі
+                            </p>
+                          </div>
+                        </label>
+                      )}
+
+                      <label
+                        className='flex items-start space-x-3 p-3 border border-amber-200 
+                      rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'
+                      >
                         <input
                           type='radio'
                           name='payment'
-                          value='Готівкою при отриманні'
-                          defaultChecked
+                          value='Передоплата'
+                          defaultChecked={isOtherCity}
                           className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
                         />
                         <div>
-                          <span className='font-medium'>
-                            Готівкою при отриманні
-                          </span>
+                          <span className='font-medium'>Передоплата</span>
                           <p className='text-sm text-gray-500 mt-1'>
-                            Оплата кур'єру при отриманні замовлення
+                            Для інших міст — тільки передоплата
                           </p>
                         </div>
                       </label>
                     </div>
+
+                    {isOtherCity && (
+                      <p className='mt-3 text-sm text-amber-700'>
+                        Ви обрали місто поза Запоріжжям — доступна лише доставка
+                        поштою та передоплата.
+                      </p>
+                    )}
                   </div>
 
+                  {/* SUBMIT */}
                   <div className='pt-4'>
                     <button
                       type='submit'
                       disabled={isSubmitting || cartItems.length === 0}
-                      className={`w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium rounded-lg flex items-center justify-center space-x-2 transition-all ${
+                      className={`w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 
+                      hover:from-amber-600 hover:to-amber-700 text-white font-medium 
+                      rounded-lg flex items-center justify-center space-x-2 transition-all ${
                         isSubmitting || cartItems.length === 0
                           ? 'opacity-70 cursor-not-allowed'
                           : 'hover:shadow-lg'
@@ -466,6 +502,7 @@ export function Payment () {
                   </div>
                 </div>
 
+                {/* INFO BLOCK */}
                 <div className='mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200'>
                   <div className='flex items-start'>
                     <FontAwesomeIcon
@@ -491,11 +528,13 @@ export function Payment () {
             </motion.div>
           </div>
 
+          {/* FOOTER */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className='mt-8 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-5'
+            className='mt-8 bg-gradient-to-r from-amber-50 to-amber-100 border 
+            border-amber-200 rounded-xl p-5'
           >
             <p className='text-gray-700 text-center text-sm'>
               Натискаючи "Підтвердити замовлення", ви погоджуєтесь з нашими{' '}
@@ -517,7 +556,7 @@ export function Payment () {
                 to='/Refund'
                 className='text-amber-700 hover:underline font-medium'
               >
-                Правилами та умовами повернення коштів
+                Правилами повернення коштів
               </Link>
               .
             </p>
