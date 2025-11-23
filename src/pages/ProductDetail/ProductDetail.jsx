@@ -49,7 +49,7 @@ export function ProductDetail () {
   const [selectedPieces, setSelectedPieces] = useState(1)
   const [selectedLiters, setSelectedLiters] = useState(1)
   const [selectedBucketOption, setSelectedBucketOption] = useState('weight') // 'weight' или 'bucket'
-  const [selectedBucketSize, setSelectedBucketSize] = useState(0.7) // размер ведра в кг
+  const [selectedBucketSize, setSelectedBucketSize] = useState(1) // размер ведра в кг
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
@@ -98,7 +98,7 @@ export function ProductDetail () {
   const pieceOptions = [1, 2, 3, 5, 10]
   const literOptions = [0.5, 1, 2, 3, 5]
   const bucketSizeOptions = [
-    { value: 0.7, label: '700 г' },
+    { value: 1, label: '1 кг' },
     { value: 3, label: '3 кг' },
     { value: 5, label: '5 кг' },
     { value: 10, label: '10 кг' }
