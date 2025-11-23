@@ -246,6 +246,13 @@ const ProductCard = ({ product, category, index, onAddToCart }) => {
           fallback={zaglushka}
           priority={priority}
         />
+        {product.localOnly && (
+          <div className='absolute bottom-3 left-3 top-3 z-20'>
+            <span className='px-3 py-1 bg-red-600/90 text-white text-xs font-bold rounded-lg shadow-lg'>
+              Доставка лише по Запоріжжю
+            </span>
+          </div>
+        )}
         {/* Badges */}
         {product.isNew && (
           <div className='absolute top-3 left-3 z-20'>

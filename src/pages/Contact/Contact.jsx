@@ -114,13 +114,7 @@ export function Contacts () {
                 </h3>
                 <ul className='space-y-2'>
                   <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380441234567'>+38 (099) 352-38-68</a>
-                  </li>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380671234567'>+38 (050) 020-36-93</a>
-                  </li>
-                  <li className='text-gray-600 hover:text-amber-600 transition-colors'>
-                    <a href='tel:+380501234567'>+38 (095) 359-89-17</a>
+                    <a href='tel:+380500203693'>+38 (050) 020-36-93</a>
                   </li>
                 </ul>
               </div>
@@ -271,7 +265,7 @@ export function Contacts () {
             </p>
             <div className='flex flex-col sm:flex-row justify-center gap-4'>
               <a
-                href='tel:+380993523868'
+                href='tel:++380500203693'
                 className='inline-block px-6 py-3 bg-white text-amber-600 rounded-xl font-medium hover:bg-gray-100 transition-colors duration-300 shadow-lg'
               >
                 Зателефонувати

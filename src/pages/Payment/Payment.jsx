@@ -18,37 +18,68 @@ import { toast, Toaster } from 'react-hot-toast'
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
+// ====== Хелперы ======
+
+const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
+const phoneRegex = /^\+?\d{10,15}$/
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const calculateItemTotal = item => {
+  const numericPrice = parseFloat(
+    item.price.replace(' грн', '').replace(',', '.')
+  )
+  if (Number.isNaN(numericPrice)) return '0.00'
+  return (numericPrice * item.quantity).toFixed(2)
+}
+
+const buildOrderDetailsText = cartItems =>
+  cartItems
+    .map(
+      item => `${item.name} (${item.weight}) — ${item.price} x ${item.quantity}`
+    )
+    .join('\n')
+
 export function Payment () {
   const { cartItems, clearCart } = useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
+
   const formRef = useRef()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Місто: чи це не Запоріжжя
+  // Чи місто не Запоріжжя
   const [isOtherCity, setIsOtherCity] = useState(false)
 
   // Спосіб доставки: 'courier' | 'nova_poshta'
   const [deliveryType, setDeliveryType] = useState('courier')
 
+  // Выбор дня доставки по Запорожью
+  const [deliveryDayOption, setDeliveryDayOption] = useState('')
+
+  // ====== Обробка зміни міста ======
+
   const handleCityChange = e => {
     const value = e.target.value.trim().toLowerCase()
+
     if (value && value !== 'запоріжжя' && value !== 'запорожье') {
+      // Інші міста — тільки Нова Пошта
       setIsOtherCity(true)
-      setDeliveryType('nova_poshta') // для інших міст тільки НП
+      setDeliveryType('nova_poshta')
+      setDeliveryDayOption('')
     } else {
+      // Запоріжжя — за замовчуванням курʼєр
       setIsOtherCity(false)
-      setDeliveryType('courier') // за замовчуванням курʼєр по Запоріжжю
+      setDeliveryType('courier')
     }
   }
 
-  // Вартість доставки
+  // ====== Розрахунок доставки ======
+
   let deliveryCost = 0
   let deliveryLabel = ''
   let showFreeDeliveryHint = false
 
   if (!isOtherCity && deliveryType === 'courier') {
-    // Кур'єр по Запоріжжю
     if (totalPrice >= 500) {
       deliveryCost = 0
       deliveryLabel = 'Безкоштовно'
@@ -58,13 +89,14 @@ export function Payment () {
       showFreeDeliveryHint = true
     }
   } else if (deliveryType === 'nova_poshta') {
-    // Нова Пошта - за тарифами, не рахуємо в суму
     deliveryCost = 0
     deliveryLabel = 'За тарифами Нової Пошти'
   }
 
   const totalWithDelivery =
     deliveryType === 'courier' ? totalPrice + deliveryCost : totalPrice
+
+  // ====== Сабміт форми ======
 
   const handlePaymentSubmit = async e => {
     e.preventDefault()
@@ -81,44 +113,42 @@ export function Payment () {
     const npBranch =
       deliveryType === 'nova_poshta' ? form['npBranch']?.value.trim() : ''
 
-    // День доставки = сьогодні
-    const deliveryDay = new Date().toLocaleDateString('uk-UA')
+    // День доставки = сегодня только для других городов
+    const currentDay = new Date().toLocaleDateString('uk-UA')
 
-    const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
-    const phoneRegex = /^\+?\d{10,15}$/
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
+    // ====== Валидация ======
     if (!nameRegex.test(name)) {
       setIsSubmitting(false)
-      return toast.error(
-        'Ім’я має містити лише літери та бути не коротше 2 символів'
-      )
+      return toast.error('Ім’я має бути не коротше 2 символів')
     }
+
     if (!phoneRegex.test(phone)) {
       setIsSubmitting(false)
       return toast.error('Введіть коректний номер телефону')
     }
+
     if (!emailRegex.test(email)) {
       setIsSubmitting(false)
       return toast.error('Введіть дійсний Email')
     }
+
     if (!address || address.length < 5) {
       setIsSubmitting(false)
       return toast.error('Адреса повинна містити більше 5 символів')
     }
-    if (deliveryType === 'nova_poshta' && !npBranch) {
+
+    // Требуем выбрать день доставки по Запорожью
+    if (!isOtherCity && deliveryType === 'courier' && !deliveryDayOption) {
       setIsSubmitting(false)
-      return toast.error(
-        'Будь ласка, вкажіть відділення / поштомат Нової Пошти'
-      )
+      return toast.error('Виберіть день доставки: Середа або Субота')
     }
 
-    const orderDetails = cartItems
-      .map(
-        item =>
-          `${item.name} (${item.weight}) — ${item.price} x ${item.quantity}`
-      )
-      .join('\n')
+    if (deliveryType === 'nova_poshta' && !npBranch) {
+      setIsSubmitting(false)
+      return toast.error('Вкажіть відділення Нової Пошти')
+    }
+
+    const orderDetails = buildOrderDetailsText(cartItems)
 
     const deliveryTypeText =
       deliveryType === 'courier' ? 'Курʼєр по Запоріжжю' : 'Нова Пошта'
@@ -130,10 +160,17 @@ export function Payment () {
           : '80 грн (по Запоріжжю)'
         : 'За тарифами Нової Пошти'
 
+    const deliveryDayText =
+      !isOtherCity && deliveryType === 'courier'
+        ? deliveryDayOption
+        : `Сьогодні (${currentDay})`
+
     const totalText =
       deliveryType === 'courier'
         ? `${totalWithDelivery.toFixed(2)} грн`
         : `${totalPrice.toFixed(2)} грн (без вартості доставки Новою Поштою)`
+
+    // ====== Telegram ======
 
     try {
       await axios.post(
@@ -146,14 +183,12 @@ export function Payment () {
 📧 Email: ${email}
 🏙 Місто: ${city}
 🏠 Адреса: ${address}
+
 📝 Коментар: ${wish || 'Без коментарів'}
 
 🚚 Спосіб доставки: ${deliveryTypeText}
-🏤 Відділення НП: ${
-            deliveryType === 'nova_poshta' ? npBranch : 'Не вказано (курʼєр)'
-          }
-📅 День доставки: Сьогодні (${deliveryDay})
-💳 Спосіб оплати: ${paymentMethod}
+📅 День доставки: ${deliveryDayText}
+🏤 Відділення НП: ${deliveryType === 'nova_poshta' ? npBranch : 'Не потрібно'}
 
 🧾 Замовлення:
 ${orderDetails}
@@ -174,26 +209,25 @@ ${orderDetails}
 
       clearCart()
       form.reset()
-      // Скидаємо стани
       setIsOtherCity(false)
       setDeliveryType('courier')
+      setDeliveryDayOption('')
     } catch (error) {
-      toast.error(
-        <div>
-          <p className='font-bold'>Помилка при оформленні 😢</p>
-          <p className='text-sm mt-1'>Будь ласка, спробуйте ще раз</p>
-        </div>
-      )
+      toast.error('Сталася помилка, спробуйте знову 😢')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  // ====== JSX ======
+
   return (
     <div className='min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 py-8 md:py-12'>
       <Toaster position='top-center' />
+
       <div className='container mx-auto px-4'>
         <div className='max-w-5xl mx-auto'>
+          {/* Back link */}
           <Link
             to='/cart'
             className='inline-flex items-center text-amber-700 hover:text-amber-800 font-medium transition-colors mb-6'
@@ -216,7 +250,7 @@ ${orderDetails}
           </motion.div>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            {/* ORDER SUMMARY */}
+            {/* LEFT COLUMN – ORDER SUMMARY */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -258,6 +292,8 @@ ${orderDetails}
                                   ).href
                                 : zaglushka
                             }
+                            alt={item.name}
+                            className='w-full h-full object-cover'
                           />
                         </div>
                         <div className='flex-grow'>
@@ -269,12 +305,7 @@ ${orderDetails}
                           </p>
                         </div>
                         <div className='font-medium text-amber-600'>
-                          {(
-                            parseFloat(
-                              item.price.replace(' грн', '').replace(',', '.')
-                            ) * item.quantity
-                          ).toFixed(2)}{' '}
-                          грн
+                          {calculateItemTotal(item)} грн
                         </div>
                       </div>
                     </motion.div>
@@ -283,7 +314,7 @@ ${orderDetails}
               </div>
 
               <div className='p-6 bg-amber-50 border-t border-amber-200'>
-                {/* Подсказка про бесплатную доставку — только курьер по Запорожью */}
+                {/* FREE DELIVERY HINT */}
                 {showFreeDeliveryHint && (
                   <div className='mb-4 p-3 bg-amber-100 rounded-lg flex items-start'>
                     <FontAwesomeIcon
@@ -292,12 +323,11 @@ ${orderDetails}
                     />
                     <div>
                       <p className='font-medium text-amber-800'>
-                        До безкоштовної курʼєрської доставки по Запоріжжю
-                        залишилось {(500 - totalPrice).toFixed(2)} грн
+                        До безкоштовної доставки залишилось{' '}
+                        {(500 - totalPrice).toFixed(2)} грн
                       </p>
                       <p className='text-sm text-amber-700 mt-1'>
-                        При замовленні від 500 грн — доставка курʼєром по
-                        Запоріжжю безкоштовна
+                        При замовленні від 500 грн — безкоштовно
                       </p>
                     </div>
                   </div>
@@ -334,17 +364,17 @@ ${orderDetails}
                       грн
                     </span>
                   </div>
+
                   {deliveryType === 'nova_poshta' && (
                     <p className='text-xs text-gray-500 mt-1 text-right'>
-                      Вартість доставки Новою Поштою сплачується окремо за
-                      тарифами перевізника.
+                      Вартість доставки сплачується окремо.
                     </p>
                   )}
                 </div>
               </div>
             </motion.div>
 
-            {/* PAYMENT + DELIVERY FORM */}
+            {/* RIGHT COLUMN – FORM */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -505,9 +535,8 @@ ${orderDetails}
                         <div>
                           <span className='font-medium'>Нова Пошта</span>
                           <p className='text-sm text-gray-500 mt-1'>
-                            Відправка на відділення або поштомат Нової Пошти по
-                            Україні. Вартість доставки — за тарифами
-                            перевізника.
+                            Відправка по Україні. Вартість доставки — за
+                            тарифами перевізника.
                           </p>
                         </div>
                       </label>
@@ -515,23 +544,84 @@ ${orderDetails}
 
                     {isOtherCity && (
                       <p className='mt-3 text-sm text-amber-700'>
-                        Ви обрали місто поза Запоріжжям — для вас доступна
-                        тільки доставка Новою Поштою та передоплата.
+                        Ви обрали місто поза Запоріжжям — доступна тільки Нова
+                        Пошта та передоплата.
                       </p>
                     )}
                   </div>
+
+                  {/* DELIVERY DAY — ONLY FOR COURIER ZAPORIZHZHIA */}
+                  {!isOtherCity && deliveryType === 'courier' && (
+                    <div className='mt-6'>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Оберіть день доставки *
+                      </label>
+
+                      <div className='space-y-3'>
+                        {/* WEDNESDAY */}
+                        <label
+                          className={`flex items-start space-x-3 p-3 border border-amber-200 rounded-lg cursor-pointer transition-colors ${
+                            deliveryDayOption === 'Середа'
+                              ? 'bg-amber-50 border-amber-400'
+                              : 'hover:bg-amber-50'
+                          }`}
+                        >
+                          <input
+                            type='radio'
+                            name='deliveryDayOption'
+                            value='Середа'
+                            checked={deliveryDayOption === 'Середа'}
+                            onChange={() => setDeliveryDayOption('Середа')}
+                            className='h-5 w-5 mt-1 text-amber-600'
+                          />
+                          <div>
+                            <span className='font-medium'>Середа</span>
+                            <p className='text-sm text-gray-500 mt-1'>
+                              Доставка у середу (в той же день після
+                              підтвердження).
+                            </p>
+                          </div>
+                        </label>
+
+                        {/* SATURDAY */}
+                        <label
+                          className={`flex items-start space-x-3 p-3 border border-amber-200 rounded-lg cursor-pointer transition-colors ${
+                            deliveryDayOption === 'Субота'
+                              ? 'bg-amber-50 border-amber-400'
+                              : 'hover:bg-amber-50'
+                          }`}
+                        >
+                          <input
+                            type='radio'
+                            name='deliveryDayOption'
+                            value='Субота'
+                            checked={deliveryDayOption === 'Субота'}
+                            onChange={() => setDeliveryDayOption('Субота')}
+                            className='h-5 w-5 mt-1 text-amber-600'
+                          />
+                          <div>
+                            <span className='font-medium'>Субота</span>
+                            <p className='text-sm text-gray-500 mt-1'>
+                              Доставка у суботу (в той же день після
+                              підтвердження).
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  )}
 
                   {/* NP BRANCH */}
                   {deliveryType === 'nova_poshta' && (
                     <div>
                       <label className='block text-gray-700 mb-2 font-medium'>
-                        Відділення / поштомат Нової Пошти *
+                        Відділення / поштомат НП *
                       </label>
                       <input
                         type='text'
                         name='npBranch'
                         required
-                        placeholder='Наприклад: Відділення №5, вул. ...'
+                        placeholder='Наприклад: Відділення №5'
                         className='w-full px-4 py-3 border border-amber-200 rounded-lg 
                         focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
                         outline-none transition'
@@ -547,7 +637,7 @@ ${orderDetails}
                     <textarea
                       name='wish'
                       rows='3'
-                      placeholder='Введіть коментар до замовлення'
+                      placeholder='Ваш коментар'
                       className='w-full px-4 py-3 border border-amber-200 rounded-lg 
                       focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
                       outline-none transition'
@@ -565,40 +655,35 @@ ${orderDetails}
                     </h3>
 
                     <div className='space-y-3'>
+                      {/* CASH ONLY FOR ZAPORIZHZHIA */}
                       {!isOtherCity && (
-                        <label
-                          className='flex items-start space-x-3 p-3 border border-amber-200 
-                        rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'
-                        >
+                        <label className='flex items-start space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'>
                           <input
                             type='radio'
                             name='payment'
                             value='Готівкою при отриманні'
                             defaultChecked
-                            className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
+                            className='h-5 w-5 mt-1 text-amber-600'
                           />
                           <div>
                             <span className='font-medium'>
                               Готівкою при отриманні
                             </span>
                             <p className='text-sm text-gray-500 mt-1'>
-                              Оплата готівкою при отриманні замовлення курʼєром
-                              по Запоріжжю.
+                              Оплата готівкою при отриманні замовлення курʼєром.
                             </p>
                           </div>
                         </label>
                       )}
 
-                      <label
-                        className='flex items-start space-x-3 p-3 border border-amber-200 
-                      rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'
-                      >
+                      {/* PREPAID */}
+                      <label className='flex items-start space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors'>
                         <input
                           type='radio'
                           name='payment'
                           value='Передоплата'
                           defaultChecked={isOtherCity}
-                          className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
+                          className='h-5 w-5 mt-1 text-amber-600'
                         />
                         <div>
                           <span className='font-medium'>Передоплата</span>
@@ -662,22 +747,17 @@ ${orderDetails}
                   <div className='flex items-start'>
                     <FontAwesomeIcon
                       icon={faInfoCircle}
-                      className='text-amber-600 mt-1 mr-3 flex-shrink-0'
+                      className='text-amber-600 mt-1 mr-3'
                     />
-                    <div>
-                      <p className='text-sm text-gray-700'>
-                        Якщо у вас є додаткові питання щодо доставки або оплати,
-                        будь ласка, зателефонуйте до нашої служби підтримки за
-                        номером{' '}
-                        <a
-                          href='tel:+380993523868'
-                          className='text-amber-700 hover:underline font-medium'
-                        >
-                          +38 (099) 352 38 68
-                        </a>
-                        .
-                      </p>
-                    </div>
+                    <p className='text-sm text-gray-700'>
+                      Якщо виникли запитання — телефонуйте:{' '}
+                      <a
+                        href='tel:+380993523868'
+                        className='text-amber-700 hover:underline font-medium'
+                      >
+                        +38 (099) 352 38 68
+                      </a>
+                    </p>
                   </div>
                 </div>
               </form>
@@ -689,11 +769,10 @@ ${orderDetails}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className='mt-8 bg-gradient-to-r from-amber-50 to-amber-100 border 
-            border-amber-200 rounded-xl p-5'
+            className='mt-8 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-5'
           >
             <p className='text-gray-700 text-center text-sm'>
-              Натискаючи "Підтвердити замовлення", ви погоджуєтесь з нашими{' '}
+              Натискаючи "Підтвердити замовлення", ви погоджуєтесь з{' '}
               <Link
                 to='/Terms'
                 className='text-amber-700 hover:underline font-medium'
@@ -712,7 +791,7 @@ ${orderDetails}
                 to='/Refund'
                 className='text-amber-700 hover:underline font-medium'
               >
-                Правилами повернення коштів
+                правилами повернення коштів
               </Link>
               .
             </p>
