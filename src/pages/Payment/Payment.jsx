@@ -25,20 +25,46 @@ export function Payment () {
   const formRef = useRef()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Нове: стежимо за містом
+  // Місто: чи це не Запоріжжя
   const [isOtherCity, setIsOtherCity] = useState(false)
+
+  // Спосіб доставки: 'courier' | 'nova_poshta'
+  const [deliveryType, setDeliveryType] = useState('courier')
 
   const handleCityChange = e => {
     const value = e.target.value.trim().toLowerCase()
     if (value && value !== 'запоріжжя' && value !== 'запорожье') {
       setIsOtherCity(true)
+      setDeliveryType('nova_poshta') // для інших міст тільки НП
     } else {
       setIsOtherCity(false)
+      setDeliveryType('courier') // за замовчуванням курʼєр по Запоріжжю
     }
   }
 
-  const deliveryCost = totalPrice >= 500 ? 0 : 80
-  const totalWithDelivery = totalPrice + deliveryCost
+  // Вартість доставки
+  let deliveryCost = 0
+  let deliveryLabel = ''
+  let showFreeDeliveryHint = false
+
+  if (!isOtherCity && deliveryType === 'courier') {
+    // Кур'єр по Запоріжжю
+    if (totalPrice >= 500) {
+      deliveryCost = 0
+      deliveryLabel = 'Безкоштовно'
+    } else {
+      deliveryCost = 80
+      deliveryLabel = '80 грн'
+      showFreeDeliveryHint = true
+    }
+  } else if (deliveryType === 'nova_poshta') {
+    // Нова Пошта - за тарифами, не рахуємо в суму
+    deliveryCost = 0
+    deliveryLabel = 'За тарифами Нової Пошти'
+  }
+
+  const totalWithDelivery =
+    deliveryType === 'courier' ? totalPrice + deliveryCost : totalPrice
 
   const handlePaymentSubmit = async e => {
     e.preventDefault()
@@ -52,8 +78,10 @@ export function Payment () {
     const address = form['address'].value.trim()
     const wish = form['wish'].value.trim()
     const paymentMethod = form['payment'].value
+    const npBranch =
+      deliveryType === 'nova_poshta' ? form['npBranch']?.value.trim() : ''
 
-    // День доставки тепер = сьогодні
+    // День доставки = сьогодні
     const deliveryDay = new Date().toLocaleDateString('uk-UA')
 
     const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
@@ -78,6 +106,12 @@ export function Payment () {
       setIsSubmitting(false)
       return toast.error('Адреса повинна містити більше 5 символів')
     }
+    if (deliveryType === 'nova_poshta' && !npBranch) {
+      setIsSubmitting(false)
+      return toast.error(
+        'Будь ласка, вкажіть відділення / поштомат Нової Пошти'
+      )
+    }
 
     const orderDetails = cartItems
       .map(
@@ -85,6 +119,21 @@ export function Payment () {
           `${item.name} (${item.weight}) — ${item.price} x ${item.quantity}`
       )
       .join('\n')
+
+    const deliveryTypeText =
+      deliveryType === 'courier' ? 'Курʼєр по Запоріжжю' : 'Нова Пошта'
+
+    const deliveryCostText =
+      deliveryType === 'courier'
+        ? deliveryCost === 0
+          ? 'Безкоштовно (по Запоріжжю)'
+          : '80 грн (по Запоріжжю)'
+        : 'За тарифами Нової Пошти'
+
+    const totalText =
+      deliveryType === 'courier'
+        ? `${totalWithDelivery.toFixed(2)} грн`
+        : `${totalPrice.toFixed(2)} грн (без вартості доставки Новою Поштою)`
 
     try {
       await axios.post(
@@ -99,7 +148,10 @@ export function Payment () {
 🏠 Адреса: ${address}
 📝 Коментар: ${wish || 'Без коментарів'}
 
-🚚 Тип доставки: ${isOtherCity ? 'Пошта (передоплата)' : 'Курʼєр по Запоріжжю'}
+🚚 Спосіб доставки: ${deliveryTypeText}
+🏤 Відділення НП: ${
+            deliveryType === 'nova_poshta' ? npBranch : 'Не вказано (курʼєр)'
+          }
 📅 День доставки: Сьогодні (${deliveryDay})
 💳 Спосіб оплати: ${paymentMethod}
 
@@ -107,8 +159,8 @@ export function Payment () {
 ${orderDetails}
 
 💰 Сума товарів: ${totalPrice.toFixed(2)} грн
-🚚 Доставка: ${deliveryCost === 0 ? 'Безкоштовно' : '80 грн'}
-💳 Разом: ${totalWithDelivery.toFixed(2)} грн`,
+🚚 Доставка: ${deliveryCostText}
+💳 Разом: ${totalText}`,
           parse_mode: 'Markdown'
         }
       )
@@ -122,6 +174,9 @@ ${orderDetails}
 
       clearCart()
       form.reset()
+      // Скидаємо стани
+      setIsOtherCity(false)
+      setDeliveryType('courier')
     } catch (error) {
       toast.error(
         <div>
@@ -228,7 +283,8 @@ ${orderDetails}
               </div>
 
               <div className='p-6 bg-amber-50 border-t border-amber-200'>
-                {totalPrice < 500 && (
+                {/* Подсказка про бесплатную доставку — только курьер по Запорожью */}
+                {showFreeDeliveryHint && (
                   <div className='mb-4 p-3 bg-amber-100 rounded-lg flex items-start'>
                     <FontAwesomeIcon
                       icon={faTruck}
@@ -236,11 +292,12 @@ ${orderDetails}
                     />
                     <div>
                       <p className='font-medium text-amber-800'>
-                        До безкоштовної доставки залишилось{' '}
-                        {(500 - totalPrice).toFixed(2)} грн
+                        До безкоштовної курʼєрської доставки по Запоріжжю
+                        залишилось {(500 - totalPrice).toFixed(2)} грн
                       </p>
                       <p className='text-sm text-amber-700 mt-1'>
-                        При замовленні від 500 грн — доставка безкоштовна
+                        При замовленні від 500 грн — доставка курʼєром по
+                        Запоріжжю безкоштовна
                       </p>
                     </div>
                   </div>
@@ -256,7 +313,9 @@ ${orderDetails}
                   <div className='flex justify-between'>
                     <span className='text-gray-600'>Доставка:</span>
                     <span className='font-medium'>
-                      {deliveryCost === 0 ? (
+                      {deliveryType === 'nova_poshta' ? (
+                        'За тарифами Нової Пошти'
+                      ) : deliveryCost === 0 ? (
                         <span className='text-green-600'>Безкоштовно</span>
                       ) : (
                         '80 грн'
@@ -265,16 +324,27 @@ ${orderDetails}
                   </div>
                 </div>
 
-                <div className='flex justify-between items-center pt-4 border-t border-amber-200'>
-                  <span className='text-lg font-semibold'>Разом:</span>
-                  <span className='text-xl font-bold text-amber-700'>
-                    {totalWithDelivery.toFixed(2)} грн
-                  </span>
+                <div className='flex flex-col items-end pt-4 border-t border-amber-200'>
+                  <div>
+                    <span className='text-lg font-semibold mr-2'>Разом:</span>
+                    <span className='text-xl font-bold text-amber-700'>
+                      {deliveryType === 'courier'
+                        ? totalWithDelivery.toFixed(2)
+                        : totalPrice.toFixed(2)}{' '}
+                      грн
+                    </span>
+                  </div>
+                  {deliveryType === 'nova_poshta' && (
+                    <p className='text-xs text-gray-500 mt-1 text-right'>
+                      Вартість доставки Новою Поштою сплачується окремо за
+                      тарифами перевізника.
+                    </p>
+                  )}
                 </div>
               </div>
             </motion.div>
 
-            {/* PAYMENT FORM */}
+            {/* PAYMENT + DELIVERY FORM */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -287,7 +357,7 @@ ${orderDetails}
                     icon={faWallet}
                     className='mr-3 text-amber-600'
                   />
-                  Дані для оплати
+                  Дані для оплати та доставки
                 </h2>
               </div>
 
@@ -378,6 +448,97 @@ ${orderDetails}
                     ></textarea>
                   </div>
 
+                  {/* DELIVERY TYPE */}
+                  <div className='border-t border-amber-200 pt-6'>
+                    <h3 className='text-lg font-medium text-gray-800 mb-4 flex items-center'>
+                      <FontAwesomeIcon
+                        icon={faTruck}
+                        className='mr-2 text-amber-600'
+                      />
+                      Спосіб доставки
+                    </h3>
+
+                    <div className='space-y-3'>
+                      {!isOtherCity && (
+                        <label
+                          className={`flex items-start space-x-3 p-3 border border-amber-200 rounded-lg cursor-pointer transition-colors ${
+                            deliveryType === 'courier'
+                              ? 'bg-amber-50 border-amber-400'
+                              : 'hover:bg-amber-50'
+                          }`}
+                        >
+                          <input
+                            type='radio'
+                            name='deliveryType'
+                            value='courier'
+                            checked={deliveryType === 'courier'}
+                            onChange={() => setDeliveryType('courier')}
+                            className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
+                          />
+                          <div>
+                            <span className='font-medium'>
+                              Курʼєр по Запоріжжю
+                            </span>
+                            <p className='text-sm text-gray-500 mt-1'>
+                              Доставка курʼєром по місту. При замовленні від 500
+                              грн — безкоштовно, інакше 80 грн.
+                            </p>
+                          </div>
+                        </label>
+                      )}
+
+                      <label
+                        className={`flex items-start space-x-3 p-3 border border-amber-200 rounded-lg cursor-pointer transition-colors ${
+                          deliveryType === 'nova_poshta'
+                            ? 'bg-amber-50 border-amber-400'
+                            : 'hover:bg-amber-50'
+                        }`}
+                      >
+                        <input
+                          type='radio'
+                          name='deliveryType'
+                          value='nova_poshta'
+                          checked={deliveryType === 'nova_poshta'}
+                          onChange={() => setDeliveryType('nova_poshta')}
+                          className='h-5 w-5 mt-1 text-amber-600 focus:ring-amber-500'
+                        />
+                        <div>
+                          <span className='font-medium'>Нова Пошта</span>
+                          <p className='text-sm text-gray-500 mt-1'>
+                            Відправка на відділення або поштомат Нової Пошти по
+                            Україні. Вартість доставки — за тарифами
+                            перевізника.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {isOtherCity && (
+                      <p className='mt-3 text-sm text-amber-700'>
+                        Ви обрали місто поза Запоріжжям — для вас доступна
+                        тільки доставка Новою Поштою та передоплата.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* NP BRANCH */}
+                  {deliveryType === 'nova_poshta' && (
+                    <div>
+                      <label className='block text-gray-700 mb-2 font-medium'>
+                        Відділення / поштомат Нової Пошти *
+                      </label>
+                      <input
+                        type='text'
+                        name='npBranch'
+                        required
+                        placeholder='Наприклад: Відділення №5, вул. ...'
+                        className='w-full px-4 py-3 border border-amber-200 rounded-lg 
+                        focus:ring-2 focus:ring-amber-500 focus:border-amber-500 
+                        outline-none transition'
+                      />
+                    </div>
+                  )}
+
                   {/* COMMENT */}
                   <div>
                     <label className='block text-gray-700 mb-2 font-medium'>
@@ -393,7 +554,7 @@ ${orderDetails}
                     ></textarea>
                   </div>
 
-                  {/* PAYMENT METHOD — UPDATED */}
+                  {/* PAYMENT METHOD */}
                   <div className='border-t border-amber-200 pt-6'>
                     <h3 className='text-lg font-medium text-gray-800 mb-4 flex items-center'>
                       <FontAwesomeIcon
@@ -421,7 +582,8 @@ ${orderDetails}
                               Готівкою при отриманні
                             </span>
                             <p className='text-sm text-gray-500 mt-1'>
-                              Доступно лише у Запоріжжі
+                              Оплата готівкою при отриманні замовлення курʼєром
+                              по Запоріжжю.
                             </p>
                           </div>
                         </label>
@@ -441,18 +603,11 @@ ${orderDetails}
                         <div>
                           <span className='font-medium'>Передоплата</span>
                           <p className='text-sm text-gray-500 mt-1'>
-                            Для інших міст — тільки передоплата
+                            Для замовлень в інші міста — тільки передоплата.
                           </p>
                         </div>
                       </label>
                     </div>
-
-                    {isOtherCity && (
-                      <p className='mt-3 text-sm text-amber-700'>
-                        Ви обрали місто поза Запоріжжям — доступна лише доставка
-                        поштою та передоплата.
-                      </p>
-                    )}
                   </div>
 
                   {/* SUBMIT */}
@@ -511,8 +666,9 @@ ${orderDetails}
                     />
                     <div>
                       <p className='text-sm text-gray-700'>
-                        Якщо вас не влаштовує жоден з днів доставки, будь ласка,
-                        зателефонуйте до нашої служби підтримки за номером{' '}
+                        Якщо у вас є додаткові питання щодо доставки або оплати,
+                        будь ласка, зателефонуйте до нашої служби підтримки за
+                        номером{' '}
                         <a
                           href='tel:+380993523868'
                           className='text-amber-700 hover:underline font-medium'
