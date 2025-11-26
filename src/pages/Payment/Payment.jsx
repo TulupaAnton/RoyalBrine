@@ -54,19 +54,6 @@ const buildOrderDetailsText = cartItems =>
     )
     .join('\n')
 
-// Файл для скачивания
-const downloadOrderFile = (orderNumber, content) => {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `zamovlennya-${orderNumber}.txt`
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-}
-
 export function Payment () {
   const { cartItems, clearCart } = useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
@@ -211,9 +198,6 @@ ${orderDetails}
         }
       )
 
-      // Скачивание файла
-      downloadOrderFile(orderNumber, fileContent)
-
       // Показ модалки
       setShowModal(true)
 
@@ -274,8 +258,6 @@ ${orderDetails}
               </p>
 
               <p className='text-gray-600 text-sm mt-4 leading-relaxed'>
-                Файл з деталями замовлення вже завантажено.
-                <br />
                 Наш менеджер звʼяжеться з вами найближчим часом для
                 підтвердження.
               </p>
