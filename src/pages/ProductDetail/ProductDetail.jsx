@@ -98,10 +98,10 @@ export function ProductDetail () {
   const pieceOptions = [1, 2, 3, 5, 10]
   const literOptions = [0.5, 1, 2, 3, 5]
   const bucketSizeOptions = [
-    { value: 1, label: '1 кг' },
-    { value: 3, label: '3 кг' },
-    { value: 5, label: '5 кг' },
-    { value: 10, label: '10 кг' }
+    { value: 1, label: '1 л' },
+    { value: 3, label: '3 л' },
+    { value: 5, label: '5 л' },
+    { value: 10, label: '10 л' }
   ]
 
   // Расчет цены и отображаемой величины
@@ -124,7 +124,7 @@ export function ProductDetail () {
     } else if (isLiquidProduct) {
       return selectedLiters + ' л'
     } else if (isBucketProduct && selectedBucketOption === 'bucket') {
-      return selectedBucketSize + ' кг (у відрі)'
+      return selectedBucketSize + ' літрів (у відрі)'
     } else {
       return selectedWeight + ' кг'
     }

@@ -265,7 +265,7 @@ export function Contacts () {
             </p>
             <div className='flex flex-col sm:flex-row justify-center gap-4'>
               <a
-                href='tel:++380500203693'
+                href='tel:+380500203693'
                 className='inline-block px-6 py-3 bg-white text-amber-600 rounded-xl font-medium hover:bg-gray-100 transition-colors duration-300 shadow-lg'
               >
                 Зателефонувати

@@ -10,10 +10,7 @@ module.exports = {
         red: colors.rose,
         pink: colors.fuchsia
       },
-      fontFamily: {
-        sans: ['Graphik', 'sans-serif'],
-        serif: ['Merriweather', 'serif']
-      },
+      fontFamily: { google: ['Balsamiq Sans'] },
       spacing: {
         128: '32rem',
         144: '36rem'
