@@ -12,22 +12,23 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.jpg'
-import logoImg from '../../assets/logo1.jpg'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
-// import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import { toast, Toaster } from 'react-hot-toast'
 
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
+// ====== Константы ======
 const FREE_DELIVERY_THRESHOLD = 800
 const COURIER_DELIVERY_COST = 80
 
+// ====== Хелперы ======
 const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
 const phoneRegex = /^\+?\d{10,15}$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+// рандомний номер заказу
 const generateRandomOrder = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
   let res = ''
@@ -53,6 +54,19 @@ const buildOrderDetailsText = cartItems =>
     )
     .join('\n')
 
+// Файл для скачивания
+const downloadOrderFile = (orderNumber, content) => {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `zamovlennya-${orderNumber}.txt`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export function Payment () {
   const { cartItems, clearCart } = useCartStore()
   const totalPrice = useCartStore(state => state.totalPrice())
@@ -65,9 +79,11 @@ export function Payment () {
   const [deliveryType, setDeliveryType] = useState('courier')
   const [deliveryDayOption, setDeliveryDayOption] = useState('')
 
+  // Модалка подтверждения
   const [showModal, setShowModal] = useState(false)
   const [lastOrderNumber, setLastOrderNumber] = useState(null)
 
+  // Изменение города
   const handleCityChange = e => {
     const value = e.target.value.trim().toLowerCase()
     if (value && value !== 'запоріжжя' && value !== 'запорожье') {
@@ -80,25 +96,23 @@ export function Payment () {
     }
   }
 
+  // Расчёт доставки
   let deliveryCost = 0
-  if (!isOtherCity && deliveryType === 'courier') {
-    deliveryCost =
-      totalPrice >= FREE_DELIVERY_THRESHOLD ? 0 : COURIER_DELIVERY_COST
-  }
-
-  // Підказка про безкоштовну доставку
   let showFreeDeliveryHint = false
-  if (
-    !isOtherCity &&
-    deliveryType === 'courier' &&
-    totalPrice < FREE_DELIVERY_THRESHOLD
-  ) {
-    showFreeDeliveryHint = true
+
+  if (!isOtherCity && deliveryType === 'courier') {
+    if (totalPrice >= FREE_DELIVERY_THRESHOLD) {
+      deliveryCost = 0
+    } else {
+      deliveryCost = COURIER_DELIVERY_COST
+      showFreeDeliveryHint = true
+    }
   }
 
   const totalWithDelivery =
     deliveryType === 'courier' ? totalPrice + deliveryCost : totalPrice
 
+  // ====== Submit ======
   const handlePaymentSubmit = async e => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -117,6 +131,7 @@ export function Payment () {
 
     const currentDay = new Date().toLocaleDateString('uk-UA')
 
+    // ===== Валидация =====
     if (!nameRegex.test(name)) {
       setIsSubmitting(false)
       return toast.error('Ім’я має бути не коротше 2 символів')
@@ -135,13 +150,14 @@ export function Payment () {
     }
     if (!isOtherCity && deliveryType === 'courier' && !deliveryDayOption) {
       setIsSubmitting(false)
-      return toast.error('Виберіть день доставки')
+      return toast.error('Виберіть день доставки: Субота')
     }
     if (deliveryType === 'nova_poshta' && !npBranch) {
       setIsSubmitting(false)
       return toast.error('Вкажіть відділення НП')
     }
 
+    // ===== Рандомный номер заказа =====
     const orderNumber = generateRandomOrder()
     setLastOrderNumber(orderNumber)
 
@@ -155,7 +171,19 @@ export function Payment () {
         ? deliveryDayOption
         : `Сьогодні (${currentDay})`
 
+    // ====== Файл (без цен!) ======
+    const fileContent = `Royal Brine — підтвердження замовлення
+
+Номер замовлення: ${orderNumber}
+Дата: ${currentDay}
+
+Ваші товари:
+${cartItems.map(item => `• ${item.name} — ${item.weight}`).join('\n')}
+
+Дякуємо за ваше замовлення! 🧡`
+
     try {
+      // Telegram
       await axios.post(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
@@ -166,36 +194,27 @@ export function Payment () {
 👤 ${name}
 📞 ${phone}
 📧 ${email}
+🏙 ${city}
+🏠 ${address}
 
-🏙 Місто: ${city}
-🏠 Адреса: ${address}
-
-🚚 Доставка: ${deliveryTypeText}
-📅 День: ${deliveryDayText}
-🏤 Відділення НП: ${deliveryType === 'nova_poshta' ? npBranch : 'Не потрібно'}
+🚚 ${deliveryTypeText}
+📅 ${deliveryDayText}
+🏤 ${deliveryType === 'nova_poshta' ? npBranch : 'Не потрібно'}
 
 📝 Коментар: ${wish || 'Без коментарів'}
 
 🧾 Товари:
 ${orderDetails}
 
-💳 Оплата: ${paymentMethod}
-
-💰 *Сума замовлення:* ${totalPrice.toFixed(2)} грн
-🚚 *Доставка:* ${
-            deliveryType === 'nova_poshta'
-              ? 'За тарифами НП'
-              : `${deliveryCost} грн`
-          }
-
-💵 *Разом до оплати:* ${totalWithDelivery.toFixed(2)} грн`,
+💳 Оплата: ${paymentMethod}`,
           parse_mode: 'Markdown'
         }
       )
 
-      // Generate PDF
-      // await generateOrderPDF(orderNumber, currentDay, cartItems)
+      // Скачивание файла
+      downloadOrderFile(orderNumber, fileContent)
 
+      // Показ модалки
       setShowModal(true)
 
       clearCart()
@@ -210,6 +229,7 @@ ${orderDetails}
       setIsSubmitting(false)
     }
   }
+
   // ===== JSX =====
   return (
     <div className='min-h-screen bg-gradient-to-b from-amber-50 via-amber-50 to-amber-100 py-8 md:py-12'>
@@ -254,6 +274,8 @@ ${orderDetails}
               </p>
 
               <p className='text-gray-600 text-sm mt-4 leading-relaxed'>
+                Файл з деталями замовлення вже завантажено.
+                <br />
                 Наш менеджер звʼяжеться з вами найближчим часом для
                 підтвердження.
               </p>
