@@ -96,7 +96,7 @@ export function ProductDetail () {
   // Опции в зависимости от типа товара
   const weightOptions = [0.5, 1, 2, 3]
   const pieceOptions = [1, 2, 3, 5, 10]
-  const literOptions = [0.5, 1, 2, 3, 5]
+  const literOptions = [1, 2, 3, 5]
   const bucketSizeOptions = [
     { value: 1, label: '1 кг' },
     { value: 3, label: '3 кг' },
