@@ -15,6 +15,7 @@ import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
+import { supabase } from '../../lib/supabase'
 
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
@@ -28,7 +29,7 @@ const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
 const phoneRegex = /^\+?\d{10,15}$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// рандомний номер заказу
+// Рандомний номер замовлення
 const generateRandomOrder = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
   let res = ''
@@ -36,6 +37,22 @@ const generateRandomOrder = () => {
     res += chars[Math.floor(Math.random() * chars.length)]
   }
   return `RB-${res}`
+}
+
+// ===== Supabase: запис замовлення =====
+const sendToSupabase = async orderData => {
+  const { data, error } = await supabase
+    .from('orders')
+    .insert([orderData])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Supabase insert error:', error)
+    throw error
+  }
+
+  return data
 }
 
 const calculateItemTotal = item => {
@@ -66,11 +83,9 @@ export function Payment () {
   const [deliveryType, setDeliveryType] = useState('courier')
   const [deliveryDayOption, setDeliveryDayOption] = useState('')
 
-  // Модалка подтверждения
   const [showModal, setShowModal] = useState(false)
   const [lastOrderNumber, setLastOrderNumber] = useState(null)
 
-  // Изменение города
   const handleCityChange = e => {
     const value = e.target.value.trim().toLowerCase()
     if (value && value !== 'запоріжжя' && value !== 'запорожье') {
@@ -83,7 +98,6 @@ export function Payment () {
     }
   }
 
-  // Расчёт доставки
   let deliveryCost = 0
   let showFreeDeliveryHint = false
 
@@ -118,7 +132,7 @@ export function Payment () {
 
     const currentDay = new Date().toLocaleDateString('uk-UA')
 
-    // ===== Валидация =====
+    // Валідація
     if (!nameRegex.test(name)) {
       setIsSubmitting(false)
       return toast.error('Ім’я має бути не коротше 2 символів')
@@ -144,12 +158,13 @@ export function Payment () {
       return toast.error('Вкажіть відділення НП')
     }
 
-    // ===== Рандомный номер заказа =====
+    // ===== № замовлення =====
     const orderNumber = generateRandomOrder()
     setLastOrderNumber(orderNumber)
 
     const orderDetails = buildOrderDetailsText(cartItems)
 
+    // ===== Текстові поля =====
     const deliveryTypeText =
       deliveryType === 'courier' ? 'Курʼєр по Запоріжжю' : 'Нова Пошта'
 
@@ -158,19 +173,32 @@ export function Payment () {
         ? deliveryDayOption
         : `Сьогодні (${currentDay})`
 
-    // ====== Файл (без цен!) ======
-    const fileContent = `Royal Brine — підтвердження замовлення
-
-Номер замовлення: ${orderNumber}
-Дата: ${currentDay}
-
-Ваші товари:
-${cartItems.map(item => `• ${item.name} — ${item.weight}`).join('\n')}
-
-Дякуємо за ваше замовлення! 🧡`
+    // ===== Формуємо дані замовлення для бази =====
+    const orderData = {
+      order_number: orderNumber,
+      // created_at у нас ставиться default now() в БД, можна не передавати
+      name,
+      phone,
+      email,
+      city,
+      address,
+      delivery_type: deliveryTypeText,
+      delivery_day: deliveryDayText,
+      np_branch: npBranch || null,
+      payment_method: paymentMethod,
+      wish: wish || null,
+      cart_items: cartItems
+        .map(item => `${item.name} — ${item.weight} × ${item.quantity}`)
+        .join('\n'),
+      total_price: totalPrice,
+      status: 'Новий'
+    }
 
     try {
-      // Telegram
+      // ===== Запис у Supabase =====
+      await sendToSupabase(orderData)
+
+      // ====== Telegram ======
       await axios.post(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
@@ -190,11 +218,10 @@ ${cartItems.map(item => `• ${item.name} — ${item.weight}`).join('\n')}
 
 📝 Коментар: ${wish || 'Без коментарів'}
 
-
 🧾 Товари:
 ${orderDetails}
 
-Разом : ${totalPrice} грн
+Разом: *${totalPrice} грн*
 💳 Оплата: ${paymentMethod}`,
           parse_mode: 'Markdown'
         }
@@ -202,7 +229,6 @@ ${orderDetails}
 
       // Показ модалки
       setShowModal(true)
-
       clearCart()
       form.reset()
       setIsOtherCity(false)
@@ -210,7 +236,9 @@ ${orderDetails}
       setDeliveryDayOption('')
     } catch (err) {
       console.error(err)
-      toast.error('Сталася помилка! Спробуйте ще раз.')
+      toast.error(
+        'Сталася помилка при оформленні замовлення. Спробуйте ще раз.'
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -644,7 +672,7 @@ ${orderDetails}
                   </button>
 
                   {cartItems.length === 0 && (
-                    <p className='text-xs text-center text-gray-500 mt-2'>
+                    <p className='text-xs текст-center text-gray-500 mt-2'>
                       Додайте товари до кошика, щоб оформити замовлення.
                     </p>
                   )}
