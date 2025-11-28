@@ -190,9 +190,11 @@ ${cartItems.map(item => `• ${item.name} — ${item.weight}`).join('\n')}
 
 📝 Коментар: ${wish || 'Без коментарів'}
 
+
 🧾 Товари:
 ${orderDetails}
 
+Разом : ${totalPrice} грн
 💳 Оплата: ${paymentMethod}`,
           parse_mode: 'Markdown'
         }
