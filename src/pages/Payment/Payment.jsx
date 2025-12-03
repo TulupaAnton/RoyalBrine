@@ -86,15 +86,34 @@ export function Payment () {
   const [showModal, setShowModal] = useState(false)
   const [lastOrderNumber, setLastOrderNumber] = useState(null)
 
+  // ===== Варіанти написання Запоріжжя =====
+  const zaporizhzhiaVariants = [
+    'запоріжжя',
+    'запорожье',
+    'зп',
+    'zaporizhzhia',
+    'zaporozhye',
+    'zaporozhe',
+    'zaporozhja',
+    'запоріжя',
+    'запоріжє',
+    'запорожя',
+    'запороже'
+  ]
+
+  // ===== Функція перевірки міста =====
   const handleCityChange = e => {
     const value = e.target.value.trim().toLowerCase()
-    if (value && value !== 'запоріжжя' && value !== 'запорожье') {
+
+    const isZaporizhzhia = zaporizhzhiaVariants.includes(value)
+
+    if (isZaporizhzhia) {
+      setIsOtherCity(false)
+      setDeliveryType('courier')
+    } else {
       setIsOtherCity(true)
       setDeliveryType('nova_poshta')
       setDeliveryDayOption('')
-    } else {
-      setIsOtherCity(false)
-      setDeliveryType('courier')
     }
   }
 
@@ -123,7 +142,14 @@ export function Payment () {
     const name = form['name'].value.trim()
     const phone = form['phone'].value.trim()
     const email = form['email'].value.trim()
-    const city = form['city'].value.trim()
+    // нормалізація міста
+    const cityRaw = form['city'].value.trim()
+    const cityLower = cityRaw.toLowerCase()
+
+    const normalizedCity = zaporizhzhiaVariants.includes(cityLower)
+      ? 'Запоріжжя'
+      : cityRaw
+
     const address = form['address'].value.trim()
     const wish = form['wish'].value.trim()
     const paymentMethod = form['payment'].value
@@ -180,7 +206,7 @@ export function Payment () {
       name,
       phone,
       email,
-      city,
+      city: normalizedCity,
       address,
       delivery_type: deliveryTypeText,
       delivery_day: deliveryDayText,
@@ -209,7 +235,7 @@ export function Payment () {
 👤 ${name}
 📞 ${phone}
 📧 ${email}
-🏙 ${city}
+🏙 ${normalizedCity}
 🏠 ${address}
 
 🚚 ${deliveryTypeText}
