@@ -1,23 +1,35 @@
-import React, { useEffect } from 'react'
-
+import React, { useEffect, useState } from 'react'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
-import products from '../../data/products.json'
 import { Link } from 'react-router-dom'
+import { database } from '../../lib/productSuperbase'
 
 export function Description () {
+  const [products, setProducts] = useState([])
+
   useEffect(() => {
     AOS.init({ duration: 1000 })
   }, [])
 
-  const limitedProducts = [
-    ...products.pickles,
-    ...products.smoked,
-    ...products.salads,
-    ...products['semi-finished']
-  ].slice(0, 9)
+  // 🔥 Завантаження ДАНИХ із Supabase
+  useEffect(() => {
+    const loadProducts = async () => {
+      const { data, error } = await database
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+
+      if (error) console.log(error)
+      else setProducts(data)
+    }
+
+    loadProducts()
+  }, [])
+
+  // Беремо перші 9 товарів
+  const limitedProducts = products.slice(0, 9)
 
   return (
     <div className='relative'>
@@ -36,6 +48,7 @@ export function Description () {
             >
               Асортимент
             </span>
+
             <h1
               className='text-4xl md:text-5xl font-bold text-white mb-6'
               data-aos='fade-down'
@@ -45,6 +58,7 @@ export function Description () {
                 Наша продукція
               </span>
             </h1>
+
             <div
               className='w-20 h-1 bg-amber-400 mx-auto'
               data-aos='fade-down'
@@ -59,22 +73,29 @@ export function Description () {
           >
             {limitedProducts.map((item, index) => (
               <div
-                key={item.id + item.name}
+                key={item.id}
                 className='bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group'
                 data-aos='flip-up'
                 data-aos-delay={200 + index * 100}
               >
                 <div className='mb-6 h-1 bg-gradient-to-r from-amber-400 to-amber-600 w-16 transition-all duration-500 group-hover:w-24'></div>
+
                 <h2 className='text-2xl font-bold mb-2 uppercase text-gray-800'>
                   {item.name}
                 </h2>
-                <p className='text-gray-600 mb-2'>{item.description}</p>
+
+                <p className='text-gray-600 mb-2 line-clamp-2'>
+                  {item.description}
+                </p>
+
                 <p className='text-gray-700 font-semibold mb-1'>
                   Ціна: {item.price}
                 </p>
+
                 <p className='text-gray-700 font-semibold mb-6'>
                   Вага: {item.weight}
                 </p>
+
                 <div className='flex items-center text-amber-600 font-medium'>
                   <Link
                     to={`/product/${item.id}`}
@@ -82,6 +103,7 @@ export function Description () {
                   >
                     Детальніше
                   </Link>
+
                   <FontAwesomeIcon
                     icon={faArrowRight}
                     className='ml-2 transition-transform group-hover:translate-x-1'

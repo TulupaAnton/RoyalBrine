@@ -22,12 +22,22 @@ const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
 // ====== Константы ======
 const FREE_DELIVERY_THRESHOLD = 800
-const COURIER_DELIVERY_COST = 80
+const COURIER_DELIVERY_COST = 80 // базове значення, зараз не використовується напряму
+
+// ===== Райони Запоріжжя =====
+const zapDistricts = [
+  { id: 'shev', name: 'Шевченківський', price: 60 },
+  { id: 'olex', name: 'Олександрівський', price: 70 },
+  { id: 'voz', name: 'Вознесенівський', price: 70 },
+  { id: 'hort', name: 'Хортицький', price: 80 },
+  { id: 'dnipro', name: 'Дніпровський', price: 75 },
+  { id: 'zavod', name: 'Заводський', price: 85 },
+  { id: 'komun', name: 'Комунарський', price: 65 }
+]
 
 // ====== Хелперы ======
 const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
 const phoneRegex = /^\+?\d{10,15}$/
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Рандомний номер замовлення
 const generateRandomOrder = () => {
@@ -86,6 +96,10 @@ export function Payment () {
   const [showModal, setShowModal] = useState(false)
   const [lastOrderNumber, setLastOrderNumber] = useState(null)
 
+  // Новий стейт району
+  const [district, setDistrict] = useState('')
+  const [districtPrice, setDistrictPrice] = useState(0)
+
   // ===== Варіанти написання Запоріжжя =====
   const zaporizhzhiaVariants = [
     'запоріжжя',
@@ -115,6 +129,10 @@ export function Payment () {
       setDeliveryType('nova_poshta')
       setDeliveryDayOption('')
     }
+
+    // при зміні міста скидати район і його ціну
+    setDistrict('')
+    setDistrictPrice(0)
   }
 
   let deliveryCost = 0
@@ -123,8 +141,12 @@ export function Payment () {
   if (!isOtherCity && deliveryType === 'courier') {
     if (totalPrice >= FREE_DELIVERY_THRESHOLD) {
       deliveryCost = 0
+    } else if (districtPrice > 0) {
+      deliveryCost = districtPrice
+      showFreeDeliveryHint = true
     } else {
-      deliveryCost = COURIER_DELIVERY_COST
+      // район ще не обраний, але показуємо підказку до безкоштовної доставки
+      deliveryCost = 0
       showFreeDeliveryHint = true
     }
   }
@@ -141,7 +163,7 @@ export function Payment () {
 
     const name = form['name'].value.trim()
     const phone = form['phone'].value.trim()
-    const email = form['email'].value.trim()
+
     // нормалізація міста
     const cityRaw = form['city'].value.trim()
     const cityLower = cityRaw.toLowerCase()
@@ -158,6 +180,8 @@ export function Payment () {
 
     const currentDay = new Date().toLocaleDateString('uk-UA')
 
+    const selectedDistrict = zapDistricts.find(d => d.id === district)
+
     // Валідація
     if (!nameRegex.test(name)) {
       setIsSubmitting(false)
@@ -167,10 +191,7 @@ export function Payment () {
       setIsSubmitting(false)
       return toast.error('Невірний номер телефону')
     }
-    if (!emailRegex.test(email)) {
-      setIsSubmitting(false)
-      return toast.error('Email некоректний')
-    }
+
     if (!address || address.length < 5) {
       setIsSubmitting(false)
       return toast.error('Адреса занадто коротка')
@@ -178,6 +199,10 @@ export function Payment () {
     if (!isOtherCity && deliveryType === 'courier' && !deliveryDayOption) {
       setIsSubmitting(false)
       return toast.error('Виберіть день доставки: Субота')
+    }
+    if (!isOtherCity && deliveryType === 'courier' && !selectedDistrict) {
+      setIsSubmitting(false)
+      return toast.error('Оберіть район доставки')
     }
     if (deliveryType === 'nova_poshta' && !npBranch) {
       setIsSubmitting(false)
@@ -205,7 +230,6 @@ export function Payment () {
       // created_at у нас ставиться default now() в БД, можна не передавати
       name,
       phone,
-      email,
       city: normalizedCity,
       address,
       delivery_type: deliveryTypeText,
@@ -217,7 +241,9 @@ export function Payment () {
         .map(item => `${item.name} — ${item.weight} × ${item.quantity}`)
         .join('\n'),
       total_price: totalPrice,
-      status: 'Новий'
+      status: 'Новий',
+      district: selectedDistrict ? selectedDistrict.name : null,
+      district_price: selectedDistrict ? selectedDistrict.price : null
     }
 
     try {
@@ -234,12 +260,24 @@ export function Payment () {
 
 👤 ${name}
 📞 ${phone}
-📧 ${email}
 🏙 ${normalizedCity}
-🏠 ${address}
+${
+  !isOtherCity && deliveryType === 'courier'
+    ? `📍 Район: ${selectedDistrict ? selectedDistrict.name : '—'}\n`
+    : ''
+}🏠 ${address}
 
 🚚 ${deliveryTypeText}
 📅 ${deliveryDayText}
+💸 Вартість доставки: ${
+            deliveryType === 'nova_poshta'
+              ? 'За тарифами НП'
+              : totalPrice >= FREE_DELIVERY_THRESHOLD
+              ? 'Безкоштовно'
+              : selectedDistrict
+              ? `${selectedDistrict.price} грн`
+              : '—'
+          }
 🏤 ${deliveryType === 'nova_poshta' ? npBranch : 'Не потрібно'}
 
 📝 Коментар: ${wish || 'Без коментарів'}
@@ -260,6 +298,8 @@ ${orderDetails}
       setIsOtherCity(false)
       setDeliveryType('courier')
       setDeliveryDayOption('')
+      setDistrict('')
+      setDistrictPrice(0)
     } catch (err) {
       console.error(err)
       toast.error(
@@ -419,20 +459,6 @@ ${orderDetails}
                       підтвердження.
                     </p>
                   </div>
-
-                  {/* EMAIL */}
-                  <div className='space-y-1'>
-                    <label className='text-gray-700 font-medium text-sm block'>
-                      Email *
-                    </label>
-                    <input
-                      type='email'
-                      name='email'
-                      required
-                      className='w-full px-4 py-3 border border-amber-200 rounded-lg text-sm md:text-base bg-amber-50/40 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-300 outline-none transition'
-                      placeholder='you@email.com'
-                    />
-                  </div>
                 </div>
 
                 {/* БЛОК: Адреса */}
@@ -502,8 +528,8 @@ ${orderDetails}
                           </p>
                           <p className='text-xs text-gray-500 mt-1'>
                             Доставка по місту. Безкоштовно від{' '}
-                            {FREE_DELIVERY_THRESHOLD} грн, в іншому випадку —{' '}
-                            {COURIER_DELIVERY_COST} грн.
+                            {FREE_DELIVERY_THRESHOLD} грн, інакше — за тарифом
+                            вашого району (від 60 грн).
                           </p>
                         </div>
                       </label>
@@ -535,6 +561,35 @@ ${orderDetails}
                       </p>
                     )}
                   </div>
+
+                  {/* DISTRICT SELECT */}
+                  {!isOtherCity && deliveryType === 'courier' && (
+                    <div className='space-y-2'>
+                      <label className='text-gray-700 font-medium text-sm block'>
+                        Район доставки *
+                      </label>
+
+                      <select
+                        required
+                        value={district}
+                        onChange={e => {
+                          const selected = zapDistricts.find(
+                            d => d.id === e.target.value
+                          )
+                          setDistrict(e.target.value)
+                          setDistrictPrice(selected ? selected.price : 0)
+                        }}
+                        className='w-full px-4 py-3 border border-amber-200 rounded-lg bg-amber-50/40 text-sm focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-300 transition'
+                      >
+                        <option value=''>Оберіть район…</option>
+                        {zapDistricts.map(d => (
+                          <option key={d.id} value={d.id}>
+                            {d.name} — {d.price} грн
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* DELIVERY DAY */}
                   {!isOtherCity && deliveryType === 'courier' && (
@@ -831,9 +886,11 @@ ${orderDetails}
                       <span className='font-semibold'>
                         {deliveryType === 'nova_poshta'
                           ? 'За тарифами НП'
-                          : deliveryCost === 0
+                          : totalPrice >= FREE_DELIVERY_THRESHOLD
                           ? 'Безкоштовно'
-                          : `${COURIER_DELIVERY_COST} грн`}
+                          : districtPrice > 0
+                          ? `${districtPrice.toFixed(2)} грн`
+                          : 'Оберіть район'}
                       </span>
                     </div>
                   </div>
@@ -850,7 +907,12 @@ ${orderDetails}
                       </div>
                       <span className='text-2xl font-extrabold text-amber-700'>
                         {deliveryType === 'courier'
-                          ? totalWithDelivery.toFixed(2)
+                          ? (
+                              totalPrice +
+                              (totalPrice >= FREE_DELIVERY_THRESHOLD
+                                ? 0
+                                : districtPrice || 0)
+                            ).toFixed(2)
                           : totalPrice.toFixed(2)}{' '}
                         грн
                       </span>

@@ -1,11 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../../assets/logo2.jpg'
-import semiFinishedImage from '../../assets/semiFinished.jpg'
+import semiFinishedImage from '../../assets/напівфабрикати.jpg'
 import culinariya from '../../assets/culinary.jpg'
-import smoked from '../../assets/kopchena.jpg'
 import pickles from '../../assets/pickles.jpg'
 import salad from '../../assets/salad.jpg'
+import мʼясніВироби from '../../assets/мʼясніВироби.jpg'
+import FishSRC from '../../assets/FishSRC.jpg'
+
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { motion } from 'framer-motion'
@@ -19,12 +21,21 @@ const categories = [
     catalogLink: '/catalog/pickles',
     comingSoon: false
   },
+
   {
-    id: 'smoked',
-    name: 'Копченості',
-    description: 'Мʼясні та рибні копченості гарячого та холодного копчення',
-    image: smoked,
-    catalogLink: '/catalog/smoked',
+    id: 'meats',
+    name: 'Мʼясні вироби та копчення',
+    description: 'Домашні мʼясні вироби та копчення  ',
+    image: мʼясніВироби,
+    catalogLink: '/catalog/meats',
+    comingSoon: false
+  },
+  {
+    id: 'fish',
+    name: 'Рибні вироби',
+    description: 'Домашні рибні вироби',
+    image: FishSRC,
+    catalogLink: '/catalog/fish',
     comingSoon: false
   },
   {
@@ -35,6 +46,7 @@ const categories = [
     catalogLink: '/catalog/cooking',
     comingSoon: false
   },
+
   {
     id: 'semi-finished',
     name: 'Напівфабрикати',
