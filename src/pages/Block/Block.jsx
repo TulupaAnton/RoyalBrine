@@ -1,58 +1,33 @@
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
-import { motion } from 'framer-motion'
+import React, { useMemo } from 'react'
 
-// Детекция iOS
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight, faGift, faStar } from '@fortawesome/free-solid-svg-icons'
+import { motion } from 'framer-motion'
+import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons'
+// iOS detection
 const isIOS =
   typeof navigator !== 'undefined' &&
   /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
 export function Block () {
-  // Контейнер
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
-  }
-
-  // Элементы
-  const item = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut'
-      }
-    }
-  }
-
-  // Оптимизированные blobs (без spring)
-  const blob = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut'
-      }
-    }
-  }
-
-  // Смарт-CTA
   const hour = new Date().getHours()
-  let ctaText = 'До каталогу'
-  if (hour < 10) ctaText = 'Смакуйте зранку'
-  else if (hour < 16) ctaText = 'Обідній вибір'
-  else ctaText = 'Ситна вечеря'
+
+  const ctaText =
+    hour < 10
+      ? 'Ранкові набори'
+      : hour < 16
+      ? 'Святковий обід'
+      : 'Новорічна вечеря'
+
+  const snowflakes = useMemo(
+    () =>
+      Array.from({ length: isIOS ? 0 : 6 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 2
+      })),
+    []
+  )
 
   const scrollToCategories = () => {
     const el = document.getElementById('categories')
@@ -60,125 +35,129 @@ export function Block () {
   }
 
   return (
-    <div className='relative w-full px-4 py-24 md:p-32 text-center min-h-[80vh] overflow-hidden flex items-center justify-center font-serif'>
-      {/* Видео фон — облегчённая версия для iPhone */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className={
-          'absolute inset-0 w-full h-full object-cover z-0 ' +
-          (isIOS ? 'opacity-10' : 'opacity-20 blur-[2px]')
-        }
-      >
-        <source src='./src/assets/footage.mp4' type='video/mp4' />
-        Ваш браузер не підтримує відео.
-      </video>
-
-      {/* Блики/шары — blur выключен для iOS */}
-      <div className='absolute inset-0 overflow-hidden z-0'>
-        <motion.div
-          variants={blob}
-          initial='hidden'
-          animate='visible'
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)',
-            filter: isIOS ? 'none' : 'blur(40px)'
-          }}
-          className='absolute top-[-40px] left-[-40px] w-48 h-48 rounded-full bg-amber-400 opacity-30'
-        />
-
-        <motion.div
-          variants={blob}
-          initial='hidden'
-          animate='visible'
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)',
-            filter: isIOS ? 'none' : 'blur(40px)'
-          }}
-          className='absolute top-1/3 right-0 w-60 h-60 rounded-full bg-orange-400 opacity-25'
-        />
-
-        <motion.div
-          variants={blob}
-          initial='hidden'
-          animate='visible'
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)',
-            filter: isIOS ? 'none' : 'blur(40px)'
-          }}
-          className='absolute bottom-[-40px] left-1/4 w-64 h-64 rounded-full bg-amber-600 opacity-20'
-        />
-      </div>
+    <section className='relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#7c2d12] to-[#064e3b]'>
+      {/* Лёгкие снежинки (ТОЛЬКО на десктопе) */}
+      {!isIOS &&
+        snowflakes.map(flake => (
+          <motion.div
+            key={flake.id}
+            className='absolute text-white/20 text-xs'
+            style={{ left: flake.left, top: '-10px' }}
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: '100vh', opacity: [0, 1, 0] }}
+            transition={{
+              duration: 6,
+              delay: flake.delay,
+              repeat: Infinity,
+              ease: 'linear'
+            }}
+          >
+            ❄
+          </motion.div>
+        ))}
 
       {/* Контент */}
       <motion.div
-        variants={container}
-        initial='hidden'
-        animate='visible'
-        className='relative z-10 max-w-4xl'
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className='relative z-10 max-w-4xl text-center px-6'
       >
-        <motion.p
-          variants={item}
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)'
-          }}
-          className='text-sm md:text-lg italic text-amber-700 mb-3'
-        >
-          Свіжі домашні страви з доставкою по Запоріжжю.
-        </motion.p>
-
-        <motion.h1
-          variants={item}
-          animate={isIOS ? {} : { opacity: [1, 0.7, 1] }}
-          transition={
-            isIOS ? {} : { repeat: Infinity, duration: 2, ease: 'easeInOut' }
-          }
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)'
-          }}
-          className='text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent 
-                     bg-gradient-to-r from-amber-800 via-orange-700 to-yellow-600 drop-shadow-md'
-        >
+        {/* Заголовок */}
+        <h1 className='text-4xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-yellow-300 via-red-400 to-green-400 bg-clip-text text-transparent'>
           Royal Brine
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          variants={item}
-          style={{
-            willChange: 'transform, opacity',
-            WebkitTransform: 'translateZ(0)'
-          }}
-          className='text-xl md:text-2xl text-amber-900 opacity-90 mb-10 leading-relaxed'
+        <p className='text-lg md:text-2xl text-yellow-100 opacity-90 mb-10'>
+          Святково • Смачно • По-домашньому 🎄
+        </p>
+
+        {/* Кнопка */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={scrollToCategories}
+          className='inline-flex items-center gap-4 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 
+                     text-white px-10 py-5 rounded-full shadow-xl text-lg font-bold transition-all'
         >
-          Смачно. Швидко. По-домашньому.
-        </motion.p>
+          {ctaText}
+          <FontAwesomeIcon icon={faArrowRight} />
+        </motion.button>
 
-        <motion.div variants={item}>
-          <button
-            onClick={scrollToCategories}
-            style={{
-              WebkitTransform: 'translateZ(0)',
-              willChange: 'transform'
-            }}
-            className='inline-flex items-center justify-center bg-amber-800 text-white px-8 py-4 rounded-full 
-                       mt-4 hover:bg-orange-700 transition-all duration-300 hover:scale-105 shadow-lg 
-                       hover:shadow-amber-600/40 group'
-          >
-            <span className='text-lg font-medium'>{ctaText}</span>
-            <FontAwesomeIcon
-              icon={faArrowRight}
-              className='ml-3 text-base transition-transform group-hover:translate-x-1'
-            />
-          </button>
-        </motion.div>
+        {/* Текст под кнопкой */}
+        <div className='mt-10 text-sm md:text-base text-yellow-200'>
+          🎄 Замовляйте до 26 грудня (включно) — гарантована доставка на
+          святковий стіл! <br />
+        </div>
+        <div className='mb-6 flex flex-col items-center mt-10'>
+          <h3 className='text-lg font-bold mb-4 uppercase flex items-center justify-center'>
+            <FontAwesomeIcon icon={faStar} className='text-yellow-400 mr-2' />
+            <span className='bg-gradient-to-r  from-yellow-300 via-amber-300 to-red-300 bg-clip-text text-transparent'>
+              Наші Соцмережі
+            </span>
+          </h3>
+
+          <ul className='text-amber-100 text-sm space-y-4 flex flex-col items-center'>
+            <li>
+              <motion.a
+                href='https://www.instagram.com/royal_brine/'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:text-red-300 flex items-center space-x-2 transition-all duration-300 hover:scale-105 group'
+                whileHover={{ x: 5 }}
+              >
+                <motion.div
+                  className='w-8 h-8 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center shadow-lg'
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <FontAwesomeIcon
+                    icon={faInstagram}
+                    className='w-4 h-4 text-white'
+                  />
+                </motion.div>
+                <div className='text-center'>
+                  <span className='font-medium'>Instagram</span>
+                  <p className='text-xs text-gray-400 group-hover:text-gray-300'>
+                    Новорічні акції та рецепти
+                  </p>
+                </div>
+              </motion.a>
+            </li>
+
+            <li>
+              <motion.a
+                href='https://www.tiktok.com/@royal.brine'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:text-green-300 flex items-center space-x-2 transition-all duration-300 hover:scale-105 group'
+                whileHover={{ x: 5 }}
+              >
+                <motion.div
+                  className='w-8 h-8 rounded-full bg-gradient-to-r from-black to-gray-800 flex items-center justify-center shadow-lg'
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <FontAwesomeIcon
+                    icon={faTiktok}
+                    className='w-4 h-4 text-white'
+                  />
+                </motion.div>
+                <div className='text-center'>
+                  <span className='font-medium'>TikTok</span>
+                  <p className='text-xs text-gray-400 group-hover:text-gray-300'>
+                    Новорічні відео та ідеї
+                  </p>
+                </div>
+              </motion.a>
+            </li>
+          </ul>
+        </div>
       </motion.div>
-    </div>
+
+      {/* Лёгкие glow-слои */}
+      <div className='absolute -top-32 -left-32 w-96 h-96 bg-red-500/20 rounded-full blur-3xl' />
+      <div className='absolute bottom-[-120px] right-[-120px] w-96 h-96 bg-green-500/20 rounded-full blur-3xl' />
+    </section>
   )
 }

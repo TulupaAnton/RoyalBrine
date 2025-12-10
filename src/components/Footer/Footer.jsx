@@ -1,102 +1,218 @@
 import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { motion } from 'framer-motion'
+import { FaGift, FaStar, FaSnowflake, FaTree } from 'react-icons/fa'
 
 export function Footer () {
+  const currentYear = new Date().getFullYear()
+
+  // Новогодние снежинки
+  const snowflakes = Array.from({ length: 15 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    size: Math.random() * 6 + 3,
+    delay: Math.random() * 3
+  }))
+
   return (
-    <footer className='bg-zinc-900 text-white py-14 '>
-      <div className='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12'>
-        {/* Про нас */}
-        <div>
-          <h3 className='text-lg font-bold mb-4 uppercase text-amber-400'>
-            Про нас
-          </h3>
-          <p className='text-gray-400 text-sm leading-relaxed'>
-            Ми пропонуємо найкращі товари для вашого комфорту. Якість, швидкість
-            доставки та турбота про клієнта — наш головний пріоритет.
-          </p>
-        </div>
+    <footer className='bg-gradient-to-b from-green-950 via-red-900 to-green-950 text-white py-14 relative overflow-hidden'>
+      {/* Анимированные снежинки */}
+      <div className='absolute inset-0 pointer-events-none'>
+        {snowflakes.map(flake => (
+          <motion.div
+            key={flake.id}
+            className='absolute text-white/20'
+            style={{
+              left: flake.left,
+              fontSize: `${flake.size}px`
+            }}
+            initial={{ y: -50 }}
+            animate={{ y: '100vh' }}
+            transition={{
+              duration: 3 + Math.random() * 5,
+              delay: flake.delay,
+              repeat: Infinity,
+              ease: 'linear'
+            }}
+          >
+            <FaSnowflake />
+          </motion.div>
+        ))}
+      </div>
 
-        {/* Контакти */}
-        <div>
-          <h3 className='text-lg font-bold mb-4 uppercase text-amber-400'>
-            Контакти
-          </h3>
-          <ul className='text-gray-400 text-sm space-y-2'>
-            <li>📍 Запоріжжя, Україна</li>
-            <li>📞 +38 (099) 352-38-68</li>
-            <li>📧 royalbriner@gmail.com</li>
-            <li>🕒 Пн-Нд: 8:00 – 22:00</li>
-          </ul>
-        </div>
-
-        {/* Соцмережі + Посилання */}
-        <div>
-          <h3 className='text-lg font-bold mb-4 uppercase text-amber-400'>
-            Ми в соцмережах
-          </h3>
-          <ul className='text-gray-400 text-sm space-y-3'>
-            <li>
-              <a
-                href='https://www.instagram.com/royal_brine/'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-amber-400 flex items-center space-x-2 transition'
-              >
-                <FontAwesomeIcon icon={faInstagram} className='w-5 h-5' />
-                <span>Instagram</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href='https://www.tiktok.com/@royal.brine'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-amber-400 flex items-center space-x-2 transition'
-              >
-                <FontAwesomeIcon icon={faTiktok} className='w-5 h-5' />
-                <span>TikTok</span>
-              </a>
-            </li>
-          </ul>
-
-          <h3 className='text-lg font-bold mt-8 mb-4 uppercase text-amber-400'>
-            Посилання
-          </h3>
-          <ul className='text-gray-400 text-sm space-y-2'>
-            <li>
-              <a href='/' className='hover:text-amber-400 transition'>
-                Головна
-              </a>
-            </li>
-            <li>
-              <a
-                href='/catalog/semi-finished'
-                className='hover:text-amber-400 transition'
-              >
-                Товари
-              </a>
-            </li>
-            <li>
-              <a href='/Contact' className='hover:text-amber-400 transition'>
-                Контакти
-              </a>
-            </li>
-            <li>
-              <a href='/terms' className='hover:text-amber-400 transition'>
-                Умови користування
-              </a>
-            </li>
-            <li>
-              <a href='/privacy' className='hover:text-amber-400 transition'>
-                Політика конфіденційності
-              </a>
-            </li>
-          </ul>
+      {/* Новогодние огоньки сверху */}
+      <div className='absolute top-0 left-0 right-0 h-1'>
+        <div className='flex justify-between px-2'>
+          {Array.from({ length: 25 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className='w-2 h-2 rounded-full'
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 1, 0.3]
+              }}
+              transition={{
+                duration: 1,
+                delay: i * 0.1,
+                repeat: Infinity
+              }}
+              style={{
+                backgroundColor:
+                  i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      <div className='border-t border-gray-800 mt-12 pt-6 text-center text-xs text-gray-500'>
-        &copy; {new Date().getFullYear()} RoyalBriner. Всі права захищені.
+      <div className='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12 relative z-10'>
+        {/* Про нас с новогодней темой */}
+        <div>
+          <h3 className='text-lg font-bold mb-4 uppercase flex items-center'>
+            <FaTree className='text-green-400 mr-2' />
+            <span className='bg-gradient-to-r from-amber-300 via-yellow-300 to-green-300 bg-clip-text text-transparent'>
+              З Новим Роком!
+            </span>
+          </h3>
+          <p className='text-amber-100 text-sm leading-relaxed'>
+            Готуємо ваш новорічний стіл з любов'ю та турботою! 🎄 Найсвіжіші
+            інгредієнти, традиційні рецепти та швидка доставка по Запоріжжю.
+            Нехай ваші свята будуть смачними!
+          </p>
+
+          {/* Новогоднее предложение */}
+          <div className='mt-4 p-3 bg-gradient-to-r from-red-900/30 to-green-900/30 rounded-lg border border-amber-500/30'>
+            <p className='text-xs text-amber-100'>
+              🎁 <span className='font-bold'>До 26 грудня:</span> Безкоштовна
+              доставка замовлень від 800 грн (у місті Запоріжжя)
+            </p>
+          </div>
+        </div>
+
+        {/* Контакти с праздничным оформлением */}
+        <div>
+          <h3 className='text-lg font-bold mb-4 uppercase flex items-center'>
+            <FaGift className='text-red-400 mr-2' />
+            <span className='bg-gradient-to-r from-red-300 via-pink-300 to-amber-300 bg-clip-text text-transparent'>
+              Новорічні контакти
+            </span>
+          </h3>
+          <ul className='text-amber-100 text-sm space-y-2'>
+            <li className='flex items-center'>
+              <span className='w-5 h-5 mr-2 bg-red-500 rounded-full flex items-center justify-center text-xs'>
+                📍
+              </span>
+              <span>Запоріжжя, Україна</span>
+            </li>
+            <li className='flex items-center'>
+              <span className='w-5 h-5 mr-2 bg-green-500 rounded-full flex items-center justify-center text-xs'>
+                📞
+              </span>
+              <span>+38 (099) 352-38-68</span>
+            </li>
+            <li className='flex items-center'>
+              <span className='w-5 h-5 mr-2 bg-yellow-500 rounded-full flex items-center justify-center text-xs'>
+                📧
+              </span>
+              <span>royalbriner@gmail.com</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Соцмережі + Посиланния с праздничным стилем */}
+        <div>
+          <div>
+            <h3 className='text-lg font-bold mt-6 mb-4 uppercase flex items-center'>
+              <FaSnowflake className='text-blue-300 mr-2' />
+              <span className='bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent'>
+                Корисні посилання
+              </span>
+            </h3>
+            <ul className='text-amber-100 text-sm space-y-2'>
+              <li>
+                <motion.a
+                  href='/'
+                  className='hover:text-yellow-300 transition-all duration-300 flex items-center group'
+                  whileHover={{ x: 5 }}
+                >
+                  <span className='mr-2 group-hover:scale-110 transition-transform'>
+                    🏠
+                  </span>
+                  <span>Новорічна головна</span>
+                </motion.a>
+              </li>
+              <li>
+                <motion.a
+                  href='/catalog/semi-finished'
+                  className='hover:text-red-300 transition-all duration-300 flex items-center group'
+                  whileHover={{ x: 5 }}
+                >
+                  <span className='mr-2 group-hover:scale-110 transition-transform'>
+                    🎁
+                  </span>
+                  <span>Новорічні товари</span>
+                </motion.a>
+              </li>
+              <li>
+                <motion.a
+                  href='/Contact'
+                  className='hover:text-green-300 transition-all duration-300 flex items-center group'
+                  whileHover={{ x: 5 }}
+                >
+                  <span className='mr-2 group-hover:scale-110 transition-transform'>
+                    📞
+                  </span>
+                  <span>Святкові контакти</span>
+                </motion.a>
+              </li>
+              <li>
+                <motion.a
+                  href='/terms'
+                  className='hover:text-amber-300 transition-all duration-300 flex items-center group'
+                  whileHover={{ x: 5 }}
+                >
+                  <span className='mr-2 group-hover:scale-110 transition-transform'>
+                    📄
+                  </span>
+                  <span>Умови користування</span>
+                </motion.a>
+              </li>
+              <li>
+                <motion.a
+                  href='/privacy'
+                  className='hover:text-blue-300 transition-all duration-300 flex items-center group'
+                  whileHover={{ x: 5 }}
+                >
+                  <span className='mr-2 group-hover:scale-110 transition-transform'>
+                    🔒
+                  </span>
+                  <span>Політика конфіденційності</span>
+                </motion.a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Новогодний разделитель */}
+      <div className='relative mt-12 pt-6 border-t border-amber-500/30'>
+        <div className='text-center text-sm text-amber-200'>
+          <p className='mb-2'>
+            Зима {currentYear} | З Новим Роком та Різдвом Христовим! 🎅✨
+          </p>
+        </div>
+      </div>
+
+      <div className='text-center text-xs text-amber-300/70 mt-6'>
+        <motion.div
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          &copy; {currentYear} RoyalBriner. Всі права захищені.
+          <span className='block mt-1 text-amber-400/50'>
+            Зроблено з ❤️ для ваших новорічних свят
+          </span>
+        </motion.div>
       </div>
     </footer>
   )

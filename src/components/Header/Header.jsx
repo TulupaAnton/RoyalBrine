@@ -1,229 +1,247 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   FaBars,
   FaTimes,
   FaShoppingCart,
   FaHome,
-  FaBoxes,
   FaInfoCircle,
   FaPhone,
-  FaHeart
+  FaSnowflake,
+  FaStar,
+  FaGift
 } from 'react-icons/fa'
 import { useCartStore } from '../../store/cartStore'
 import logo from '../../assets/logo1.jpg'
 
 export function Header () {
   const [isOpen, setIsOpen] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
   const cartCount = useCartStore(state => state.cartCount())
 
-  const navLinks = [
-    { name: 'Головна', path: '/', icon: <FaHome className='mr-2' /> },
-    {
-      name: 'Про нас',
-      path: '/about',
-      icon: <FaInfoCircle className='mr-2' />
-    },
-    { name: 'Контакти', path: '/contact', icon: <FaPhone className='mr-2' /> }
-  ]
+  useEffect(() => {
+    const isIOSDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    setIsIOS(isIOSDevice)
+  }, [])
 
-  const menuVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
+  // Блокировка скролла — iOS фикс
+  useEffect(() => {
+    if (isOpen) {
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
     }
-  }
+  }, [isOpen])
 
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-  }
+  const navLinks = useMemo(
+    () => [
+      { name: 'Головна', path: '/', icon: <FaHome className='mr-2' /> },
+      {
+        name: 'Про нас',
+        path: '/about',
+        icon: <FaInfoCircle className='mr-2' />
+      },
+      { name: 'Контакти', path: '/contact', icon: <FaPhone className='mr-2' /> }
+    ],
+    []
+  )
+
+  // Лёгкие снежинки (очень мало элементов)
+  const snowflakes = useMemo(
+    () =>
+      Array.from({ length: isIOS ? 3 : 6 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 1,
+        duration: 3 + Math.random() * 3
+      })),
+    [isIOS]
+  )
+
+  const garlands = useMemo(
+    () =>
+      Array.from({ length: isIOS ? 10 : 16 }).map((_, i) => ({
+        id: i,
+        color: ['#dc2626', '#16a34a', '#fbbf24'][i % 3]
+      })),
+    [isIOS]
+  )
+
+  const handleLinkClick = () => setIsOpen(false)
 
   return (
-    <header className='bg-gradient-to-b from-amber-800 to-amber-900 shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-opacity-90'>
-      <div className='container mx-auto px-4 py-3'>
-        <div className='flex justify-between items-center'>
+    <header className='bg-gradient-to-b from-green-900 via-red-800 to-green-900 shadow-lg sticky top-0 z-50 overflow-hidden relative'>
+      {/* ❄ Лёгкие снежинки только на десктопе */}
+      {!isIOS && (
+        <div className='absolute inset-0 pointer-events-none'>
+          {snowflakes.map(flake => (
+            <motion.div
+              key={flake.id}
+              className='absolute text-white/20'
+              style={{ left: flake.left, top: '-10px' }}
+              initial={{ y: -10 }}
+              animate={{ y: '100vh' }}
+              transition={{
+                duration: flake.duration,
+                delay: flake.delay,
+                repeat: Infinity,
+                ease: 'linear'
+              }}
+            >
+              <FaSnowflake className='text-[10px]' />
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* ✨ Упрощённые огоньки */}
+      <div className='absolute top-0 left-0 right-0 h-[2px] flex justify-between'>
+        {garlands.map((g, i) => (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className='flex items-center space-x-8'
-          >
-            <Link to='/' className='flex items-center'>
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className='text-2xl font-bold text-white flex items-center'
-              >
-                <motion.span
-                  whileHover={{ rotate: 5, scale: 1.1 }}
-                  className='bg-gradient-to-br from-amber-500 to-amber-700 p-2 rounded-lg mr-3 shadow-lg flex items-center justify-center'
-                  style={{
-                    boxShadow:
-                      '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                >
+            key={g.id}
+            className='w-[2px] h-[2px]'
+            animate={!isIOS ? { opacity: [0.5, 1, 0.5] } : {}}
+            transition={{
+              duration: 1.4,
+              delay: i * 0.12,
+              repeat: Infinity
+            }}
+            style={{ backgroundColor: g.color }}
+          />
+        ))}
+      </div>
+
+      <div className='container mx-auto px-4 py-2 relative z-10'>
+        <div className='flex justify-between items-center'>
+          <div className='flex items-center space-x-4 md:space-x-8'>
+            {/* LOGO */}
+            <Link
+              to='/'
+              className='flex items-center'
+              onClick={handleLinkClick}
+            >
+              <div className='relative'>
+                <div className='bg-gradient-to-br from-red-600 via-white to-green-600 p-1.5 md:p-2 rounded-full shadow-lg'>
                   <img
                     src={logo}
-                    alt='Royal Brine Logo'
-                    className='w-8 h-8 object-contain filter drop-shadow-md'
-                    style={{
-                      filter: 'drop-shadow(0 2px 1px rgba(0, 0, 0, 0.2))'
-                    }}
+                    alt='Royal Brine'
+                    className='w-6 h-6 md:w-8 md:h-8 rounded-full object-cover'
                   />
-                </motion.span>
-                <motion.span
-                  className='bg-gradient-to-r from-amber-300 via-amber-200 to-amber-100 bg-clip-text text-transparent'
-                  style={{
-                    textShadow: '0 2px 4px rgba(180, 83, 9, 0.3)',
-                    fontSize: '1.5rem',
-                    lineHeight: '2rem'
-                  }}
-                >
+                </div>
+                <FaStar className='absolute -top-0.5 -right-0.5 text-yellow-300 text-[8px] md:text-xs' />
+              </div>
+
+              <div className='ml-2 md:ml-3'>
+                <div className='bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent text-lg md:text-xl font-bold'>
                   Royal Brine
-                </motion.span>
-              </motion.span>
+                </div>
+                <div className='text-[10px] md:text-xs text-yellow-300'>
+                  🎄 Новорічні знижки!
+                </div>
+              </div>
             </Link>
 
+            {/* Desktop NAV */}
             <nav className='hidden md:flex items-center space-x-1'>
-              {navLinks.map((link, index) => (
-                <motion.div
+              {navLinks.map(link => (
+                <Link
                   key={link.name}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  to={link.path}
+                  className='px-3 py-1.5 rounded-lg flex items-center text-white hover:bg-white/20 border border-transparent hover:border-white/30 transition'
                 >
-                  <Link
-                    to={link.path}
-                    className='relative group px-4 py-2 rounded-lg flex items-center text-amber-100 hover:bg-amber-700/50 transition-all duration-300'
-                  >
-                    {link.icon}
-                    <span>{link.name}</span>
-                    <span className='absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-amber-300 transition-all duration-300 group-hover:w-3/4'></span>
-                  </Link>
-                </motion.div>
+                  <span className='mr-1.5'>{link.icon}</span>
+                  {link.name}
+                </Link>
               ))}
             </nav>
-          </motion.div>
-
-          <div className='flex items-center space-x-4'>
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className='relative'
-            ></motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className='relative'
-            >
-              <Link
-                to='/cart'
-                className='p-2 rounded-full bg-amber-700/30 hover:bg-amber-700/50 transition-colors flex items-center justify-center relative'
-              >
-                <FaShoppingCart className='text-xl text-amber-100' />
-                {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className='absolute -top-1 -right-1 bg-amber-400 text-amber-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md'
-                  >
-                    {cartCount}
-                  </motion.span>
-                )}
-              </Link>
-            </motion.div>
-
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              className='md:hidden text-xl z-50 p-2 rounded-full bg-amber-700/30 hover:bg-amber-700/50 text-amber-100 transition-colors'
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label='Menu'
-            >
-              {isOpen ? <FaTimes /> : <FaBars />}
-            </motion.button>
           </div>
 
-          <AnimatePresence>
-            {isOpen && (
-              <>
-                {/* Overlay with blur effect */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className='fixed inset-0 bg-black/30 backdrop-blur-lg z-30'
-                  onClick={() => setIsOpen(false)}
-                />
+          {/* CART & BURGER */}
+          <div className='flex items-center space-x-3 md:space-x-4'>
+            <Link
+              to='/cart'
+              className='p-1.5 md:p-2 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center border border-white/30 relative'
+              onClick={handleLinkClick}
+            >
+              <FaGift className='text-lg md:text-xl text-white' />
+              {cartCount > 0 && (
+                <span className='absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-yellow-500 text-white text-[10px] font-bold rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center border border-white'>
+                  {cartCount}
+                </span>
+              )}
+            </Link>
 
-                {/* Mobile menu */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className='fixed top-20 right-4 left-4 z-40 bg-gradient-to-b from-amber-800 to-amber-900 rounded-xl shadow-2xl overflow-hidden border border-amber-700/50'
-                  onClick={e => e.stopPropagation()}
-                >
-                  <motion.div
-                    variants={menuVariants}
-                    initial='hidden'
-                    animate='visible'
-                    className='divide-y divide-amber-700/30'
-                  >
-                    {navLinks.map((link, index) => (
-                      <motion.div
-                        key={link.name}
-                        variants={itemVariants}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        <Link
-                          to={link.path}
-                          className='flex items-center px-6 py-4 text-lg text-amber-100 hover:bg-amber-700/30 transition-colors'
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {link.icon}
-                          <span>{link.name}</span>
-                        </Link>
-                      </motion.div>
-                    ))}
-                    <motion.div
-                      variants={itemVariants}
-                      className='px-6 py-4 bg-amber-700/20'
-                    >
-                      <Link
-                        to='/cart'
-                        className='flex items-center justify-between text-lg font-medium text-amber-50'
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <div className='flex items-center'>
-                          <FaShoppingCart className='mr-3 text-amber-200' />
-                          <span>Кошик</span>
-                        </div>
-                        {cartCount > 0 && (
-                          <span className='bg-amber-400 text-amber-900 text-sm font-bold rounded-full px-2.5 py-1 shadow-sm'>
-                            {cartCount}
-                          </span>
-                        )}
-                      </Link>
-                    </motion.div>
-                  </motion.div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+            {/* BURGER */}
+            <button
+              className='md:hidden text-xl z-50 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/30'
+              onClick={() => setIsOpen(prev => !prev)}
+            >
+              {isOpen ? <FaTimes /> : <FaBars />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* MOBILE MENU */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* overlay */}
+            <motion.div
+              className='fixed inset-0 bg-black/60 z-40'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* menu */}
+            <motion.div
+              className='fixed top-16 right-4 left-4 z-50 bg-gradient-to-b from-green-900 via-red-900 to-green-900 rounded-xl shadow-2xl border border-white/20 overflow-hidden'
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className='h-1 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500' />
+
+              <div className='divide-y divide-white/10'>
+                {navLinks.map(link => (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={handleLinkClick}
+                    className='px-4 py-3 flex items-center text-white hover:text-yellow-300'
+                  >
+                    <span className='mr-3 text-yellow-300'>{link.icon}</span>
+                    {link.name}
+                  </Link>
+                ))}
+
+                <Link
+                  to='/cart'
+                  onClick={handleLinkClick}
+                  className='px-4 py-3 flex justify-between items-center text-white hover:text-yellow-300'
+                >
+                  <div className='flex items-center'>
+                    <FaGift className='mr-3 text-yellow-300' />
+                    Кошик
+                  </div>
+                  {cartCount > 0 && (
+                    <span className='bg-gradient-to-r from-red-500 to-yellow-500 text-white text-xs font-bold rounded-full px-2 py-1'>
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   )
 }

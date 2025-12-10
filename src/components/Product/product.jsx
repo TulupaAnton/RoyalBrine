@@ -1,17 +1,22 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { FaGift } from 'react-icons/fa'
+
 import logo from '../../assets/logo2.jpg'
 import semiFinishedImage from '../../assets/напівфабрикати.jpg'
 import culinariya from '../../assets/culinary.jpg'
 import pickles from '../../assets/pickles.jpg'
 import salad from '../../assets/salad.jpg'
-import мʼясніВироби from '../../assets/мʼясніВироби.jpg'
-import FishSRC from '../../assets/FishSRC.jpg'
+import meats from '../../assets/мʼясніВироби.jpg'
+import fish from '../../assets/FishSRC.jpg'
 
-import AOS from 'aos'
-import 'aos/dist/aos.css'
-import { motion } from 'framer-motion'
+// iOS detect
+const isIOS =
+  typeof navigator !== 'undefined' &&
+  /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
+// Categories
 const categories = [
   {
     id: 'pickles',
@@ -19,147 +24,166 @@ const categories = [
     description: 'Традиційні домашні соління та маринади',
     image: pickles,
     catalogLink: '/catalog/pickles',
-    comingSoon: false
+    icon: '🥒'
   },
-
   {
     id: 'meats',
-    name: 'Мʼясні вироби та копчення',
-    description: 'Домашні мʼясні вироби та копчення  ',
-    image: мʼясніВироби,
+    name: 'Мʼясні вироби',
+    description: 'Домашні копчення та мʼясні делікатеси',
+    image: meats,
     catalogLink: '/catalog/meats',
-    comingSoon: false
+    icon: '🥩'
   },
   {
     id: 'fish',
     name: 'Рибні вироби',
-    description: 'Домашні рибні вироби',
-    image: FishSRC,
+    description: 'Рибні страви для святкового столу',
+    image: fish,
     catalogLink: '/catalog/fish',
-    comingSoon: false
+    icon: '🐟'
   },
   {
     id: 'cooking',
     name: 'Кулінарія',
-    description: 'Домашня кулінарія за домашніми рецептами',
+    description: 'Домашні страви та гарніри',
     image: culinariya,
     catalogLink: '/catalog/cooking',
-    comingSoon: false
+    icon: '🍲'
   },
-
   {
     id: 'semi-finished',
     name: 'Напівфабрикати',
-    description: 'Домашні пельмені, вареники та інші напівфабрикати',
+    description: 'Пельмені, вареники та заготовки',
     image: semiFinishedImage,
     catalogLink: '/catalog/semi-finished',
-    comingSoon: false
+    icon: '🥟'
   },
   {
     id: 'salads',
     name: 'Салати',
-    description: 'Смачні салати на будь-який смак',
+    description: 'Салати та закуски на будь-який смак',
     image: salad,
     catalogLink: '/catalog/salad',
-    comingSoon: false
+    icon: '🥗'
   }
 ]
 
 export function Product () {
-  return (
-    <div
-      id='categories'
-      className='min-h-[35rem] bg-cover bg-center bg-no-repeat bg-fixed relative py-20 overflow-hidden'
-      style={{ backgroundImage: `url(${logo})` }}
-    >
-      {/* Затемнение */}
-      <div className='absolute inset-0 bg-gradient-to-t from-black/70 to-black/40'></div>
+  // ❄ Оптимизированные снежинки — CSS + лёгкая генерация
+  const snowflakes = useMemo(
+    () =>
+      Array.from({ length: isIOS ? 6 : 10 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        size: `${8 + Math.random() * 10}px`,
+        delay: `${Math.random() * 4}s`,
+        duration: `${6 + Math.random() * 5}s`,
+        drift: `${-20 + Math.random() * 40}px`
+      })),
+    []
+  )
 
+  return (
+    <section
+      id='categories'
+      className='relative py-20 bg-cover bg-center overflow-hidden'
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(17,24,39,0.92), rgba(17,24,39,0.96)), url(${logo})`
+      }}
+    >
+      {/* ❄ Снежинки */}
+      <div className='absolute inset-0 pointer-events-none z-0'>
+        {snowflakes.map(s => (
+          <div
+            key={s.id}
+            className='snowflake'
+            style={{
+              left: s.left,
+              fontSize: s.size,
+              animationDelay: s.delay,
+              animationDuration: s.duration,
+              '--drift': s.drift
+            }}
+          >
+            ❄
+          </div>
+        ))}
+      </div>
+
+      {/* MAIN CONTENT */}
       <div className='relative z-10 container mx-auto px-4'>
         {/* Заголовок */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className='text-center mb-16'
         >
-          <h2 className='text-4xl md:text-5xl font-bold text-white mb-6'>
-            <span className='bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-100 drop-shadow-lg'>
-              Наші категорії
-            </span>
+          <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-300 via-red-400 to-green-400 bg-clip-text text-transparent'>
+            Категорії Royal Brine
           </h2>
-          <div className='w-24 h-1 bg-amber-400 mx-auto rounded-full'></div>
+
+          <p className='mt-4 text-amber-100 text-lg max-w-2xl mx-auto'>
+            Обирайте найсмачніші домашні страви для святкового столу 🎄
+          </p>
+
+          <div className='mt-6 w-32 h-1 mx-auto bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 rounded-full' />
         </motion.div>
 
         {/* Категории */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-          {categories.map((category, i) => (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+          {categories.map((cat, i) => (
             <motion.div
-              key={category.id}
-              initial={{ opacity: 0, y: 30 }}
+              key={cat.id}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
               viewport={{ once: true }}
-              className='group'
+              transition={{ duration: 0.5, delay: i * 0.07 }}
+              whileHover={!isIOS ? { y: -4 } : {}}
             >
-              <div className='bg-white/90 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col relative'>
-                {/* Стрічка "Скоро" */}
-                {category.comingSoon && (
-                  <div className='absolute top-2 left-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-20'>
-                    Скоро
-                  </div>
-                )}
-
-                {/* Картинка */}
-
-                <div className='relative overflow-hidden h-48'>
-                  <motion.img
-                    src={category.image}
-                    alt={category.name}
+              <div className='rounded-2xl overflow-hidden bg-white/95 shadow-lg hover:shadow-xl transition-all duration-300 h-full flex flex-col'>
+                {/* IMG */}
+                <Link
+                  to={cat.catalogLink}
+                  className='block relative h-56 overflow-hidden'
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className='w-full h-full object-cover transition-transform duration-500 hover:scale-105'
                     loading='lazy'
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${
-                      category.comingSoon ? 'opacity-60 grayscale' : ''
-                    }`}
-                    whileHover={{ scale: 1.08 }}
-                    transition={{ duration: 0.4 }}
                   />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/25 to-transparent'></div>
-                </div>
 
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
+
+                  <div className='absolute top-4 left-4 w-12 h-12 rounded-full bg-black/40 flex items-center justify-center text-white text-xl'>
+                    {cat.icon}
+                  </div>
+                </Link>
+
+                {/* TEXT */}
                 <div className='p-6 flex flex-col flex-grow'>
-                  <h3 className='text-xl font-bold text-gray-800 mb-3 text-center'>
-                    {category.name}
+                  <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+                    {cat.name}
                   </h3>
 
-                  <p className='text-gray-600 mb-6 text-center flex-grow'>
-                    {category.description}
+                  <p className='text-gray-600 mb-6 flex-grow'>
+                    {cat.description}
                   </p>
 
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className='mt-auto'
+                  <Link
+                    to={cat.catalogLink}
+                    className='mt-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white py-3 px-6 rounded-full font-bold shadow-md hover:shadow-lg transition'
                   >
-                    {category.comingSoon ? (
-                      <span className='block w-full max-w-xs mx-auto text-center bg-gray-300 text-gray-600 py-3 px-6 rounded-full shadow-inner cursor-not-allowed'>
-                        У розробці
-                      </span>
-                    ) : (
-                      <Link
-                        to={category.catalogLink}
-                        className='block w-full max-w-xs mx-auto text-center bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg'
-                      >
-                        До каталогу
-                      </Link>
-                    )}
-                  </motion.div>
+                    До каталогу →
+                  </Link>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
