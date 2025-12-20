@@ -17,7 +17,8 @@ import {
   faTree,
   faSnowflake,
   faHome,
-  faCookieBite
+  faCookieBite,
+  faWeightHanging
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -44,10 +45,10 @@ export function ProductDetail () {
   const [selectedWeight, setSelectedWeight] = useState(1)
   const [selectedPieces, setSelectedPieces] = useState(1)
   const [selectedLiters, setSelectedLiters] = useState(1)
+  const [selectedGrams, setSelectedGrams] = useState(100) // По умолчанию 100г
   const [selectedBucketOption, setSelectedBucketOption] = useState('weight')
   const [selectedBucketSize, setSelectedBucketSize] = useState(1)
   const [quantity, setQuantity] = useState(1)
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
 
@@ -121,6 +122,11 @@ export function ProductDetail () {
     product.weight?.includes('шт') ||
     product.weight?.includes('порц')
 
+  const isGramProduct =
+    product.price?.includes('/100 гр') ||
+    product.price?.includes('/100гр') ||
+    product.weight?.includes('гр')
+
   const isLiquidProduct =
     product.price?.includes('/л') ||
     product.weight?.includes('л') ||
@@ -134,6 +140,14 @@ export function ProductDetail () {
       return parseFloat(product.price.replace('/шт', '').replace(' грн', ''))
     if (isLiquidProduct)
       return parseFloat(product.price.replace('/л', '').replace(' грн', ''))
+    if (isGramProduct)
+      return parseFloat(
+        product.price
+          .replace('/100 гр', '')
+          .replace('/100гр', '')
+          .replace(' грн', '')
+      )
+
     return parseFloat(product.price.replace(' грн', ''))
   }
 
@@ -143,6 +157,8 @@ export function ProductDetail () {
   const getCalculatedPrice = () => {
     if (isPieceProduct) return (basePrice * selectedPieces).toFixed(2) + ' грн'
     if (isLiquidProduct) return (basePrice * selectedLiters).toFixed(2) + ' грн'
+    if (isGramProduct)
+      return ((basePrice / 100) * selectedGrams).toFixed(2) + ' грн'
     if (isBucketProduct && selectedBucketOption === 'bucket')
       return (basePrice * selectedBucketSize).toFixed(2) + ' грн'
     return (basePrice * selectedWeight).toFixed(2) + ' грн'
@@ -153,6 +169,10 @@ export function ProductDetail () {
   const getDisplayAmount = () => {
     if (isPieceProduct) return selectedPieces + ' шт'
     if (isLiquidProduct) return selectedLiters + ' л'
+    if (isGramProduct)
+      return selectedGrams >= 1000
+        ? selectedGrams / 1000 + ' кг'
+        : selectedGrams + ' гр'
     if (isBucketProduct && selectedBucketOption === 'bucket')
       return selectedBucketSize + ' кг (у відрі)'
     return selectedWeight + ' кг'
@@ -189,6 +209,7 @@ export function ProductDetail () {
   const weightOptions = [0.5, 1, 2, 3]
   const pieceOptions = [1, 2, 3, 5, 10]
   const literOptions = [1, 2, 3, 5]
+  const gramOptions = [80, 100, 250, 500, 1000]
   const bucketSizeOptions = [
     { value: 1, label: '1 кг' },
     { value: 3, label: '3 кг' },
@@ -223,33 +244,8 @@ export function ProductDetail () {
         ))}
       </div>
 
-      {/* Новогодние огоньки сверху */}
-      <div className='absolute top-0 left-0 right-0 h-1'>
-        <div className='flex justify-between px-2'>
-          {Array.from({ length: 30 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className='w-2 h-2 rounded-full'
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 1, 0.3]
-              }}
-              transition={{
-                duration: 1,
-                delay: i * 0.05,
-                repeat: Infinity
-              }}
-              style={{
-                backgroundColor:
-                  i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       <div className='container mx-auto px-4 lg:px-8 relative z-10'>
-        {/* Новогодний хлебный крошки */}
+        {/* Новогодние хлебные крошки */}
         <Link
           to={`/catalog/${category}`}
           className='inline-flex items-center text-amber-300 hover:text-yellow-300 transition mb-8 text-sm font-medium group'
@@ -272,7 +268,6 @@ export function ProductDetail () {
             {/* ======================= ГАЛЕРЕЯ ======================= */}
             <div className='w-full lg:w-[60%] overflow-hidden flex flex-col items-center p-4 lg:p-10 relative'>
               <div className='relative w-full h-[420px] sm:h-[480px] lg:h-[620px] rounded-2xl overflow-hidden border-4 border-amber-500/20 shadow-xl'>
-                {/* КАРУСЕЛЬ */}
                 <AnimatePresence initial={false} custom={direction}>
                   <motion.img
                     key={currentImageIndex}
@@ -307,7 +302,6 @@ export function ProductDetail () {
                   />
                 </AnimatePresence>
 
-                {/* ЗАТЕМНЕНИЕ */}
                 {product.isAccessible && (
                   <div className='absolute inset-0 bg-gradient-to-br from-red-900/60 to-green-900/60 backdrop-blur-sm z-20 flex items-center justify-center'>
                     <div className='text-center p-6 bg-gradient-to-r from-amber-900/80 to-red-900/80 rounded-2xl border border-amber-500/50'>
@@ -325,7 +319,6 @@ export function ProductDetail () {
                   </div>
                 )}
 
-                {/* КНОПКИ */}
                 <button
                   type='button'
                   onClick={() => paginate(-1)}
@@ -342,13 +335,11 @@ export function ProductDetail () {
                   <FontAwesomeIcon icon={faChevronRight} size='lg' />
                 </button>
 
-                {/* ЯРЛЫК ЦЕНЫ */}
                 <div className='absolute top-4 right-4 bg-gradient-to-r from-red-600 to-amber-600 text-white px-4 py-2 rounded-full shadow-lg z-30'>
                   <span className='font-bold'>{calculatedPrice}</span>
                 </div>
               </div>
 
-              {/* ПРЕВЬЮ */}
               <div className='flex gap-3 mt-6 justify-center flex-wrap'>
                 {images.map((img, index) => (
                   <motion.div
@@ -378,7 +369,6 @@ export function ProductDetail () {
             {/* ======================= ПРАВАЯ ЧАСТЬ ======================= */}
             <div className='p-8 md:w-1/2 flex flex-col justify-between bg-gradient-to-b from-red-900/10 to-green-900/10'>
               <div>
-                {/* Заголовок с новогодним стилем */}
                 <div className='flex items-start justify-between mb-4'>
                   <div>
                     <h1 className='text-3xl lg:text-4xl font-extrabold text-white mb-2 drop-shadow-lg'>
@@ -400,7 +390,37 @@ export function ProductDetail () {
                   </div>
                 </div>
 
-                {/* ================== СПОСОБЫ ПОКУПКИ ================== */}
+                {/* ================== ВЫБОР ГРАММОВ ================== */}
+                {isGramProduct && (
+                  <div className='mb-6 p-6 bg-gradient-to-r from-orange-900/30 to-red-900/30 rounded-2xl border border-orange-500/30'>
+                    <label className='block text-amber-200 mb-3 font-bold text-lg flex items-center'>
+                      <FontAwesomeIcon
+                        icon={faWeightHanging}
+                        className='mr-2'
+                      />
+                      Оберіть вагу (грам):
+                    </label>
+                    <div className='flex flex-wrap gap-3'>
+                      {gramOptions.map(g => (
+                        <motion.button
+                          key={g}
+                          onClick={() => setSelectedGrams(g)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`px-4 py-3 rounded-xl border font-medium transition-all ${
+                            selectedGrams === g
+                              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-lg'
+                              : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
+                          }`}
+                        >
+                          {g >= 1000 ? '1 кг' : `${g} г`}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ВЕДРО */}
                 {product.bucket && (
                   <div className='mb-6 p-6 bg-gradient-to-r from-amber-900/30 to-red-900/30 rounded-2xl border border-amber-500/30'>
                     <label className='block text-amber-200 mb-3 font-bold text-lg flex items-center'>
@@ -493,34 +513,37 @@ export function ProductDetail () {
                   </div>
                 )}
 
-                {/* весовые */}
-                {!product.bucket && !isPieceProduct && !isLiquidProduct && (
-                  <div className='mb-6 p-6 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl border border-green-500/30'>
-                    <label className='block text-amber-200 mb-3 font-bold text-lg flex items-center'>
-                      <FaTree className='mr-2' />
-                      Оберіть вагу:
-                    </label>
-                    <div className='flex flex-wrap gap-3'>
-                      {weightOptions.map(w => (
-                        <motion.button
-                          key={w}
-                          onClick={() => setSelectedWeight(w)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-5 py-3 rounded-xl border ${
-                            selectedWeight === w
-                              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-500 shadow-lg'
-                              : 'bg-white/10 text-amber-100 border-green-300/30 hover:border-green-300'
-                          }`}
-                        >
-                          {w} кг
-                        </motion.button>
-                      ))}
+                {/* ВЕСОВЫЕ (КГ) */}
+                {!product.bucket &&
+                  !isPieceProduct &&
+                  !isLiquidProduct &&
+                  !isGramProduct && (
+                    <div className='mb-6 p-6 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl border border-green-500/30'>
+                      <label className='block text-amber-200 mb-3 font-bold text-lg flex items-center'>
+                        <FaTree className='mr-2' />
+                        Оберіть вагу:
+                      </label>
+                      <div className='flex flex-wrap gap-3'>
+                        {weightOptions.map(w => (
+                          <motion.button
+                            key={w}
+                            onClick={() => setSelectedWeight(w)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`px-5 py-3 rounded-xl border ${
+                              selectedWeight === w
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-500 shadow-lg'
+                                : 'bg-white/10 text-amber-100 border-green-300/30 hover:border-green-300'
+                            }`}
+                          >
+                            {w} кг
+                          </motion.button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* штучні */}
+                {/* ШТУЧНЫЕ */}
                 {isPieceProduct && (
                   <div className='mb-6 p-6 bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-2xl border border-blue-500/30'>
                     <label className='block text-amber-200 mb-3 font-bold text-lg flex items-center'>
@@ -547,7 +570,7 @@ export function ProductDetail () {
                   </div>
                 )}
 
-                {/* літрові */}
+                {/* ЖИДКИЕ */}
                 {isLiquidProduct && (
                   <div className='mb-6 p-6 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-2xl border border-purple-500/30'>
                     <label className='block text-amber-200 mb-3 font-bold text-lg'>
@@ -573,7 +596,7 @@ export function ProductDetail () {
                   </div>
                 )}
 
-                {/* кількість упаковок */}
+                {/* КОЛИЧЕСТВО УПАКОВОК */}
                 <div className='mb-6 p-6 bg-gradient-to-r from-amber-900/30 to-yellow-900/30 rounded-2xl border border-amber-500/30'>
                   <label className='block text-amber-200 mb-3 font-bold text-lg'>
                     Кількість пакувань:
@@ -602,21 +625,15 @@ export function ProductDetail () {
                   </p>
                 </div>
 
-                {/* склад */}
-                {/* склад */}
+                {/* СОСТАВ */}
                 {product.compound && (
                   <div className='mb-8 p-8 bg-red-50/60 rounded-2xl border border-emerald-200 shadow-md'>
-                    <div className='flex items-center mb-6'>
-                      <div>
-                        <h3 className='text-2xl font-bold text-emerald-600'>
-                          100% Натуральний склад
-                        </h3>
-                        <p className='text-red-500/80 text-sm'>
-                          Без консервантів та хімії для вашого свята
-                        </p>
-                      </div>
-                    </div>
-
+                    <h3 className='text-2xl font-bold text-emerald-600 mb-2'>
+                      100% Натуральний склад
+                    </h3>
+                    <p className='text-red-500/80 text-sm mb-6'>
+                      Без консервантів та хімії для вашого свята
+                    </p>
                     <div className='space-y-4'>
                       {product.compound.split(',').map((ingredient, index) => {
                         const text = ingredient.trim().toLowerCase()
@@ -648,8 +665,9 @@ export function ProductDetail () {
                   </div>
                 )}
               </div>
-              {/* ======================= ОПИС ======================= */}
-              <div className='space-y-8 mt-5 mb-10 max-w-6xl mx-auto'>
+
+              {/* ======================= ОПИСАНИЕ ======================= */}
+              <div className='space-y-8 mt-5 mb-10'>
                 {product.description.split('\n\n').map((part, index) => {
                   const isCooking = part.startsWith('Як готувати')
                   const isFeature = part.startsWith('Особливості')
@@ -663,22 +681,6 @@ export function ProductDetail () {
                     ? 'bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border-l-8 border-blue-500'
                     : 'bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-l-8 border-purple-500'
 
-                  const title = isCooking
-                    ? '🎅 Спосіб приготування'
-                    : isFeature
-                    ? '✨ Особливості продукту'
-                    : isDesc
-                    ? '🎄 Детальний опис'
-                    : ''
-
-                  const icon = isCooking
-                    ? faCookieBite
-                    : isFeature
-                    ? faStar
-                    : isDesc
-                    ? faHome
-                    : faGift
-
                   return (
                     <motion.div
                       key={index}
@@ -687,8 +689,6 @@ export function ProductDetail () {
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       className={`relative overflow-hidden rounded-3xl p-8 shadow-xl ${sectionBg} backdrop-blur-sm`}
                     >
-                      {/* Фоновые украшения */}
-
                       <p className='relative z-10 leading-relaxed text-lg text-white/90'>
                         {part.replace(
                           /^(Як готувати|Особливості|Опис):?\s*/,
@@ -699,7 +699,8 @@ export function ProductDetail () {
                   )
                 })}
               </div>
-              {/* ======================= ADD TO CART ======================= */}
+
+              {/* ======================= КНОПКА КУПИТЬ ======================= */}
               <div className='sticky bottom-0'>
                 <motion.button
                   onClick={!product.isAccessible ? handleAddToCart : null}
@@ -738,7 +739,6 @@ export function ProductDetail () {
           </div>
         </div>
 
-        {/* Новогодний разделитель в конце */}
         <div className='relative mt-12 pt-8 border-t border-amber-500/30'>
           <div className='text-center text-sm text-amber-200'>
             <p className='mb-3'>
