@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.jpg'
 import { toast } from 'react-hot-toast'
 
-// Используем только один набор иконок
+// Упрощенные иконки (заменили на эмодзи для производительности)
 const FaIcons = {
   Snowflake: () => <span>❄️</span>,
   Tree: () => <span>🌲</span>,
@@ -41,8 +41,7 @@ const categoryNames = {
   'semi-finished': 'Напівфабрикати'
 }
 
-// Константы вынесены за пределы компонента
-const SNOWFLAKE_COUNT = 12 // Уменьшено количество снежинок
+// Константы
 const weightOptions = [0.5, 1, 2, 3]
 const pieceOptions = [1, 2, 3, 5, 10]
 const literOptions = [1, 2, 3, 5]
@@ -71,18 +70,6 @@ export function ProductDetail () {
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
-
-  // Мемоизированные снежинки
-  const snowflakes = useMemo(
-    () =>
-      Array.from({ length: SNOWFLAKE_COUNT }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        size: Math.random() * 4 + 2, // Уменьшен максимальный размер
-        delay: Math.random() * 5
-      })),
-    []
-  )
 
   // ============ load product ============
   useEffect(() => {
@@ -274,46 +261,18 @@ export function ProductDetail () {
   const { isPieceProduct, isGramProduct, isLiquidProduct } = productType
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-green-950 via-red-900 to-green-950 py-4 md:py-8 relative overflow-hidden'>
-      {/* Анимированные снежинки - оптимизированы */}
-      <div className='absolute inset-0 pointer-events-none overflow-hidden'>
-        {snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-white/5 select-none' // Уменьшена прозрачность
-            style={{
-              left: flake.left,
-              fontSize: `${flake.size}px`,
-              willChange: 'transform' // Оптимизация для анимации
-            }}
-            initial={{ y: -50 }}
-            animate={{ y: '100vh' }}
-            transition={{
-              duration: 4 + Math.random() * 6, // Немного медленнее
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear',
-              repeatDelay: Math.random() * 2
-            }}
-          >
-            ❄️
-          </motion.div>
-        ))}
-      </div>
+    <div className='min-h-screen bg-gradient-to-b from-green-950 via-red-900 to-green-950 py-4 md:py-8'>
+      {/* УБРАЛИ СНЕЖИНКИ - ОСНОВНОЙ ИСТОЧНИК ЛАГОВ */}
 
-      <div className='container mx-auto px-3 md:px-4 lg:px-8 relative z-10'>
+      <div className='container mx-auto px-3 md:px-4 lg:px-8'>
         {/* Новогодние хлебные крошки */}
         <Link
           to={`/catalog/${category}`}
           className='inline-flex items-center text-amber-300 hover:text-yellow-300 transition mb-6 text-sm font-medium group'
         >
-          <motion.div
-            className='mr-2 md:mr-3'
-            whileHover={{ rotate: -20 }}
-            transition={{ type: 'spring' }}
-          >
+          <div className='mr-2 md:mr-3 group-hover:-translate-x-1 transition-transform'>
             <FontAwesomeIcon icon={faArrowLeft} />
-          </motion.div>
+          </div>
           <span className='bg-gradient-to-r from-amber-300 to-yellow-300 bg-clip-text text-transparent'>
             Повернутись до новорічної секції {categoryNames[category]}
           </span>
@@ -356,13 +315,9 @@ export function ProductDetail () {
                 {product.isAccessible && (
                   <div className='absolute inset-0 bg-gradient-to-br from-red-900/60 to-green-900/60 backdrop-blur-sm z-20 flex items-center justify-center'>
                     <div className='text-center p-4 md:p-6 bg-gradient-to-r from-amber-900/80 to-red-900/80 rounded-xl md:rounded-2xl border border-amber-500/50'>
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className='text-3xl md:text-4xl mb-2 md:mb-3'
-                      >
+                      <div className='text-3xl md:text-4xl mb-2 md:mb-3'>
                         🎅
-                      </motion.div>
+                      </div>
                       <span className='text-white text-lg md:text-xl font-semibold drop-shadow-lg'>
                         Товар з'явиться зовсім скоро!
                       </span>
@@ -397,24 +352,20 @@ export function ProductDetail () {
 
               <div className='flex gap-2 md:gap-3 mt-4 md:mt-6 justify-center flex-wrap'>
                 {images.map((img, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
+                  <div key={index}>
                     <img
                       src={getImageUrl(img)}
                       alt={`Preview ${index}`}
                       loading='lazy'
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-cover rounded-lg md:rounded-xl cursor-pointer border-2 shadow-md ${
+                      className={`w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-cover rounded-lg md:rounded-xl cursor-pointer border-2 shadow-md transition-all hover:scale-105 active:scale-95 ${
                         index === currentImageIndex
                           ? 'border-amber-400 shadow-amber-500/50'
                           : 'border-amber-200/50'
                       }`}
                       onError={e => (e.target.src = zaglushka)}
                     />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -431,14 +382,10 @@ export function ProductDetail () {
                       <span className='text-lg md:text-xl text-amber-300 font-bold'>
                         {displayAmount}
                       </span>
-                      <motion.span
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className='text-amber-200 text-sm md:text-base'
-                      >
+                      <span className='text-amber-200 text-sm md:text-base flex items-center'>
                         <FaIcons.Star />
                         Новорічна пропозиція
-                      </motion.span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -455,19 +402,17 @@ export function ProductDetail () {
                     </label>
                     <div className='flex flex-wrap gap-2 md:gap-3'>
                       {gramOptions.map(g => (
-                        <motion.button
+                        <button
                           key={g}
                           onClick={() => setSelectedGrams(g)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base ${
+                          className={`px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base hover:scale-105 active:scale-95 ${
                             selectedGrams === g
                               ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-lg'
                               : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
                           }`}
                         >
                           {g >= 1000 ? '1 кг' : `${g} г`}
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -482,33 +427,29 @@ export function ProductDetail () {
                     </label>
 
                     <div className='flex flex-wrap gap-2 md:gap-3 mb-3 md:mb-4'>
-                      <motion.button
+                      <button
                         type='button'
                         onClick={() => setSelectedBucketOption('weight')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base ${
+                        className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base hover:scale-105 active:scale-95 ${
                           selectedBucketOption === 'weight'
                             ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-500 shadow-lg'
                             : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
                         }`}
                       >
                         На вагу
-                      </motion.button>
+                      </button>
 
-                      <motion.button
+                      <button
                         type='button'
                         onClick={() => setSelectedBucketOption('bucket')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base ${
+                        className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border font-medium transition-all text-sm md:text-base hover:scale-105 active:scale-95 ${
                           selectedBucketOption === 'bucket'
                             ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-500 shadow-lg'
                             : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
                         }`}
                       >
                         У відрі 🎁
-                      </motion.button>
+                      </button>
                     </div>
 
                     {selectedBucketOption === 'weight' && (
@@ -518,19 +459,17 @@ export function ProductDetail () {
                         </label>
                         <div className='flex flex-wrap gap-2 md:gap-3'>
                           {weightOptions.map(w => (
-                            <motion.button
+                            <button
                               key={w}
                               onClick={() => setSelectedWeight(w)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`px-3 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base ${
+                              className={`px-3 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base hover:scale-105 active:scale-95 ${
                                 selectedWeight === w
                                   ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-500'
                                   : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
                               }`}
                             >
                               {w} кг
-                            </motion.button>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -543,12 +482,10 @@ export function ProductDetail () {
                         </label>
                         <div className='grid grid-cols-2 gap-2 md:gap-3'>
                           {bucketSizeOptions.map(opt => (
-                            <motion.button
+                            <button
                               key={opt.value}
                               onClick={() => setSelectedBucketSize(opt.value)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl border text-center text-sm md:text-base ${
+                              className={`px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl border text-center text-sm md:text-base hover:scale-105 active:scale-95 ${
                                 selectedBucketSize === opt.value
                                   ? 'bg-gradient-to-r from-red-500 to-amber-500 text-white border-red-500 shadow-lg'
                                   : 'bg-white/10 text-amber-100 border-amber-300/30 hover:border-amber-300'
@@ -558,7 +495,7 @@ export function ProductDetail () {
                               <div className='text-xs opacity-75'>
                                 Новорічна упаковка
                               </div>
-                            </motion.button>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -578,19 +515,17 @@ export function ProductDetail () {
                       </label>
                       <div className='flex flex-wrap gap-2 md:gap-3'>
                         {weightOptions.map(w => (
-                          <motion.button
+                          <button
                             key={w}
                             onClick={() => setSelectedWeight(w)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base ${
+                            className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base hover:scale-105 active:scale-95 ${
                               selectedWeight === w
                                 ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-500 shadow-lg'
                                 : 'bg-white/10 text-amber-100 border-green-300/30 hover:border-green-300'
                             }`}
                           >
                             {w} кг
-                          </motion.button>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -605,19 +540,17 @@ export function ProductDetail () {
                     </label>
                     <div className='flex flex-wrap gap-2 md:gap-3'>
                       {pieceOptions.map(p => (
-                        <motion.button
+                        <button
                           key={p}
                           onClick={() => setSelectedPieces(p)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base ${
+                          className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base hover:scale-105 active:scale-95 ${
                             selectedPieces === p
                               ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-blue-500 shadow-lg'
                               : 'bg-white/10 text-amber-100 border-blue-300/30 hover:border-blue-300'
                           }`}
                         >
                           {p} шт ❄️
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -631,19 +564,17 @@ export function ProductDetail () {
                     </label>
                     <div className='flex flex-wrap gap-2 md:gap-3'>
                       {literOptions.map(l => (
-                        <motion.button
+                        <button
                           key={l}
                           onClick={() => setSelectedLiters(l)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base ${
+                          className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl border text-sm md:text-base hover:scale-105 active:scale-95 ${
                             selectedLiters === l
                               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-500 shadow-lg'
                               : 'bg-white/10 text-amber-100 border-purple-300/30 hover:border-purple-300'
                           }`}
                         >
                           {l} л 🍶
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -655,23 +586,21 @@ export function ProductDetail () {
                     Кількість пакувань:
                   </label>
                   <div className='flex items-center max-w-xs'>
-                    <motion.button
+                    <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      whileTap={{ scale: 0.9 }}
-                      className='px-3 md:px-4 py-2 bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-l-lg md:rounded-l-xl hover:from-red-700 hover:to-amber-700 active:scale-95'
+                      className='px-3 md:px-4 py-2 bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-l-lg md:rounded-l-xl hover:from-red-700 hover:to-amber-700 active:scale-95 transition-colors'
                     >
                       -
-                    </motion.button>
+                    </button>
                     <div className='px-4 md:px-6 py-2 bg-gradient-to-r from-amber-900 to-yellow-900 text-white text-lg md:text-xl font-bold'>
                       {quantity}
                     </div>
-                    <motion.button
+                    <button
                       onClick={() => setQuantity(quantity + 1)}
-                      whileTap={{ scale: 0.9 }}
-                      className='px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-r-lg md:rounded-r-xl hover:from-green-700 hover:to-emerald-700 active:scale-95'
+                      className='px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-r-lg md:rounded-r-xl hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-colors'
                     >
                       +
-                    </motion.button>
+                    </button>
                   </div>
                   <p className='text-amber-300/80 text-xs md:text-sm mt-2'>
                     ✨ Додайте більше для новорічного столу!
@@ -697,11 +626,8 @@ export function ProductDetail () {
                         if (text.includes('рослин')) icon = faLeaf
 
                         return (
-                          <motion.div
+                          <div
                             key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }} // Уменьшена задержка
                             className='flex items-center p-3 bg-white/70 rounded-lg border border-emerald-200 hover:border-emerald-400 transition-colors shadow-sm'
                           >
                             <FontAwesomeIcon
@@ -711,7 +637,7 @@ export function ProductDetail () {
                             <span className='text-red-700 font-medium text-sm md:text-base'>
                               {ingredient.trim()}
                             </span>
-                          </motion.div>
+                          </div>
                         )
                       })}
                     </div>
@@ -736,11 +662,8 @@ export function ProductDetail () {
                       : 'bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-l-4 md:border-l-8 border-purple-500'
 
                     return (
-                      <motion.div
+                      <div
                         key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
                         className={`relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg ${sectionBg} backdrop-blur-sm`}
                       >
                         <p className='relative z-10 leading-relaxed text-base md:text-lg text-white/90'>
@@ -749,7 +672,7 @@ export function ProductDetail () {
                             ''
                           )}
                         </p>
-                      </motion.div>
+                      </div>
                     )
                   })}
                 </div>
@@ -757,36 +680,27 @@ export function ProductDetail () {
 
               {/* ======================= КНОПКА КУПИТЬ ======================= */}
               <div className='sticky bottom-0 bg-gradient-to-b from-transparent via-red-900/20 to-red-900/40 pt-4 md:pt-0'>
-                <motion.button
+                <button
                   onClick={!product.isAccessible ? handleAddToCart : null}
                   disabled={product.isAccessible}
-                  whileHover={!product.isAccessible ? { scale: 1.02 } : {}}
-                  whileTap={!product.isAccessible ? { scale: 0.98 } : {}}
-                  className={`w-full flex items-center justify-center px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl md:shadow-2xl transition-all duration-300
+                  className={`w-full flex items-center justify-center px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl md:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95
                     ${
                       product.isAccessible
                         ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-amber-500 via-yellow-500 to-red-500 hover:from-amber-600 hover:via-yellow-600 hover:to-red-600 active:scale-95'
+                        : 'bg-gradient-to-r from-amber-500 via-yellow-500 to-red-500 hover:from-amber-600 hover:via-yellow-600 hover:to-red-600'
                     }
                   `}
                 >
-                  <motion.div
-                    animate={
-                      !product.isAccessible ? { rotate: [0, 5, -5, 0] } : {} // Упрощена анимация
-                    }
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <FontAwesomeIcon
-                      icon={faShoppingCart}
-                      className='mr-2 md:mr-4 text-lg'
-                    />
-                  </motion.div>
+                  <FontAwesomeIcon
+                    icon={faShoppingCart}
+                    className='mr-2 md:mr-4 text-lg'
+                  />
                   <span className='text-sm md:text-base'>
                     {product.isAccessible
                       ? '🕐 Зʼявиться зовсім скоро!'
                       : `🎁 Додати у новорічний кошик (${calculatedPrice})`}
                   </span>
-                </motion.button>
+                </button>
 
                 <p className='text-center text-amber-300/70 text-xs md:text-sm mt-2 md:mt-3'>
                   🚚 Безкоштовна доставка по Запоріжжю від 800 грн
