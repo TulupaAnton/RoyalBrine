@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -23,7 +23,7 @@ import {
   faChevronLeft,
   faPhone
 } from '@fortawesome/free-solid-svg-icons'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
@@ -132,6 +132,7 @@ export function Payment () {
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
 
+  const shouldReduceMotion = useReducedMotion()
   const formRef = useRef()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -156,148 +157,190 @@ export function Payment () {
   const [lastOrderNumber, setLastOrderNumber] = useState(null)
   const [completedSteps, setCompletedSteps] = useState([])
 
-  const zaporizhzhiaVariants = [
-    'запоріжжя',
-    'запорожье',
-    'зп',
-    'zaporizhzhia',
-    'zaporozhye',
-    'zaporozhe',
-    'zaporozhja',
-    'запоріжя',
-    'запоріжє',
-    'запорожя',
-    'запороже'
-  ]
+  const zaporizhzhiaVariants = useMemo(
+    () => [
+      'запоріжжя',
+      'запорожье',
+      'зп',
+      'zaporizhzhia',
+      'zaporozhye',
+      'zaporozhe',
+      'zaporozhja',
+      'запоріжя',
+      'запоріжє',
+      'запорожя',
+      'запороже'
+    ],
+    []
+  )
+
+  // Мемоизированные снежинки для оптимизации
+  const snowflakes = useMemo(
+    () =>
+      Array.from({ length: shouldReduceMotion ? 8 : 12 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        size: Math.random() * 4 + 2,
+        delay: Math.random() * 2,
+        duration: 4 + Math.random() * 4
+      })),
+    [shouldReduceMotion]
+  )
+
+  // Мемоизированные гирлянды
+  const garlands = useMemo(
+    () =>
+      Array.from({ length: shouldReduceMotion ? 15 : 25 }).map((_, i) => ({
+        id: i,
+        color: i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
+      })),
+    [shouldReduceMotion]
+  )
 
   // Обработчик изменения полей
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+  const handleInputChange = useCallback(
+    (field, value) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }))
 
-    // Особая логика для города
-    if (field === 'city') {
-      const cityLower = value.trim().toLowerCase()
-      const isZaporizhzhia = zaporizhzhiaVariants.includes(cityLower)
+      // Особая логика для города
+      if (field === 'city') {
+        const cityLower = value.trim().toLowerCase()
+        const isZaporizhzhia = zaporizhzhiaVariants.includes(cityLower)
 
-      setIsOtherCity(!isZaporizhzhia)
+        setIsOtherCity(!isZaporizhzhia)
 
-      if (!isZaporizhzhia) {
-        setFormData(prev => ({
-          ...prev,
-          deliveryType: 'nova_poshta',
-          district: '',
-          deliveryDayOption: ''
-        }))
-        setDistrictPrice(0)
-      } else {
-        setFormData(prev => ({
-          ...prev,
-          city: 'Запоріжжя'
-        }))
+        if (!isZaporizhzhia) {
+          setFormData(prev => ({
+            ...prev,
+            deliveryType: 'nova_poshta',
+            district: '',
+            deliveryDayOption: ''
+          }))
+          setDistrictPrice(0)
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            city: 'Запоріжжя'
+          }))
+        }
       }
-    }
 
-    // Для района устанавливаем цену
-    if (field === 'district') {
-      const selected = zapDistricts.find(d => d.id === value)
-      setDistrictPrice(selected ? selected.price : 0)
-    }
-  }
+      // Для района устанавливаем цену
+      if (field === 'district') {
+        const selected = zapDistricts.find(d => d.id === value)
+        setDistrictPrice(selected ? selected.price : 0)
+      }
+    },
+    [zaporizhzhiaVariants]
+  )
 
   // Расчет стоимости доставки
-  let deliveryCost = 0
-  let showFreeDeliveryHint = false
+  const { deliveryCost, showFreeDeliveryHint, totalWithDelivery } =
+    useMemo(() => {
+      let deliveryCost = 0
+      let showFreeDeliveryHint = false
 
-  if (!isOtherCity && formData.deliveryType === 'courier') {
-    if (totalPrice >= FREE_DELIVERY_THRESHOLD) {
-      deliveryCost = 0
-    } else if (districtPrice > 0) {
-      deliveryCost = districtPrice
-      showFreeDeliveryHint = true
-    } else {
-      deliveryCost = 0
-      showFreeDeliveryHint = true
-    }
-  }
+      if (!isOtherCity && formData.deliveryType === 'courier') {
+        if (totalPrice >= FREE_DELIVERY_THRESHOLD) {
+          deliveryCost = 0
+        } else if (districtPrice > 0) {
+          deliveryCost = districtPrice
+          showFreeDeliveryHint = true
+        } else {
+          deliveryCost = 0
+          showFreeDeliveryHint = true
+        }
+      }
 
-  const totalWithDelivery =
-    formData.deliveryType === 'courier' ? totalPrice + deliveryCost : totalPrice
+      const totalWithDelivery =
+        formData.deliveryType === 'courier'
+          ? totalPrice + deliveryCost
+          : totalPrice
+
+      return { deliveryCost, showFreeDeliveryHint, totalWithDelivery }
+    }, [isOtherCity, formData.deliveryType, totalPrice, districtPrice])
 
   // Валидация шага
-  const validateStep = step => {
-    switch (step) {
-      case 0: // Контактные данные
-        if (!nameRegex.test(formData.name)) {
-          toast.error('Імʼя має бути не коротше 2 символів')
-          return false
-        }
-        if (!phoneRegex.test(formData.phone)) {
-          toast.error('Невірний номер телефону')
-          return false
-        }
-        return true
-
-      case 1: // Адрес
-        if (!formData.city || formData.city.length < 2) {
-          toast.error('Вкажіть місто')
-          return false
-        }
-
-        // Адрес обязательный только для Запорожья
-        const isZaporizhzhia = zaporizhzhiaVariants.includes(
-          formData.city.trim().toLowerCase()
-        )
-        if (
-          isZaporizhzhia &&
-          (!formData.address || formData.address.length < 5)
-        ) {
-          toast.error('Для доставки по Запоріжжю вкажіть адресу')
-          return false
-        }
-        return true
-
-      case 2: // Доставка
-        if (!isOtherCity && formData.deliveryType === 'courier') {
-          if (!formData.deliveryDayOption) {
-            toast.error('Виберіть день доставки')
+  const validateStep = useCallback(
+    step => {
+      switch (step) {
+        case 0: // Контактные данные
+          if (!nameRegex.test(formData.name)) {
+            toast.error('Імʼя має бути не коротше 2 символів')
             return false
           }
-          if (!formData.district) {
-            toast.error('Оберіть район доставки')
+          if (!phoneRegex.test(formData.phone)) {
+            toast.error('Невірний номер телефону')
             return false
           }
-        }
-        if (formData.deliveryType === 'nova_poshta' && !formData.npBranch) {
-          toast.error('Вкажіть відділення НП')
-          return false
-        }
-        return true
+          return true
 
-      case 3: // Оплата
-        if (!formData.payment) {
-          toast.error('Виберіть спосіб оплати')
-          return false
-        }
-        return true
+        case 1: // Адрес
+          if (!formData.city || formData.city.length < 2) {
+            toast.error('Вкажіть місто')
+            return false
+          }
 
-      default:
-        return true
-    }
-  }
+          // Адрес обязательный только для Запорожья
+          const isZaporizhzhia = zaporizhzhiaVariants.includes(
+            formData.city.trim().toLowerCase()
+          )
+          if (
+            isZaporizhzhia &&
+            (!formData.address || formData.address.length < 5)
+          ) {
+            toast.error('Для доставки по Запоріжжю вкажіть адресу')
+            return false
+          }
+          return true
+
+        case 2: // Доставка
+          if (!isOtherCity && formData.deliveryType === 'courier') {
+            if (!formData.deliveryDayOption) {
+              toast.error('Виберіть день доставки')
+              return false
+            }
+            if (!formData.district) {
+              toast.error('Оберіть район доставки')
+              return false
+            }
+          }
+          if (formData.deliveryType === 'nova_poshta' && !formData.npBranch) {
+            toast.error('Вкажіть відділення НП')
+            return false
+          }
+          return true
+
+        case 3: // Оплата
+          if (!formData.payment) {
+            toast.error('Виберіть спосіб оплати')
+            return false
+          }
+          return true
+
+        default:
+          return true
+      }
+    },
+    [formData, isOtherCity, zaporizhzhiaVariants]
+  )
 
   // Переход к шагу
-  const goToStep = stepIndex => {
-    // Можно перейти только на уже пройденные шаги или следующий
-    if (stepIndex <= currentStep || completedSteps.includes(stepIndex)) {
-      setCurrentStep(stepIndex)
-    }
-  }
+  const goToStep = useCallback(
+    stepIndex => {
+      // Можно перейти только на уже пройденные шаги или следующий
+      if (stepIndex <= currentStep || completedSteps.includes(stepIndex)) {
+        setCurrentStep(stepIndex)
+      }
+    },
+    [currentStep, completedSteps]
+  )
 
   // Переход к следующему шагу
-  const goToNextStep = () => {
+  const goToNextStep = useCallback(() => {
     if (validateStep(currentStep)) {
       // Добавляем текущий шаг в завершенные
       if (!completedSteps.includes(currentStep)) {
@@ -308,17 +351,17 @@ export function Payment () {
         setCurrentStep(prev => prev + 1)
       }
     }
-  }
+  }, [currentStep, validateStep, completedSteps])
 
   // Переход к предыдущему шагу
-  const goToPrevStep = () => {
+  const goToPrevStep = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1)
     }
-  }
+  }, [currentStep])
 
   // Проверка завершенности всех обязательных шагов
-  const areAllStepsValid = () => {
+  const areAllStepsValid = useCallback(() => {
     for (let i = 0; i < 4; i++) {
       // Шаги 0-3 обязательные
       if (!validateStep(i)) {
@@ -326,15 +369,7 @@ export function Payment () {
       }
     }
     return true
-  }
-
-  // Новогодние снежинки для фона
-  const snowflakes = Array.from({ length: 20 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: Math.random() * 6 + 3,
-    delay: Math.random() * 3
-  }))
+  }, [validateStep])
 
   const handlePaymentSubmit = async e => {
     e.preventDefault()
@@ -476,134 +511,169 @@ ${orderDetails}
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [currentStep])
 
+  // Анимационные настройки в зависимости от предпочтений пользователя
+  const animationProps = {
+    initial: shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 },
+    animate: shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
+    transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.3 }
+  }
+
+  const slideAnimation = {
+    initial: shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: 20 },
+    animate: shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 },
+    exit: shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -20 },
+    transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-green-50 via-red-50 to-amber-50 py-8 md:py-12 relative overflow-hidden'>
       <Toaster position='top-center' />
 
-      {/* Анимированные снежинки */}
-      <div className='absolute inset-0 pointer-events-none z-0'>
-        {snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-blue-300/20'
-            style={{
-              left: flake.left,
-              fontSize: `${flake.size}px`
-            }}
-            initial={{ y: -50 }}
-            animate={{ y: '100vh' }}
-            transition={{
-              duration: 3 + Math.random() * 5,
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          >
-            <FontAwesomeIcon icon={faSnowflake} />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Новогодние гирлянды */}
-      <div className='absolute top-0 left-0 right-0 h-1 z-10'>
-        <div className='flex justify-between px-2'>
-          {Array.from({ length: 30 }).map((_, i) => (
+      {/* Анимированные снежинки - оптимизированы */}
+      {!shouldReduceMotion && (
+        <div className='absolute inset-0 pointer-events-none z-0'>
+          {snowflakes.map(flake => (
             <motion.div
-              key={i}
-              className='w-2 h-2 rounded-full'
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 1, 0.3]
-              }}
-              transition={{
-                duration: 1,
-                delay: i * 0.1,
-                repeat: Infinity
-              }}
+              key={flake.id}
+              className='absolute text-blue-300/20'
               style={{
-                backgroundColor:
-                  i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
+                left: flake.left,
+                fontSize: `${flake.size}px`
               }}
-            />
+              initial={{ y: -50 }}
+              animate={{ y: '100vh' }}
+              transition={{
+                duration: flake.duration,
+                delay: flake.delay,
+                repeat: Infinity,
+                ease: 'linear',
+                repeatType: 'loop'
+              }}
+            >
+              <FontAwesomeIcon icon={faSnowflake} />
+            </motion.div>
           ))}
         </div>
-      </div>
+      )}
+
+      {/* Новогодние гирлянды - оптимизированы */}
+      {!shouldReduceMotion && (
+        <div className='absolute top-0 left-0 right-0 h-1 z-10'>
+          <div className='flex justify-between px-2'>
+            {garlands.map(({ id, color }) => (
+              <motion.div
+                key={id}
+                className='w-2 h-2 rounded-full'
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 1, 0.3]
+                }}
+                transition={{
+                  duration: 1.5,
+                  delay: id * 0.15,
+                  repeat: Infinity,
+                  repeatType: 'loop'
+                }}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ==== МОДАЛЬНЕ ВІКНО ПІДТВЕРДЖЕННЯ ==== */}
-      {showModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className='fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4'
-        >
+      <AnimatePresence>
+        {showModal && (
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', damping: 16, stiffness: 260 }}
-            className='bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-2xl max-w-md w-full p-8 relative border-2 border-white/50 overflow-hidden'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className='fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4'
           >
-            {/* Новогодний декор */}
-            <div className='absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full opacity-20 blur-xl'></div>
-            <div className='absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full opacity-20 blur-xl'></div>
-
-            <button
-              onClick={() => setShowModal(false)}
-              className='absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition z-10'
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{
+                type: shouldReduceMotion ? 'tween' : 'spring',
+                damping: 16,
+                stiffness: 260
+              }}
+              className='bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-2xl max-w-md w-full p-8 relative border-2 border-white/50 overflow-hidden'
             >
-              <FontAwesomeIcon icon={faXmark} size='lg' />
-            </button>
+              {/* Новогодний декор */}
+              {!shouldReduceMotion && (
+                <>
+                  <div className='absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full opacity-20 blur-xl'></div>
+                  <div className='absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full opacity-20 blur-xl'></div>
+                </>
+              )}
 
-            <div className='text-center pt-4 relative z-10'>
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className='inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 mb-4 shadow-xl'
-              >
-                <FontAwesomeIcon
-                  icon={faGift}
-                  className='text-white text-3xl'
-                />
-              </motion.div>
-
-              <h2 className='text-3xl font-bold text-gray-900 font-serif'>
-                З Новим Роком! 🎄
-              </h2>
-
-              <p className='text-gray-700 mt-3 text-base'>
-                Ваше новорічне замовлення прийнято!
-              </p>
-
-              <div className='mt-6 p-4 bg-gradient-to-r from-red-50 to-amber-50 rounded-2xl border border-amber-200'>
-                <p className='text-sm text-gray-600 mb-2'>Номер замовлення:</p>
-                <p className='text-3xl font-extrabold bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 bg-clip-text text-transparent tracking-wider'>
-                  {lastOrderNumber}
-                </p>
-              </div>
-
-              <p className='text-gray-600 text-sm mt-6 leading-relaxed'>
-                Наш менеджер звʼяжеться з вами найближчим часом для
-                підтвердження новорічного замовлення.
-              </p>
-
-              <motion.button
+              <button
                 onClick={() => setShowModal(false)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className='mt-8 px-8 py-3 rounded-2xl bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white font-bold shadow-xl hover:shadow-2xl transition relative overflow-hidden'
+                className='absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition z-10'
               >
-                {/* Блестящий эффект */}
+                <FontAwesomeIcon icon={faXmark} size='lg' />
+              </button>
+
+              <div className='text-center pt-4 relative z-10'>
                 <motion.div
-                  className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent'
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '100%' }}
-                  transition={{ duration: 0.6 }}
-                />
-                <span className='relative z-10'>Готово! 🎅</span>
-              </motion.button>
-            </div>
+                  animate={shouldReduceMotion ? {} : { scale: [1, 1.1, 1] }}
+                  transition={
+                    shouldReduceMotion ? {} : { duration: 2, repeat: Infinity }
+                  }
+                  className='inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 mb-4 shadow-xl'
+                >
+                  <FontAwesomeIcon
+                    icon={faGift}
+                    className='text-white text-3xl'
+                  />
+                </motion.div>
+
+                <h2 className='text-3xl font-bold text-gray-900 font-serif'>
+                  З Новим Роком! 🎄
+                </h2>
+
+                <p className='text-gray-700 mt-3 text-base'>
+                  Ваше новорічне замовлення прийнято!
+                </p>
+
+                <div className='mt-6 p-4 bg-gradient-to-r from-red-50 to-amber-50 rounded-2xl border border-amber-200'>
+                  <p className='text-sm text-gray-600 mb-2'>
+                    Номер замовлення:
+                  </p>
+                  <p className='text-3xl font-extrabold bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 bg-clip-text text-transparent tracking-wider'>
+                    {lastOrderNumber}
+                  </p>
+                </div>
+
+                <p className='text-gray-600 text-sm mt-6 leading-relaxed'>
+                  Наш менеджер звʼяжеться з вами найближчим часом для
+                  підтвердження новорічного замовлення.
+                </p>
+
+                <motion.button
+                  onClick={() => setShowModal(false)}
+                  whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
+                  whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
+                  className='mt-8 px-8 py-3 rounded-2xl bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white font-bold shadow-xl hover:shadow-2xl transition relative overflow-hidden'
+                >
+                  {/* Блестящий эффект */}
+                  {!shouldReduceMotion && (
+                    <motion.div
+                      className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent'
+                      initial={{ x: '-100%' }}
+                      whileHover={{ x: '100%' }}
+                      transition={{ duration: 0.6 }}
+                    />
+                  )}
+                  <span className='relative z-10'>Готово! 🎅</span>
+                </motion.button>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* ==== MAIN CONTENT ==== */}
       <div className='container mx-auto px-4 relative z-10'>
@@ -620,16 +690,13 @@ ${orderDetails}
           </div>
 
           {/* HEADER */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className='mb-10'
-          >
+          <motion.div {...animationProps} className='mb-10'>
             <div className='flex items-center mb-4'>
               <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                animate={shouldReduceMotion ? {} : { rotate: [0, 10, -10, 0] }}
+                transition={
+                  shouldReduceMotion ? {} : { duration: 3, repeat: Infinity }
+                }
                 className='mr-4'
               >
                 <FontAwesomeIcon
@@ -646,11 +713,13 @@ ${orderDetails}
 
             <div className='flex items-center space-x-3 mb-6'>
               <div className='w-32 h-1 bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 rounded-full'></div>
-              <motion.div
-                className='w-4 h-4 bg-yellow-300 rounded-full shadow-lg'
-                animate={{ x: [0, 128, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
+              {!shouldReduceMotion && (
+                <motion.div
+                  className='w-4 h-4 bg-yellow-300 rounded-full shadow-lg'
+                  animate={{ x: [0, 128, 0] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                />
+              )}
             </div>
 
             <p className='text-gray-600 text-lg max-w-2xl'>
@@ -662,13 +731,19 @@ ${orderDetails}
           <div className='grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 lg:gap-10'>
             {/* ========== LEFT COLUMN — FORM ========== */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              initial={
+                shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -20 }
+              }
+              animate={
+                shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
+              }
+              transition={shouldReduceMotion ? {} : { duration: 0.3 }}
               className='bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-2xl border-2 border-white/30 overflow-hidden relative'
             >
               {/* Новогодний декор */}
-              <div className='absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full opacity-20 blur-lg'></div>
+              {!shouldReduceMotion && (
+                <div className='absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full opacity-20 blur-lg'></div>
+              )}
 
               {/* Шаги прогресса */}
               <div className='p-6 md:p-8 bg-gradient-to-r from-red-600 to-yellow-600 border-b border-white/20'>
@@ -704,19 +779,25 @@ ${orderDetails}
                                 : 'bg-gray-300 cursor-not-allowed'
                             }`}
                             whileHover={
-                              index <= currentStep ||
-                              completedSteps.includes(index)
+                              (index <= currentStep ||
+                                completedSteps.includes(index)) &&
+                              !shouldReduceMotion
                                 ? { scale: 1.1 }
                                 : {}
                             }
-                            animate={{
-                              scale: index === currentStep ? [1, 1.1, 1] : 1,
-                              boxShadow:
-                                index === currentStep
-                                  ? '0 0 20px rgba(255,255,255,0.5)'
-                                  : 'none'
-                            }}
-                            transition={{ duration: 2, repeat: Infinity }}
+                            animate={
+                              !shouldReduceMotion && index === currentStep
+                                ? {
+                                    scale: [1, 1.1, 1],
+                                    boxShadow: '0 0 20px rgba(255,255,255,0.5)'
+                                  }
+                                : {}
+                            }
+                            transition={
+                              shouldReduceMotion
+                                ? {}
+                                : { duration: 2, repeat: Infinity }
+                            }
                           >
                             <FontAwesomeIcon
                               icon={step.icon}
@@ -764,13 +845,10 @@ ${orderDetails}
                 onSubmit={handlePaymentSubmit}
                 className='p-6 md:p-8'
               >
-                <AnimatePresence mode='wait'>
+                <AnimatePresence mode='wait' initial={false}>
                   <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    {...slideAnimation}
                     className='space-y-8'
                   >
                     {/* ШАГ 1: Контактные данные */}
@@ -897,7 +975,9 @@ ${orderDetails}
 
                           {!isOtherCity && (
                             <motion.label
-                              whileHover={{ scale: 1.01 }}
+                              whileHover={
+                                shouldReduceMotion ? {} : { scale: 1.01 }
+                              }
                               className={`flex items-start space-x-4 p-4 border-2 ${
                                 formData.deliveryType === 'courier'
                                   ? 'border-red-400 bg-red-50/50'
@@ -934,7 +1014,9 @@ ${orderDetails}
                           )}
 
                           <motion.label
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={
+                              shouldReduceMotion ? {} : { scale: 1.01 }
+                            }
                             className={`flex items-start space-x-4 p-4 border-2 ${
                               formData.deliveryType === 'nova_poshta'
                                 ? 'border-green-400 bg-green-50/50'
@@ -993,7 +1075,9 @@ ${orderDetails}
                               День доставки *
                             </label>
                             <motion.label
-                              whileHover={{ scale: 1.01 }}
+                              whileHover={
+                                shouldReduceMotion ? {} : { scale: 1.01 }
+                              }
                               className='flex items-start space-x-4 p-4 border-2 border-yellow-300 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/50 transition-all duration-300'
                             >
                               <input
@@ -1058,7 +1142,9 @@ ${orderDetails}
                         <div className='space-y-4'>
                           {!isOtherCity && (
                             <motion.label
-                              whileHover={{ scale: 1.01 }}
+                              whileHover={
+                                shouldReduceMotion ? {} : { scale: 1.01 }
+                              }
                               className={`flex items-start space-x-4 p-4 border-2 ${
                                 formData.payment === 'Готівкою при отриманні'
                                   ? 'border-green-400 bg-green-50/50'
@@ -1092,7 +1178,9 @@ ${orderDetails}
                           )}
 
                           <motion.label
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={
+                              shouldReduceMotion ? {} : { scale: 1.01 }
+                            }
                             className={`flex items-start space-x-4 p-4 border-2 ${
                               formData.payment === 'Передоплата'
                                 ? 'border-indigo-400 bg-indigo-50/50'
@@ -1174,8 +1262,8 @@ ${orderDetails}
                     <motion.button
                       type='button'
                       onClick={goToPrevStep}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
                       className='px-6 py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800 font-medium rounded-xl flex items-center space-x-3 hover:shadow-md transition-all'
                     >
                       <FontAwesomeIcon icon={faChevronLeft} />
@@ -1189,8 +1277,8 @@ ${orderDetails}
                     <motion.button
                       type='button'
                       onClick={goToNextStep}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
                       className='px-8 py-3 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded-xl flex items-center space-x-3 hover:shadow-lg transition-all'
                     >
                       <span>Далі</span>
@@ -1208,14 +1296,16 @@ ${orderDetails}
                       whileHover={
                         !isSubmitting &&
                         cartItems.length > 0 &&
-                        areAllStepsValid()
+                        areAllStepsValid() &&
+                        !shouldReduceMotion
                           ? { scale: 1.02 }
                           : {}
                       }
                       whileTap={
                         !isSubmitting &&
                         cartItems.length > 0 &&
-                        areAllStepsValid()
+                        areAllStepsValid() &&
+                        !shouldReduceMotion
                           ? { scale: 0.98 }
                           : {}
                       }
@@ -1320,9 +1410,13 @@ ${orderDetails}
 
             {/* ========== RIGHT COLUMN — ORDER SUMMARY ========== */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              initial={
+                shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: 20 }
+              }
+              animate={
+                shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
+              }
+              transition={shouldReduceMotion ? {} : { duration: 0.3 }}
               className='lg:sticky lg:top-24 h-fit'
             >
               <div className='bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-2xl border-2 border-white/30 overflow-hidden'>
@@ -1330,8 +1424,12 @@ ${orderDetails}
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                       <motion.div
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        animate={shouldReduceMotion ? {} : { y: [0, -5, 0] }}
+                        transition={
+                          shouldReduceMotion
+                            ? {}
+                            : { duration: 2, repeat: Infinity }
+                        }
                         className='w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg'
                       >
                         <FontAwesomeIcon
@@ -1373,7 +1471,7 @@ ${orderDetails}
                         key={index}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.25, delay: index * 0.05 }}
+                        transition={{ duration: 0.15, delay: index * 0.03 }}
                         className='p-5 hover:bg-white/60 transition-all duration-300'
                       >
                         <div className='flex items-center gap-4'>
@@ -1389,6 +1487,7 @@ ${orderDetails}
                               }
                               alt={item.name}
                               className='w-full h-full object-cover'
+                              loading='lazy'
                             />
                             {/* Новогодний декор */}
                             <div className='absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-500 to-yellow-500 rounded-full flex items-center justify-center'>
@@ -1418,13 +1517,15 @@ ${orderDetails}
                             <p className='font-bold text-lg bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent'>
                               {calculateItemTotal(item)} грн
                             </p>
-                            <motion.span
-                              animate={{ scale: [1, 1.1, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                              className='text-xs px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold mt-1 inline-block'
-                            >
-                              🎄 Ціна свята
-                            </motion.span>
+                            {!shouldReduceMotion && (
+                              <motion.span
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className='text-xs px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold mt-1 inline-block'
+                              >
+                                🎄 Ціна свята
+                              </motion.span>
+                            )}
                           </div>
                         </div>
                       </motion.div>
