@@ -175,27 +175,8 @@ export function Payment () {
   )
 
   // Мемоизированные снежинки для оптимизации
-  const snowflakes = useMemo(
-    () =>
-      Array.from({ length: shouldReduceMotion ? 8 : 12 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        size: Math.random() * 4 + 2,
-        delay: Math.random() * 2,
-        duration: 4 + Math.random() * 4
-      })),
-    [shouldReduceMotion]
-  )
 
   // Мемоизированные гирлянды
-  const garlands = useMemo(
-    () =>
-      Array.from({ length: shouldReduceMotion ? 15 : 25 }).map((_, i) => ({
-        id: i,
-        color: i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
-      })),
-    [shouldReduceMotion]
-  )
 
   // Обработчик изменения полей
   const handleInputChange = useCallback(
@@ -528,59 +509,6 @@ ${orderDetails}
   return (
     <div className='min-h-screen bg-gradient-to-br from-green-50 via-red-50 to-amber-50 py-8 md:py-12 relative overflow-hidden'>
       <Toaster position='top-center' />
-
-      {/* Анимированные снежинки - оптимизированы */}
-      {!shouldReduceMotion && (
-        <div className='absolute inset-0 pointer-events-none z-0'>
-          {snowflakes.map(flake => (
-            <motion.div
-              key={flake.id}
-              className='absolute text-blue-300/20'
-              style={{
-                left: flake.left,
-                fontSize: `${flake.size}px`
-              }}
-              initial={{ y: -50 }}
-              animate={{ y: '100vh' }}
-              transition={{
-                duration: flake.duration,
-                delay: flake.delay,
-                repeat: Infinity,
-                ease: 'linear',
-                repeatType: 'loop'
-              }}
-            >
-              <FontAwesomeIcon icon={faSnowflake} />
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Новогодние гирлянды - оптимизированы */}
-      {!shouldReduceMotion && (
-        <div className='absolute top-0 left-0 right-0 h-1 z-10'>
-          <div className='flex justify-between px-2'>
-            {garlands.map(({ id, color }) => (
-              <motion.div
-                key={id}
-                className='w-2 h-2 rounded-full'
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 1, 0.3]
-                }}
-                transition={{
-                  duration: 1.5,
-                  delay: id * 0.15,
-                  repeat: Infinity,
-                  repeatType: 'loop'
-                }}
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ==== МОДАЛЬНЕ ВІКНО ПІДТВЕРДЖЕННЯ ==== */}
       <AnimatePresence>
         {showModal && (
@@ -674,7 +602,6 @@ ${orderDetails}
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* ==== MAIN CONTENT ==== */}
       <div className='container mx-auto px-4 relative z-10'>
         <div className='max-w-6xl mx-auto'>
