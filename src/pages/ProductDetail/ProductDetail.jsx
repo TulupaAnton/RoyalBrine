@@ -53,12 +53,6 @@ export function ProductDetail () {
   const [direction, setDirection] = useState(0)
 
   // Новогодние снежинки
-  const snowflakes = Array.from({ length: 20 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: Math.random() * 5 + 2,
-    delay: Math.random() * 5
-  }))
 
   // ============ load product ============
   useEffect(() => {
@@ -220,30 +214,6 @@ export function ProductDetail () {
   // ===== UI =====
   return (
     <div className='min-h-screen bg-gradient-to-b from-green-950 via-red-900 to-green-950 py-8 relative overflow-hidden'>
-      {/* Анимированные снежинки */}
-      <div className='absolute inset-0 pointer-events-none'>
-        {snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-white/10'
-            style={{
-              left: flake.left,
-              fontSize: `${flake.size}px`
-            }}
-            initial={{ y: -50 }}
-            animate={{ y: '100vh' }}
-            transition={{
-              duration: 3 + Math.random() * 5,
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          >
-            <FaSnowflake />
-          </motion.div>
-        ))}
-      </div>
-
       <div className='container mx-auto px-4 lg:px-8 relative z-10'>
         {/* Новогодние хлебные крошки */}
         <Link
