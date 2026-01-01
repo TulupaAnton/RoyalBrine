@@ -138,9 +138,6 @@ export function Header () {
                 <div className='bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent text-lg md:text-xl font-bold'>
                   Royal Brine
                 </div>
-                <div className='text-[10px] md:text-xs text-yellow-300'>
-                  🎄 Новорічні знижки!
-                </div>
               </div>
             </Link>
 

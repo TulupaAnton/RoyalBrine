@@ -293,56 +293,6 @@ const ContactSection = () => {
 
           <div className='space-y-8'>
             {/* Рабочие часы с новогодней темой */}
-            <motion.div
-              className='bg-gradient-to-br from-white to-green-50 rounded-3xl shadow-2xl p-8 border border-white/50 relative overflow-hidden'
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {/* Декор */}
-              <div className='absolute -top-2 -right-2 w-8 h-8 bg-green-400 rounded-full opacity-20'></div>
-
-              <h2 className='text-2xl font-bold text-gray-800 mb-6 flex items-center'>
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-                >
-                  <FontAwesomeIcon
-                    icon={faClock}
-                    className='text-green-500 mr-3'
-                  />
-                </motion.div>
-                <span className='bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent'>
-                  НОВОРІЧНІ ГОДИНИ РОБОТИ
-                </span>
-              </h2>
-              <div className='space-y-4 text-gray-700'>
-                <div className='flex items-center p-3 bg-green-50 rounded-lg'>
-                  <div className='w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-4'>
-                    <span className='text-white font-bold'>🎄</span>
-                  </div>
-                  <div>
-                    <p className='font-semibold'>
-                      Особливий новорічний графік:
-                    </p>
-                    <p>з 1 грудня по 1 січня</p>
-                    <p className='text-green-600 font-bold'>з 8:00 до 23:00</p>
-                  </div>
-                </div>
-                <div className='flex items-center p-3 bg-red-50 rounded-lg'>
-                  <div className='w-10 h-10 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center mr-4'>
-                    <span className='text-white font-bold'>🎅</span>
-                  </div>
-                  <div>
-                    <p className='font-semibold'>Останній день замовлень:</p>
-                    <p className='text-red-600 font-bold'>26 грудня</p>
-                    <p className='text-sm text-gray-500'>
-                      Доставка 27-30 грудня
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
 
             {/* Контакты с праздничным оформлением */}
             <motion.div

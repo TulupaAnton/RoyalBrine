@@ -81,12 +81,6 @@ export function Footer () {
           </p>
 
           {/* Новогоднее предложение */}
-          <div className='mt-4 p-3 bg-gradient-to-r from-red-900/30 to-green-900/30 rounded-lg border border-amber-500/30'>
-            <p className='text-xs text-amber-100'>
-              🎁 <span className='font-bold'>До 26 грудня:</span> Безкоштовна
-              доставка замовлень від 800 грн (у місті Запоріжжя)
-            </p>
-          </div>
         </div>
 
         {/* Контакти с праздничным оформлением */}

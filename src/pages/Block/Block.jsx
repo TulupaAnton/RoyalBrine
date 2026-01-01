@@ -85,10 +85,7 @@ export function Block () {
         </motion.button>
 
         {/* Текст под кнопкой */}
-        <div className='mt-10 text-sm md:text-base text-yellow-200'>
-          🎄 Замовляйте до 26 грудня (включно) — гарантована доставка на
-          святковий стіл! <br />
-        </div>
+
         <div className='mb-6 flex flex-col items-center mt-10'>
           <h3 className='text-lg font-bold mb-4 uppercase flex items-center justify-center'>
             <FontAwesomeIcon icon={faStar} className='text-yellow-400 mr-2' />

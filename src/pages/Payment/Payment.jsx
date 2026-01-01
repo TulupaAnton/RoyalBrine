@@ -1318,17 +1318,6 @@ ${orderDetails}
                         </a>
                         . Ми з радістю допоможемо з підготовкою до свята! 🎁
                       </p>
-                      <p className='text-xs text-gray-500 mt-3 flex items-center'>
-                        <FontAwesomeIcon
-                          icon={faSnowflake}
-                          className='text-blue-400 mr-2'
-                        />
-                        Замовляйте до{' '}
-                        <span className='font-bold text-red-600 mx-1'>
-                          26 грудня (включно)
-                        </span>{' '}
-                        для гарантованої доставки на свята
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -1439,20 +1428,6 @@ ${orderDetails}
                                 {item.price}
                               </span>
                             </p>
-                          </div>
-                          <div className='text-right'>
-                            <p className='font-bold text-lg bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent'>
-                              {calculateItemTotal(item)} грн
-                            </p>
-                            {!shouldReduceMotion && (
-                              <motion.span
-                                animate={{ scale: [1, 1.1, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                                className='text-xs px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold mt-1 inline-block'
-                              >
-                                🎄 Ціна свята
-                              </motion.span>
-                            )}
                           </div>
                         </div>
                       </motion.div>

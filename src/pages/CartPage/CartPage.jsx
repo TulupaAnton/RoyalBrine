@@ -138,29 +138,6 @@ export function CartPage () {
           </div>
 
           {/* Новогодний баннер */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className='mb-6 bg-gradient-to-r from-red-900/20 via-green-900/20 to-red-900/20 backdrop-blur-sm rounded-2xl p-4 border border-white/30'
-          >
-            <div className='text-center'>
-              <p className='text-gray-800 flex items-center justify-center'>
-                <FontAwesomeIcon
-                  icon={faStar}
-                  className='text-yellow-500 mr-2'
-                />
-                Замовляйте до{' '}
-                <span className='font-bold text-red-600 mx-1'>
-                  26 грудня (включно)
-                </span>{' '}
-                для доставки на свята!
-                <FontAwesomeIcon
-                  icon={faTree}
-                  className='text-green-500 ml-2'
-                />
-              </p>
-            </div>
-          </motion.div>
 
           {cartCount === 0 ? (
             <motion.div
@@ -245,9 +222,6 @@ export function CartPage () {
                           alt={item.name}
                         />
                         {/* Новогодний декор на изображении */}
-                        <div className='absolute -top-2 -left-2 w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg'>
-                          <span className='text-white text-xs'>🎄</span>
-                        </div>
                       </motion.div>
 
                       <motion.button
@@ -298,15 +272,6 @@ export function CartPage () {
                               </span>
                             )}
                           </div>
-                        </div>
-                        <div className='hidden md:block'>
-                          <motion.span
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className='text-xs px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold'
-                          >
-                            🎁 Ціна свята
-                          </motion.span>
                         </div>
                       </div>
 
@@ -374,10 +339,6 @@ export function CartPage () {
                         icon={faGift}
                         className='text-red-500 mr-2'
                       />
-                      <span className='text-sm text-gray-600'>
-                        Безкоштовна доставка при замовленні від 800 грн (у місті
-                        Запоріжжя)
-                      </span>
                     </div>
                   </div>
                   <div className='text-right'>
