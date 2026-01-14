@@ -1,33 +1,22 @@
-import React, { useMemo } from 'react'
-
+import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight, faGift, faStar } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowRight,
+  faUtensils,
+  faHeart
+} from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons'
-// iOS detection
-const isIOS =
-  typeof navigator !== 'undefined' &&
-  /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
 export function Block () {
   const hour = new Date().getHours()
 
   const ctaText =
-    hour < 10
-      ? 'Ранкові набори'
-      : hour < 16
-      ? 'Святковий обід'
-      : 'Новорічна вечеря'
-
-  const snowflakes = useMemo(
-    () =>
-      Array.from({ length: isIOS ? 0 : 6 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        delay: Math.random() * 2
-      })),
-    []
-  )
+    hour < 11
+      ? 'Смачний сніданок'
+      : hour < 17
+      ? 'Домашній обід'
+      : 'Затишна вечеря'
 
   const scrollToCategories = () => {
     const el = document.getElementById('categories')
@@ -35,126 +24,115 @@ export function Block () {
   }
 
   return (
-    <section className='relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#7c2d12] to-[#064e3b]'>
-      {/* Лёгкие снежинки (ТОЛЬКО на десктопе) */}
-      {!isIOS &&
-        snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-white/20 text-xs'
-            style={{ left: flake.left, top: '-10px' }}
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: '100vh', opacity: [0, 1, 0] }}
-            transition={{
-              duration: 6,
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          >
-            ❄
-          </motion.div>
-        ))}
+    <section className='relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FDFCFB]'>
+      {/* Мягкие статические фоновые акценты для объема */}
+      <div className='absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-orange-100/40 rounded-full blur-[120px]' />
+      <div className='absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-green-50/60 rounded-full blur-[120px]' />
 
       {/* Контент */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
         className='relative z-10 max-w-4xl text-center px-6'
       >
+        {/* Бейдж сверху */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className='inline-flex items-center gap-2 bg-white border border-orange-100 px-4 py-1.5 rounded-full shadow-sm mb-8'
+        >
+          <FontAwesomeIcon icon={faHeart} className='text-orange-400 text-xs' />
+          <span className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-500'>
+            Зроблено з любов'ю
+          </span>
+        </motion.div>
+
         {/* Заголовок */}
-        <h1 className='text-4xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-yellow-300 via-red-400 to-green-400 bg-clip-text text-transparent'>
-          Royal Brine
+        <h1 className='text-6xl md:text-8xl font-black mb-6 text-[#2D241E] tracking-tight'>
+          Royal <span className='text-orange-500'>Brine</span>
         </h1>
 
-        <p className='text-lg md:text-2xl text-yellow-100 opacity-90 mb-10'>
-          Святково • Смачно • По-домашньому 🎄
+        <p className='text-lg md:text-2xl text-gray-600 font-medium mb-12 max-w-xl mx-auto leading-relaxed'>
+          Справжня домашня кулінарія, що зігріває серце та дарує затишок 🧺
         </p>
 
         {/* Кнопка */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={scrollToCategories}
-          className='inline-flex items-center gap-4 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 
-                     text-white px-10 py-5 rounded-full shadow-xl text-lg font-bold transition-all'
-        >
-          {ctaText}
-          <FontAwesomeIcon icon={faArrowRight} />
-        </motion.button>
+        <div className='flex flex-col items-center'>
+          <motion.button
+            whileHover={{
+              scale: 1.03,
+              boxShadow: '0 20px 40px -15px rgba(45, 36, 30, 0.2)'
+            }}
+            whileTap={{ scale: 0.97 }}
+            onClick={scrollToCategories}
+            className='inline-flex items-center gap-4 bg-[#2D241E] text-white px-12 py-6 rounded-2xl shadow-xl text-lg font-bold transition-all'
+          >
+            <FontAwesomeIcon icon={faUtensils} className='text-orange-400' />
+            {ctaText}
+            <FontAwesomeIcon
+              icon={faArrowRight}
+              className='text-sm opacity-50'
+            />
+          </motion.button>
+        </div>
 
-        {/* Текст под кнопкой */}
+        {/* Разделитель и Соцсети */}
+        <div className='mt-20 flex flex-col items-center'>
+          <div className='w-16 h-[1px] bg-orange-100 mb-10' />
 
-        <div className='mb-6 flex flex-col items-center mt-10'>
-          <h3 className='text-lg font-bold mb-4 uppercase flex items-center justify-center'>
-            <FontAwesomeIcon icon={faStar} className='text-yellow-400 mr-2' />
-            <span className='bg-gradient-to-r  from-yellow-300 via-amber-300 to-red-300 bg-clip-text text-transparent'>
-              Наші Соцмережі
-            </span>
-          </h3>
+          <div className='flex flex-wrap justify-center gap-10 md:gap-16'>
+            {/* Instagram */}
+            <motion.a
+              href='https://www.instagram.com/royal_brine/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='flex items-center gap-4 group'
+              whileHover={{ y: -3 }}
+            >
+              <div className='w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-gray-100 group-hover:border-orange-200 group-hover:shadow-md transition-all duration-300'>
+                <FontAwesomeIcon
+                  icon={faInstagram}
+                  className='text-2xl text-[#2D241E]'
+                />
+              </div>
+              <div className='text-left'>
+                <span className='block font-bold text-[#2D241E] text-base'>
+                  Instagram
+                </span>
+                <span className='text-xs text-gray-400 font-medium'>
+                  Життя нашої кухні
+                </span>
+              </div>
+            </motion.a>
 
-          <ul className='text-amber-100 text-sm space-y-4 flex flex-col items-center'>
-            <li>
-              <motion.a
-                href='https://www.instagram.com/royal_brine/'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-red-300 flex items-center space-x-2 transition-all duration-300 hover:scale-105 group'
-                whileHover={{ x: 5 }}
-              >
-                <motion.div
-                  className='w-8 h-8 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center shadow-lg'
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <FontAwesomeIcon
-                    icon={faInstagram}
-                    className='w-4 h-4 text-white'
-                  />
-                </motion.div>
-                <div className='text-center'>
-                  <span className='font-medium'>Instagram</span>
-                  <p className='text-xs text-gray-400 group-hover:text-gray-300'>
-                    Новорічні акції та рецепти
-                  </p>
-                </div>
-              </motion.a>
-            </li>
-
-            <li>
-              <motion.a
-                href='https://www.tiktok.com/@royal.brine'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-green-300 flex items-center space-x-2 transition-all duration-300 hover:scale-105 group'
-                whileHover={{ x: 5 }}
-              >
-                <motion.div
-                  className='w-8 h-8 rounded-full bg-gradient-to-r from-black to-gray-800 flex items-center justify-center shadow-lg'
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <FontAwesomeIcon
-                    icon={faTiktok}
-                    className='w-4 h-4 text-white'
-                  />
-                </motion.div>
-                <div className='text-center'>
-                  <span className='font-medium'>TikTok</span>
-                  <p className='text-xs text-gray-400 group-hover:text-gray-300'>
-                    Новорічні відео та ідеї
-                  </p>
-                </div>
-              </motion.a>
-            </li>
-          </ul>
+            {/* TikTok */}
+            <motion.a
+              href='https://www.tiktok.com/@royal.brine'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='flex items-center gap-4 group'
+              whileHover={{ y: -3 }}
+            >
+              <div className='w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-gray-100 group-hover:border-orange-200 group-hover:shadow-md transition-all duration-300'>
+                <FontAwesomeIcon
+                  icon={faTiktok}
+                  className='text-2xl text-[#2D241E]'
+                />
+              </div>
+              <div className='text-left'>
+                <span className='block font-bold text-[#2D241E] text-base'>
+                  TikTok
+                </span>
+                <span className='text-xs text-gray-400 font-medium'>
+                  Наші смачні відео
+                </span>
+              </div>
+            </motion.a>
+          </div>
         </div>
       </motion.div>
-
-      {/* Лёгкие glow-слои */}
-      <div className='absolute -top-32 -left-32 w-96 h-96 bg-red-500/20 rounded-full blur-3xl' />
-      <div className='absolute bottom-[-120px] right-[-120px] w-96 h-96 bg-green-500/20 rounded-full blur-3xl' />
     </section>
   )
 }

@@ -1,9 +1,14 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FaGift } from 'react-icons/fa'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faCrown,
+  faArrowRight,
+  faLeaf
+} from '@fortawesome/free-solid-svg-icons'
 
-import logo from '../../assets/logo2.jpg'
+// Импорт изображений (остается без изменений)
 import semiFinishedImage from '../../assets/напівфабрикати.jpg'
 import culinariya from '../../assets/culinary.jpg'
 import pickles from '../../assets/pickles.jpg'
@@ -16,167 +21,176 @@ const isIOS =
   typeof navigator !== 'undefined' &&
   /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
-// Categories
+// Categories с флагом isHit
 const categories = [
   {
     id: 'pickles',
     name: 'Соління',
-    description: 'Традиційні домашні соління та маринади',
+    description: 'Традиційні домашні соління та маринади за старими рецептами',
     image: pickles,
     catalogLink: '/catalog/pickles',
-    icon: '🥒'
+    icon: '🥒',
+    isHit: true // ХИТ СЕЗОНА
   },
   {
     id: 'meats',
     name: 'Мʼясні вироби',
-    description: 'Домашні копчення та мʼясні делікатеси',
+    description: 'Натуральне копчення на вільховій трісці',
     image: meats,
     catalogLink: '/catalog/meats',
-    icon: '🥩'
+    icon: '🥩',
+    isHit: false
   },
   {
     id: 'fish',
-    name: 'Рибні вироби',
-    description: 'Рибні страви для святкового столу',
+    name: 'Рибні делікатеси',
+    description: 'Свіжа та копчена риба до вашого столу',
     image: fish,
     catalogLink: '/catalog/fish',
-    icon: '🐟'
+    icon: '🐟',
+    isHit: false
   },
   {
     id: 'cooking',
     name: 'Кулінарія',
-    description: 'Домашні страви та гарніри',
+    description: 'Готові домашні страви ',
     image: culinariya,
     catalogLink: '/catalog/cooking',
-    icon: '🍲'
+    icon: '🍲',
+    isHit: false
   },
   {
     id: 'semi-finished',
     name: 'Напівфабрикати',
-    description: 'Пельмені, вареники та заготовки',
+    description: 'Ручна ліпка: пельмені, вареники та голубці',
     image: semiFinishedImage,
     catalogLink: '/catalog/semi-finished',
-    icon: '🥟'
+    icon: '🥟',
+    isHit: false
   },
   {
     id: 'salads',
     name: 'Салати',
-    description: 'Салати та закуски на будь-який смак',
+    description: 'Свіжі та поживні салати на кожен день',
     image: salad,
     catalogLink: '/catalog/salad',
-    icon: '🥗'
+    icon: '🥗',
+    isHit: false
   }
 ]
 
 export function Product () {
-  // ❄ Оптимизированные снежинки — CSS + лёгкая генерация
-  const snowflakes = useMemo(
-    () =>
-      Array.from({ length: isIOS ? 6 : 10 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        size: `${8 + Math.random() * 10}px`,
-        delay: `${Math.random() * 4}s`,
-        duration: `${6 + Math.random() * 5}s`,
-        drift: `${-20 + Math.random() * 40}px`
-      })),
-    []
-  )
-
   return (
     <section
       id='categories'
-      className='relative py-20 bg-cover bg-center overflow-hidden'
-      style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(17,24,39,0.92), rgba(17,24,39,0.96)), url(${logo})`
-      }}
+      className='relative py-24 bg-[#FDFCFB] overflow-hidden'
     >
-      {/* ❄ Снежинки */}
-      <div className='absolute inset-0 pointer-events-none z-0'>
-        {snowflakes.map(s => (
-          <div
-            key={s.id}
-            className='snowflake'
-            style={{
-              left: s.left,
-              fontSize: s.size,
-              animationDelay: s.delay,
-              animationDuration: s.duration,
-              '--drift': s.drift
-            }}
-          >
-            ❄
-          </div>
-        ))}
-      </div>
+      {/* Мягкие декоративные элементы на фоне */}
+      <div className='absolute top-0 right-0 w-64 h-64 bg-orange-50 rounded-full blur-3xl -mr-32 -mt-32' />
+      <div className='absolute bottom-0 left-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -ml-32 -mb-32' />
 
-      {/* MAIN CONTENT */}
       <div className='relative z-10 container mx-auto px-4'>
-        {/* Заголовок */}
+        {/* Заголовок в домашнем стиле */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-16'
+          className='text-center mb-20'
         >
-          <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-300 via-red-400 to-green-400 bg-clip-text text-transparent'>
-            Категорії Royal Brine
+          <div className='flex items-center justify-center gap-2 mb-4 text-orange-500'>
+            <FontAwesomeIcon icon={faLeaf} className='text-sm' />
+            <span className='text-[10px] font-black uppercase tracking-[0.3em] text-gray-400'>
+              Наше Меню
+            </span>
+            <FontAwesomeIcon icon={faLeaf} className='text-sm' />
+          </div>
+
+          <h2 className='text-4xl md:text-6xl font-black text-[#2D241E] mb-6 tracking-tight'>
+            Домашня <span className='text-orange-500'>Комора</span>
           </h2>
 
-          <p className='mt-4 text-amber-100 text-lg max-w-2xl mx-auto'>
-            Обирайте найсмачніші домашні страви для святкового столу 🎄
+          <p className='text-gray-500 text-lg max-w-2xl mx-auto font-medium leading-relaxed'>
+            Тільки натуральні інгредієнти та перевірені часом рецепти, щоб ви
+            відчували смак дому в кожній страві.
           </p>
-
-          <div className='mt-6 w-32 h-1 mx-auto bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 rounded-full' />
         </motion.div>
 
-        {/* Категории */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+        {/* Сетка категорий */}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10'>
           {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.07 }}
-              whileHover={!isIOS ? { y: -4 } : {}}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
             >
-              <div className='rounded-2xl overflow-hidden bg-white/95 shadow-lg hover:shadow-xl transition-all duration-300 h-full flex flex-col'>
-                {/* IMG */}
+              <div
+                className={`relative rounded-[2.5rem] overflow-hidden bg-white shadow-sm transition-all duration-500 flex flex-col h-full border-2 
+                ${
+                  cat.isHit
+                    ? 'border-orange-400/30 ring-8 ring-orange-50 shadow-orange-100/50'
+                    : 'border-transparent hover:border-orange-100 hover:shadow-xl hover:shadow-orange-100/20'
+                }`}
+              >
+                {/* Бейдж ХИТ СЕЗОНА */}
+                {cat.isHit && (
+                  <div className='absolute top-6 right-6 z-20 bg-orange-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-pulse'>
+                    <FontAwesomeIcon icon={faCrown} className='text-[10px]' />
+                    <span className='text-[10px] font-black uppercase tracking-wider'>
+                      Хіт сезону
+                    </span>
+                  </div>
+                )}
+
+                {/* Изображение */}
                 <Link
                   to={cat.catalogLink}
-                  className='block relative h-56 overflow-hidden'
+                  className='block relative h-64 overflow-hidden group'
                 >
                   <img
                     src={cat.image}
                     alt={cat.name}
-                    className='w-full h-full object-cover transition-transform duration-500 hover:scale-105'
+                    className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
                     loading='lazy'
                   />
+                  <div className='absolute inset-0 bg-gradient-to-t from-[#2D241E]/40 to-transparent opacity-60' />
 
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
-
-                  <div className='absolute top-4 left-4 w-12 h-12 rounded-full bg-black/40 flex items-center justify-center text-white text-xl'>
+                  {/* Иконка */}
+                  <div className='absolute bottom-6 left-6 w-12 h-12 rounded-2xl bg-white/90 backdrop-blur shadow-lg flex items-center justify-center text-2xl'>
                     {cat.icon}
                   </div>
                 </Link>
 
-                {/* TEXT */}
-                <div className='p-6 flex flex-col flex-grow'>
-                  <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+                {/* Текст */}
+                <div className='p-8 flex flex-col flex-grow'>
+                  <h3
+                    className={`text-2xl font-black mb-3 transition-colors ${
+                      cat.isHit ? 'text-orange-600' : 'text-[#2D241E]'
+                    }`}
+                  >
                     {cat.name}
                   </h3>
 
-                  <p className='text-gray-600 mb-6 flex-grow'>
+                  <p className='text-gray-500 text-sm leading-relaxed mb-8 flex-grow font-medium'>
                     {cat.description}
                   </p>
 
                   <Link
                     to={cat.catalogLink}
-                    className='mt-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white py-3 px-6 rounded-full font-bold shadow-md hover:shadow-lg transition'
+                    className={`mt-auto inline-flex items-center justify-center gap-3 py-4 px-8 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] transition-all active:scale-95
+                      ${
+                        cat.isHit
+                          ? 'bg-orange-500 text-white shadow-lg shadow-orange-200'
+                          : 'bg-[#2D241E] text-white hover:bg-orange-600 shadow-md'
+                      }`}
                   >
-                    До каталогу →
+                    Переглянути
+                    <FontAwesomeIcon
+                      icon={faArrowRight}
+                      className='text-[10px] opacity-60'
+                    />
                   </Link>
                 </div>
               </div>

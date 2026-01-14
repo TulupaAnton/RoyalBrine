@@ -1,251 +1,161 @@
-import React from 'react'
+import React, { useState, useEffect, useMemo, memo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { database } from '../../lib/productSuperbase'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faHeart,
   faSearch,
-  faArrowRight,
-  faCartShopping,
-  faSnowflake
+  faChevronLeft,
+  faCartPlus,
+  faUtensils,
+  faFish,
+  faDrumstickBite,
+  faBoxOpen,
+  faSeedling,
+  faLeaf,
+  faClose,
+  faShoppingBasket,
+  faEye
 } from '@fortawesome/free-solid-svg-icons'
 import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import { toast } from 'react-hot-toast'
 
-/* ===== CATEGORY NAMES ===== */
+/* ===== CONFIGURATION ===== */
 const categoryNames = {
-  pickles: 'Соління',
-  smoked: 'Копчення',
-  cooking: 'Кулінарія',
-  meats: 'Мʼясні вироби',
-  fish: 'Рибні вироби',
-  'semi-finished': 'Напівфабрикати',
-  salad: 'Салати'
+  pickles: 'Домашні Соління',
+  fish: 'Рибні Делікатеси',
+  meats: 'Мʼясні Вироби',
+  cooking: 'Домашня Кулінарія',
+  'semi-finished': 'Напівфабрикати'
 }
 
-/* ===== IMAGE CACHE ===== */
-const imageCache = new Map()
-
-const preloadImage = src => {
-  return new Promise((resolve, reject) => {
-    if (!src) return reject()
-    if (imageCache.has(src)) return resolve(imageCache.get(src))
-
-    const img = new Image()
-    img.src = src
-    img.onload = () => {
-      imageCache.set(src, img)
-      resolve(img)
-    }
-    img.onerror = reject
-  })
+const subcategoryConfig = {
+  pickles: [
+    { id: 'all', label: 'Усі', icon: faUtensils },
+    { id: 'cucumber', label: 'Огірки', icon: faSeedling },
+    { id: 'tomato', label: 'Помідори', icon: faLeaf },
+    { id: 'carrot', label: 'Морква', icon: faBoxOpen },
+    { id: 'cabbage', label: 'Капуста', icon: faLeaf },
+    { id: 'mushrooms', label: 'Гриби', icon: faBoxOpen },
+    { id: 'eggplant', label: 'Баклажани', icon: faBoxOpen },
+    { id: 'beet', label: 'Буряк', icon: faBoxOpen },
+    { id: 'other', label: 'Інше', icon: faBoxOpen }
+  ],
+  fish: [
+    { id: 'all', label: 'Усі', icon: faFish },
+    { id: 'salted', label: 'Солона', icon: faFish },
+    { id: 'smoked', label: 'Копчена', icon: faFish }
+  ],
+  meats: [
+    { id: 'all', label: 'Усі', icon: faDrumstickBite },
+    { id: 'smoked', label: 'Копчення', icon: faDrumstickBite },
+    { id: 'fried', label: 'Смажене', icon: faUtensils },
+    { id: 'salo', label: 'Солоне мʼясо', icon: faUtensils }
+  ]
 }
 
-/* ===== IN VIEW ANIMATION ===== */
-function useInView (ref, options = {}) {
-  const [inView, setInView] = React.useState(false)
+/* ===== SUB-COMPONENTS ===== */
 
-  React.useEffect(() => {
-    const node = ref.current
-    if (!node) return
-
-    const obs = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setInView(true)
-            if (options.once) obs.unobserve(node)
-          }
-        })
-      },
-      { threshold: 0.15 }
-    )
-    obs.observe(node)
-    return () => obs.disconnect()
-  }, [ref, options.once])
-
-  return inView
-}
-
-/* ===== IMAGE LOADER ===== */
-const OptimizedImage = ({ src, fallback = zaglushka, alt = '' }) => {
-  const [imgSrc, setImgSrc] = React.useState(null)
-  const [loaded, setLoaded] = React.useState(false)
-
-  React.useEffect(() => {
-    const loadImage = async () => {
-      setLoaded(false)
-
-      if (!src) {
-        setImgSrc(fallback)
-        setLoaded(true)
-        return
-      }
-
-      try {
-        const url = new URL(`../../assets/products/${src}`, import.meta.url)
-          .href
-
-        await preloadImage(url)
-        setImgSrc(url)
-        setLoaded(true)
-      } catch (e) {
-        setImgSrc(fallback)
-        setLoaded(true)
-      }
-    }
-
-    loadImage()
-  }, [src, fallback])
+const ProductCard = memo(({ product, category, onAddToCart }) => {
+  const imageUrl = useMemo(() => {
+    if (!product.images?.[0]) return zaglushka
+    return new URL(
+      `../../assets/products/${product.images[0]}`,
+      import.meta.url
+    ).href
+  }, [product.images])
 
   return (
-    <div className='relative h-full w-full'>
-      {!loaded && (
-        <div className='absolute inset-0 animate-pulse bg-gray-200'></div>
-      )}
-
-      {imgSrc && (
-        <img
-          src={imgSrc}
-          alt={alt}
-          className={`w-full h-full object-cover rounded-xl transition duration-500 ${
-            loaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-      )}
-    </div>
-  )
-}
-/* ======================================================
-   🎄 СНЕЖИНКИ (генератор прямо здесь в файле)
-====================================================== */
-const Snowfall = ({ count = 40 }) => {
-  const flakes = React.useMemo(() => {
-    return Array.from({ length: count }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      size: Math.random() * 8 + 8,
-      duration: Math.random() * 12 + 8,
-      delay: Math.random() * -20,
-      drift: `${Math.random() * 100 - 50}px`
-    }))
-  }, [count])
-
-  return (
-    <div className='pointer-events-none fixed inset-0 z-50 overflow-hidden'>
-      {flakes.map(f => (
-        <div
-          key={f.id}
-          className='snowflake'
-          style={{
-            left: `${f.left}%`,
-            fontSize: `${f.size}px`,
-            animationDuration: `${f.duration}s`,
-            animationDelay: `${f.delay}s`,
-            '--drift': f.drift
-          }}
-        >
-          ❄
-        </div>
-      ))}
-    </div>
-  )
-}
-
-/* ======================================================
-   🎄 PRODUCT CARD – Новый дизайн карточек
-====================================================== */
-const ProductCard = ({ product, category, index, onAddToCart }) => {
-  const ref = React.useRef(null)
-  const inView = useInView(ref, { once: true })
-
-  return (
-    <article
-      ref={ref}
-      className={`
-        relative bg-white/90 rounded-3xl shadow-xl overflow-hidden border border-amber-200/60 
-        backdrop-blur-sm transition duration-500 
-        ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}
-        hover:-translate-y-1 hover:shadow-2xl
-      `}
-    >
-      {/* Новогодний декор */}
-      <div className='absolute top-2 right-2 text-red-400 text-xl animate-spin-slow'>
-        <FontAwesomeIcon icon={faSnowflake} />
-      </div>
-
+    <article className='bg-white rounded-[2rem] p-2 shadow-sm border border-gray-100 flex flex-col h-full group transition-all duration-300 hover:shadow-lg'>
+      {/* 1. Изображение - Фиксированный квадрат */}
       <Link
         to={`/product/${category}/${product.id}`}
-        className='relative h-72 w-full block'
+        className='relative aspect-square overflow-hidden rounded-[1.7rem] mb-3 flex-shrink-0 bg-gray-50'
       >
-        <OptimizedImage src={product.images?.[0]} alt={product.name} />
-
-        {/* Если товар недоступен */}
-        {product.isAccessible && (
-          <div className='absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center'>
-            <span className='text-white text-lg font-bold'>
-              Товар скоро зʼявиться
-            </span>
-          </div>
-        )}
+        <img
+          src={imageUrl}
+          alt={product.name}
+          loading='lazy'
+          className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+          onError={e => {
+            e.target.src = zaglushka
+          }}
+        />
+        <div className='absolute top-2 left-2 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-black/5'>
+          <span className='text-[9px] font-black text-gray-800 uppercase tracking-tighter'>
+            {product.weight}
+          </span>
+        </div>
       </Link>
 
-      {/* Контент */}
-      <div className='p-5'>
-        <h3 className='font-semibold text-lg text-gray-900 mb-2 line-clamp-2'>
-          {product.name}
-        </h3>
+      {/* 2. Контентная часть - Flex-grow выравнивает низ */}
+      <div className='flex flex-col flex-grow px-2 pb-2'>
+        {/* Верхний блок: Название и Кнопка подробностей */}
+        <div className='flex-grow'>
+          <h3 className='text-gray-900 font-bold text-[13px] md:text-base leading-tight mb-2 line-clamp-2 min-h-[2.2rem] md:min-h-[2.5rem]'>
+            {product.name}
+          </h3>
 
-        <div className='flex justify-between items-center'>
-          <span className='text-xl font-bold text-red-500 drop-shadow-md'>
-            {product.price}
-          </span>
-          <span className='text-sm text-gray-500'>{product.weight}</span>
-        </div>
-
-        <div className='mt-4 flex justify-between items-center'>
           <Link
             to={`/product/${category}/${product.id}`}
-            className='px-4 py-2 bg-white border border-red-300 rounded-xl shadow text-red-600 hover:bg-red-50'
+            className='mb-3 py-2 w-full bg-orange-50/50 rounded-xl text-orange-600 text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 active:bg-orange-100 transition-colors'
           >
+            <FontAwesomeIcon icon={faEye} className='text-[10px]' />
             Детальніше
           </Link>
+        </div>
+
+        {/* 3. Нижний блок: Всегда прижат к низу и выровнен в ряд */}
+        <div className='pt-2 border-t border-gray-50 flex items-center justify-between gap-1'>
+          <div className='flex flex-col justify-end'>
+            <span className='text-[9px] text-gray-400 font-bold leading-none uppercase mb-0.5'>
+              Ціна
+            </span>
+            <div className='flex items-baseline'>
+              <span className='text-lg font-black text-gray-900 leading-none'>
+                {product.price}
+              </span>
+              <span className='text-[10px] font-bold text-gray-900 ml-0.5'>
+                ₴
+              </span>
+            </div>
+          </div>
 
           <button
             disabled={product.isAccessible}
             onClick={() => onAddToCart(product)}
-            className={`
-              px-4 py-2 rounded-xl text-sm shadow flex items-center 
+            className={`h-10 w-10 sm:w-auto sm:px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-90
               ${
                 product.isAccessible
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-500 to-amber-500 text-white'
-              }
-            `}
+                  ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                  : 'bg-gray-900 text-white shadow-md hover:bg-orange-600'
+              }`}
           >
-            <FontAwesomeIcon icon={faCartShopping} className='mr-2' />У кошик
+            <FontAwesomeIcon icon={faCartPlus} className='text-sm' />
+            <span className='hidden sm:inline text-[10px] font-black uppercase tracking-widest'>
+              Купити
+            </span>
           </button>
         </div>
       </div>
     </article>
   )
-}
+})
 
-/* ======================================================
-   🎄 MAIN CATALOG PAGE
-====================================================== */
+/* ===== MAIN CATALOG ===== */
 export function Catalog () {
   const { category } = useParams()
-  const [products, setProducts] = React.useState([])
-  const [searchTerm, setSearchTerm] = React.useState('')
-  const [meatFilter, setMeatFilter] = React.useState('all')
-  const [loading, setLoading] = React.useState(true)
-
+  const [products, setProducts] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [activeSubFilter, setActiveSubFilter] = useState('all')
+  const [loading, setLoading] = useState(true)
   const { addToCart } = useCartStore()
 
-  /* Load products */
-  React.useEffect(() => {
+  // Реф для фокуса на поиске
+  const searchInputRef = useRef(null)
+
+  useEffect(() => {
+    setActiveSubFilter('all')
     const load = async () => {
       setLoading(true)
       const { data } = await database
@@ -253,142 +163,153 @@ export function Catalog () {
         .select('*')
         .eq('category', category)
         .order('id', { ascending: true })
-
       setProducts(data || [])
       setLoading(false)
     }
     load()
   }, [category])
 
-  /* FILTER */
-  const filtered = products
-    .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter(p => {
-      if (category !== 'meats') return true
-      if (meatFilter === 'all') return true
-      return p.meat_type === meatFilter
+  const filtered = useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+      const matchesSub =
+        activeSubFilter === 'all' ||
+        p.subcategory === activeSubFilter ||
+        p.meat_type === activeSubFilter
+      return matchesSearch && matchesSub
     })
+  }, [products, searchTerm, activeSubFilter])
 
   const handleAddToCart = p => {
     addToCart(p, category)
-    toast.success(`${p.name} додано до кошика 🎁`)
+    toast.success(`${p.name} додано!`, {
+      icon: '🛒',
+      position: 'top-center',
+      style: { borderRadius: '100px', background: '#111', color: '#fff' }
+    })
+  }
+
+  // Функция для скролла вверх и фокуса в инпут
+  const handleFocusSearch = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setTimeout(() => {
+      searchInputRef.current?.focus()
+    }, 450)
   }
 
   return (
-    <div className='relative bg-gradient-to-b from-red-100 via-amber-50 to-white min-h-screen py-16'>
-      {/* ❄ Снежинки */}
-      <Snowfall count={55} />
+    <div className='min-h-screen bg-[#FDFCFB] text-[#2D241E] pb-32'>
+      {/* Header */}
+      <header className='sticky top-0 z-40 bg-[#FDFCFB]/80 backdrop-blur-xl border-b border-gray-100'>
+        <div className='container mx-auto px-4 pt-6 pb-2'>
+          <div className='flex items-center gap-4 mb-5'>
+            <Link
+              to='/'
+              className='w-10 h-10 flex items-center justify-center bg-white shadow-sm border border-gray-100 rounded-full text-gray-800 active:scale-90 transition-all'
+            >
+              <FontAwesomeIcon icon={faChevronLeft} />
+            </Link>
+            <h1 className='text-xl font-black tracking-tight'>
+              {categoryNames[category]}
+            </h1>
+          </div>
 
-      <div className='container mx-auto px-4 relative z-10'>
-        <h1 className='text-5xl font-black text-red-600 mb-6 drop-shadow-lg flex items-center gap-3'>
-          <FontAwesomeIcon
-            icon={faSnowflake}
-            className='text-amber-500 animate-spin-slow'
-          />
-          {categoryNames[category]}
-          <FontAwesomeIcon
-            icon={faSnowflake}
-            className='text-amber-500 animate-spin-slow'
-          />
-        </h1>
-
-        {/* Поиск */}
-        <div className='flex items-center mb-10'>
-          <div className='relative w-full max-w-md'>
+          <div className='relative mb-4'>
             <FontAwesomeIcon
               icon={faSearch}
-              className='absolute left-4 top-1/2 -translate-y-1/2 text-red-500'
+              className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-300'
             />
-
             <input
+              ref={searchInputRef}
               type='text'
-              placeholder='Пошук продуктів...'
+              placeholder='Шукаєте щось смачьненье? '
+              className='w-full bg-white border border-gray-100 focus:border-orange-200 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold shadow-sm transition-all outline-none'
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-12 pr-4 py-3 bg-white border border-red-200 rounded-xl shadow'
             />
           </div>
 
-          <Link
-            to='/'
-            className='ml-4 px-5 py-3 bg-white border border-red-300 rounded-xl text-red-600 shadow'
-          >
-            <FontAwesomeIcon icon={faArrowRight} className='mr-2 -rotate-180' />
-            На головну
-          </Link>
+          {/* Категории фильтрации */}
+          {subcategoryConfig[category] && (
+            <div className='flex gap-2 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4'>
+              {subcategoryConfig[category].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setActiveSubFilter(f.id)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black transition-all uppercase tracking-widest whitespace-nowrap
+                    ${
+                      activeSubFilter === f.id
+                        ? 'bg-orange-500 text-white shadow-md shadow-orange-100'
+                        : 'bg-white text-gray-400 border border-gray-100'
+                    }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        {/* Фільтр для мʼяса */}
-        {category === 'meats' && (
-          <div className='flex flex-wrap gap-3 mb-8'>
-            <button
-              onClick={() => setMeatFilter('all')}
-              className={`px-4 py-2 rounded-xl border transition ${
-                meatFilter === 'all'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-white border-red-300 text-red-600 hover:bg-red-50'
-              }`}
-            >
-              Усі
-            </button>
+      </header>
 
-            <button
-              onClick={() => setMeatFilter('smoked')}
-              className={`px-4 py-2 rounded-xl border transition ${
-                meatFilter === 'smoked'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-white border-red-300 text-red-600 hover:bg-red-50'
-              }`}
-            >
-              Копчене
-            </button>
-
-            <button
-              onClick={() => setMeatFilter('fried')}
-              className={`px-4 py-2 rounded-xl border transition ${
-                meatFilter === 'fried'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-white border-red-300 text-red-600 hover:bg-red-50'
-              }`}
-            >
-              Смажене
-            </button>
-
-            <button
-              onClick={() => setMeatFilter('regular')}
-              className={`px-4 py-2 rounded-xl border transition ${
-                meatFilter === 'regular'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-white border-red-300 text-red-600 hover:bg-red-50'
-              }`}
-            >
-              Свіже
-            </button>
-          </div>
-        )}
-
-        {/* Grid */}
+      {/* Main Grid */}
+      <main className='container mx-auto px-4 py-6'>
         {loading ? (
-          <div className='text-center py-20 text-gray-600 text-lg'>
-            Завантаження…
+          <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6'>
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className='aspect-[3/5] bg-gray-100 rounded-[2rem] animate-pulse'
+              />
+            ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {filtered.map((p, i) => (
+          <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6'>
+            {filtered.map(p => (
               <ProductCard
                 key={p.id}
                 product={p}
                 category={category}
-                index={i}
                 onAddToCart={handleAddToCart}
               />
             ))}
           </div>
         ) : (
-          <div className='text-center py-20 text-gray-500 text-lg'>
-            Товарів не знайдено
+          <div className='text-center py-24'>
+            <div className='text-5xl mb-4'>🥘</div>
+            <p className='font-black text-gray-300 uppercase text-[10px] tracking-widest'>
+              Нічого не знайдено
+            </p>
           </div>
         )}
-      </div>
+      </main>
+
+      {/* Bottom Navigation (Mobile Only) */}
+      <nav className='md:hidden fixed bottom-6 left-6 right-6 z-50'>
+        <div className='bg-gray-900/95 backdrop-blur-xl rounded-full h-16 flex items-center justify-around px-6 shadow-2xl border border-white/10'>
+          <Link
+            to='/'
+            className='p-3 text-white/40 hover:text-white transition-colors'
+          >
+            <FontAwesomeIcon icon={faUtensils} className='text-lg' />
+          </Link>
+
+          <button
+            onClick={handleFocusSearch}
+            className='w-14 h-14 bg-orange-500 text-white rounded-full flex items-center justify-center -translate-y-6 shadow-xl shadow-orange-500/40 border-[6px] border-[#FDFCFB] active:scale-95 transition-transform'
+          >
+            <FontAwesomeIcon icon={faSearch} className='text-xl' />
+          </button>
+
+          <Link
+            to='/cart'
+            className='p-3 text-white/40 hover:text-white transition-colors'
+          >
+            <FontAwesomeIcon icon={faShoppingBasket} className='text-lg' />
+          </Link>
+        </div>
+      </nav>
     </div>
   )
 }

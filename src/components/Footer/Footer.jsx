@@ -1,212 +1,166 @@
-import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons'
+import React from 'react'
+import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons'
+import {
+  faHeart,
+  faPhone,
+  faEnvelope,
+  faMapMarkerAlt,
+  faUtensils,
+  faLeaf
+} from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
-import { FaGift, FaStar, FaSnowflake, FaTree } from 'react-icons/fa'
 
 export function Footer () {
   const currentYear = new Date().getFullYear()
 
-  // Новогодние снежинки
-  const snowflakes = Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: Math.random() * 6 + 3,
-    delay: Math.random() * 3
-  }))
-
   return (
-    <footer className='bg-gradient-to-b from-green-950 via-red-900 to-green-950 text-white py-14 relative overflow-hidden'>
-      {/* Анимированные снежинки */}
-      <div className='absolute inset-0 pointer-events-none'>
-        {snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-white/20'
-            style={{
-              left: flake.left,
-              fontSize: `${flake.size}px`
-            }}
-            initial={{ y: -50 }}
-            animate={{ y: '100vh' }}
-            transition={{
-              duration: 3 + Math.random() * 5,
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          >
-            <FaSnowflake />
-          </motion.div>
-        ))}
-      </div>
+    <footer className='bg-[#1A1614] text-white py-16 relative overflow-hidden'>
+      {/* Декоративный элемент на фоне */}
+      <div className='absolute bottom-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-[100px] -mb-48 -mr-48' />
 
-      {/* Новогодние огоньки сверху */}
-      <div className='absolute top-0 left-0 right-0 h-1'>
-        <div className='flex justify-between px-2'>
-          {Array.from({ length: 25 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className='w-2 h-2 rounded-full'
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 1, 0.3]
-              }}
-              transition={{
-                duration: 1,
-                delay: i * 0.1,
-                repeat: Infinity
-              }}
-              style={{
-                backgroundColor:
-                  i % 3 === 0 ? '#dc2626' : i % 3 === 1 ? '#16a34a' : '#fbbf24'
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      <div className='max-w-screen-xl mx-auto px-6 relative z-10'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24'>
+          {/* Блок 1: О нас */}
+          <div className='space-y-6'>
+            <div className='flex items-center gap-3'>
+              <h3 className='text-2xl font-black tracking-tight'>
+                Royal <span className='text-orange-500'>Brine</span>
+              </h3>
+            </div>
+            <p className='text-gray-400 text-sm leading-relaxed max-w-sm'>
+              Ми віримо, що справжня їжа має бути домашньою. Готуємо з
+              натуральних інгредієнтів за перевіреними рецептами, щоб ви могли
+              насолоджуватися смаком дитинства щодня.
+            </p>
+            <div className='flex gap-4 pt-2'>
+              <motion.a
+                whileHover={{ y: -3 }}
+                href='https://www.instagram.com/royal_brine/'
+                className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-orange-500 transition-colors'
+              >
+                <FontAwesomeIcon icon={faInstagram} />
+              </motion.a>
+              <motion.a
+                whileHover={{ y: -3 }}
+                href='https://www.tiktok.com/@royal.brine'
+                className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-orange-500 transition-colors'
+              >
+                <FontAwesomeIcon icon={faTiktok} />
+              </motion.a>
+            </div>
+          </div>
 
-      <div className='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12 relative z-10'>
-        {/* Про нас с новогодней темой */}
-        <div>
-          <h3 className='text-lg font-bold mb-4 uppercase flex items-center'>
-            <FaTree className='text-green-400 mr-2' />
-            <span className='bg-gradient-to-r from-amber-300 via-yellow-300 to-green-300 bg-clip-text text-transparent'>
-              З Новим Роком!
-            </span>
-          </h3>
-          <p className='text-amber-100 text-sm leading-relaxed'>
-            Готуємо ваш новорічний стіл з любов'ю та турботою! 🎄 Найсвіжіші
-            інгредієнти, традиційні рецепти та швидка доставка по Запоріжжю.
-            Нехай ваші свята будуть смачними!
-          </p>
-
-          {/* Новогоднее предложение */}
-        </div>
-
-        {/* Контакти с праздничным оформлением */}
-        <div>
-          <h3 className='text-lg font-bold mb-4 uppercase flex items-center'>
-            <FaGift className='text-red-400 mr-2' />
-            <span className='bg-gradient-to-r from-red-300 via-pink-300 to-amber-300 bg-clip-text text-transparent'>
-              Новорічні контакти
-            </span>
-          </h3>
-          <ul className='text-amber-100 text-sm space-y-2'>
-            <li className='flex items-center'>
-              <span className='w-5 h-5 mr-2 bg-red-500 rounded-full flex items-center justify-center text-xs'>
-                📍
-              </span>
-              <span>Запоріжжя, Україна</span>
-            </li>
-            <li className='flex items-center'>
-              <span className='w-5 h-5 mr-2 bg-green-500 rounded-full flex items-center justify-center text-xs'>
-                📞
-              </span>
-              <span>+38 (099) 352-38-68</span>
-            </li>
-            <li className='flex items-center'>
-              <span className='w-5 h-5 mr-2 bg-yellow-500 rounded-full flex items-center justify-center text-xs'>
-                📧
-              </span>
-              <span>royalbriner@gmail.com</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Соцмережі + Посиланния с праздничным стилем */}
-        <div>
+          {/* Блок 2: Контакты */}
           <div>
-            <h3 className='text-lg font-bold mt-6 mb-4 uppercase flex items-center'>
-              <FaSnowflake className='text-blue-300 mr-2' />
-              <span className='bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent'>
-                Корисні посилання
-              </span>
-            </h3>
-            <ul className='text-amber-100 text-sm space-y-2'>
+            <h4 className='text-sm font-black uppercase tracking-[0.2em] text-orange-500 mb-8'>
+              Контакти
+            </h4>
+            <ul className='space-y-5'>
+              <li className='flex items-start gap-4 group'>
+                <div className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-orange-400 transition-colors'>
+                  <FontAwesomeIcon icon={faMapMarkerAlt} className='text-sm' />
+                </div>
+                <div>
+                  <p className='text-[10px] font-black uppercase text-gray-500'>
+                    Локація
+                  </p>
+                  <p className='text-sm font-bold'>Запоріжжя, Україна</p>
+                </div>
+              </li>
+              <li className='flex items-start gap-4 group'>
+                <div className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-orange-400 transition-colors'>
+                  <FontAwesomeIcon icon={faPhone} className='text-sm' />
+                </div>
+                <div>
+                  <p className='text-[10px] font-black uppercase text-gray-500'>
+                    Зателефонувати
+                  </p>
+                  <p className='text-sm font-bold'>+38 (099) 352-38-68</p>
+                </div>
+              </li>
+              <li className='flex items-start gap-4 group'>
+                <div className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-orange-400 transition-colors'>
+                  <FontAwesomeIcon icon={faEnvelope} className='text-sm' />
+                </div>
+                <div>
+                  <p className='text-[10px] font-black uppercase text-gray-500'>
+                    Написати
+                  </p>
+                  <p className='text-sm font-bold'>royalbriner@gmail.com</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          {/* Блок 3: Ссылки */}
+          <div>
+            <h4 className='text-sm font-black uppercase tracking-[0.2em] text-orange-500 mb-8'>
+              Навігація
+            </h4>
+            <ul className='space-y-4 text-sm font-bold'>
               <li>
-                <motion.a
-                  href='/'
-                  className='hover:text-yellow-300 transition-all duration-300 flex items-center group'
-                  whileHover={{ x: 5 }}
+                <Link
+                  to='/'
+                  className='text-gray-400 hover:text-white transition-colors flex items-center gap-2'
                 >
-                  <span className='mr-2 group-hover:scale-110 transition-transform'>
-                    🏠
-                  </span>
-                  <span>Новорічна головна</span>
-                </motion.a>
+                  <FontAwesomeIcon
+                    icon={faLeaf}
+                    className='text-[10px] text-orange-500/50'
+                  />
+                  Головна сторінка
+                </Link>
               </li>
               <li>
-                <motion.a
-                  href='/catalog/semi-finished'
-                  className='hover:text-red-300 transition-all duration-300 flex items-center group'
-                  whileHover={{ x: 5 }}
+                <Link
+                  to='/catalog/pickles'
+                  className='text-gray-400 hover:text-white transition-colors flex items-center gap-2'
                 >
-                  <span className='mr-2 group-hover:scale-110 transition-transform'>
-                    🎁
-                  </span>
-                  <span>Новорічні товари</span>
-                </motion.a>
+                  <FontAwesomeIcon
+                    icon={faLeaf}
+                    className='text-[10px] text-orange-500/50'
+                  />
+                  Наше меню
+                </Link>
               </li>
               <li>
-                <motion.a
-                  href='/Contact'
-                  className='hover:text-green-300 transition-all duration-300 flex items-center group'
-                  whileHover={{ x: 5 }}
+                <Link
+                  to='/Contact'
+                  className='text-gray-400 hover:text-white transition-colors flex items-center gap-2'
                 >
-                  <span className='mr-2 group-hover:scale-110 transition-transform'>
-                    📞
-                  </span>
-                  <span>Святкові контакти</span>
-                </motion.a>
+                  <FontAwesomeIcon
+                    icon={faLeaf}
+                    className='text-[10px] text-orange-500/50'
+                  />
+                  Зворотній зв'язок
+                </Link>
               </li>
               <li>
-                <motion.a
-                  href='/terms'
-                  className='hover:text-amber-300 transition-all duration-300 flex items-center group'
-                  whileHover={{ x: 5 }}
+                <Link
+                  to='/terms'
+                  className='text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs opacity-60'
                 >
-                  <span className='mr-2 group-hover:scale-110 transition-transform'>
-                    📄
-                  </span>
-                  <span>Умови користування</span>
-                </motion.a>
-              </li>
-              <li>
-                <motion.a
-                  href='/privacy'
-                  className='hover:text-blue-300 transition-all duration-300 flex items-center group'
-                  whileHover={{ x: 5 }}
-                >
-                  <span className='mr-2 group-hover:scale-110 transition-transform'>
-                    🔒
-                  </span>
-                  <span>Політика конфіденційності</span>
-                </motion.a>
+                  Умови користування
+                </Link>
               </li>
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* Новогодний разделитель */}
-      <div className='relative mt-12 pt-6 border-t border-amber-500/30'>
-        <div className='text-center text-sm text-amber-200'>
-          <p className='mb-2'>
-            Зима {currentYear} | З Новим Роком та Різдвом Христовим! 🎅✨
+        {/* Копирайт */}
+        <div className='mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6'>
+          <p className='text-xs text-gray-500 font-medium'>
+            &copy; {currentYear}{' '}
+            <span className='text-gray-300'>Royal Brine</span>. Всі права
+            захищені.
           </p>
+          <div className='flex items-center gap-2 text-xs text-gray-500'>
+            <span>Зроблено з</span>
+            <FontAwesomeIcon icon={faHeart} className='text-orange-500' />
+            <span>для вашого затишку</span>
+          </div>
         </div>
-      </div>
-
-      <div className='text-center text-xs text-amber-300/70 mt-6'>
-        <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          &copy; {currentYear} RoyalBriner. Всі права захищені.
-          <span className='block mt-1 text-amber-400/50'>
-            Зроблено з ❤️ для ваших новорічних свят
-          </span>
-        </motion.div>
       </div>
     </footer>
   )

@@ -4,13 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faTrash,
   faArrowLeft,
-  faShoppingBag,
+  faShoppingBasket,
   faCircleXmark,
   faBroom,
-  faGift,
-  faTree,
-  faSnowflake,
-  faStar
+  faHeart,
+  faUtensils,
+  faTruckFast
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import zaglushka from '../../assets/zaglushka.jpg'
@@ -29,18 +28,18 @@ export function CartPage () {
   const totalPrice = useCartStore(state => state.totalPrice())
   const cartCount = useCartStore(state => state.cartCount())
 
-  // Используем сгруппированные товары
   const groupedItems = getGroupedItems()
 
   const handleClearCart = () => {
     clearCart()
-    toast('🎄 Кошик повністю очищено', {
-      icon: <FontAwesomeIcon icon={faBroom} className='text-green-600' />,
+    toast('🧺 Кошик очищено', {
+      icon: <FontAwesomeIcon icon={faBroom} className='text-[#2D241E]' />,
       duration: 3000,
       style: {
-        borderRadius: '12px',
-        background: 'linear-gradient(135deg, #16a34a 0%, #dc2626 100%)',
-        color: 'white',
+        borderRadius: '16px',
+        background: '#FDFCFB',
+        color: '#2D241E',
+        border: '1px solid #FFEDD5',
         padding: '12px 16px'
       }
     })
@@ -50,165 +49,99 @@ export function CartPage () {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.05 }
     }
   }
 
   const itemAnimation = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0 }
   }
 
-  // Функция для генерации уникального ключа (такая же как в store)
-  const generateItemKey = item => {
-    return `${item.id}-${item.price}-${item.weight || ''}`
-  }
-
-  // Новогодние снежинки для фона
-  const snowflakes = Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: Math.random() * 6 + 3,
-    delay: Math.random() * 3
-  }))
+  const generateItemKey = item =>
+    `${item.id}-${item.price}-${item.weight || ''}`
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-green-50 via-red-50 to-amber-50 py-12 relative overflow-hidden'>
-      {/* Анимированные снежинки */}
-      <div className='absolute inset-0 pointer-events-none z-0'>
-        {snowflakes.map(flake => (
-          <motion.div
-            key={flake.id}
-            className='absolute text-blue-300/20'
-            style={{
-              left: flake.left,
-              fontSize: `${flake.size}px`
-            }}
-            initial={{ y: -50 }}
-            animate={{ y: '100vh' }}
-            transition={{
-              duration: 3 + Math.random() * 5,
-              delay: flake.delay,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          >
-            <FontAwesomeIcon icon={faSnowflake} />
-          </motion.div>
-        ))}
-      </div>
+    <div className='min-h-screen bg-[#FDFCFB] py-12 relative overflow-hidden'>
+      {/* Мягкие фоновые пятна */}
+      <div className='absolute top-[-5%] left-[-5%] w-[40%] h-[40%] bg-orange-100/30 rounded-full blur-[100px]' />
+      <div className='absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-green-50/40 rounded-full blur-[100px]' />
 
       <div className='container mx-auto px-4 relative z-10'>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           className='max-w-4xl mx-auto'
         >
-          {/* Новогодний заголовок */}
-          <div className='flex items-center mb-8'>
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className='bg-gradient-to-r from-red-500 to-yellow-500 p-3 rounded-full mr-4 shadow-lg'
-            >
-              <FontAwesomeIcon icon={faGift} className='text-white text-xl' />
-            </motion.div>
-            <h1 className='text-3xl font-bold text-gray-800 font-serif'>
-              <span className='bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-yellow-500 to-green-500'>
-                Ваш новорічний кошик
-              </span>
-            </h1>
+          {/* Заголовок */}
+          <div className='flex items-center justify-between mb-10'>
+            <div className='flex items-center gap-4'>
+              <div className='w-12 h-12 bg-[#2D241E] rounded-2xl flex items-center justify-center text-white shadow-lg'>
+                <FontAwesomeIcon icon={faShoppingBasket} />
+              </div>
+              <div>
+                <h1 className='text-3xl font-black text-[#2D241E] tracking-tight'>
+                  Ваш <span className='text-orange-500'>кошик</span>
+                </h1>
+                <p className='text-xs font-black uppercase tracking-[0.2em] text-gray-400'>
+                  Домашня кулінарія
+                </p>
+              </div>
+            </div>
+
             {cartCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className='ml-3 bg-gradient-to-r from-red-500 to-yellow-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg'
-              >
-                {groupedItems.length}{' '}
-                {groupedItems.length === 1
-                  ? 'подарунок'
-                  : groupedItems.length < 5
-                  ? 'подарунки'
-                  : 'подарунків'}
-              </motion.span>
+              <div className='hidden sm:block px-4 py-2 bg-white border border-orange-100 rounded-full shadow-sm'>
+                <span className='text-sm font-bold text-gray-500'>
+                  {groupedItems.length} позицій у списку
+                </span>
+              </div>
             )}
           </div>
 
-          {/* Новогодний баннер */}
-
           {cartCount === 0 ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className='text-center py-16 bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-xl border border-white/30'
+              className='text-center py-20 bg-white rounded-[2.5rem] shadow-sm border border-orange-50'
             >
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className='mx-auto w-32 h-32 bg-gradient-to-r from-red-500 to-yellow-500 rounded-full flex items-center justify-center mb-6 shadow-lg'
-              >
+              <div className='w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6'>
                 <FontAwesomeIcon
-                  icon={faGift}
-                  className='text-white text-5xl'
+                  icon={faUtensils}
+                  className='text-orange-200 text-4xl'
                 />
-              </motion.div>
-              <h2 className='text-2xl font-bold text-gray-800 mb-4'>
-                Ваш новорічний кошик порожній 🎄
-              </h2>
-              <p className='text-gray-600 mb-8 max-w-md mx-auto text-lg'>
-                Додайте святкові страви з нашого каталогу, щоб почати готувати
-                новорічне свято!
-              </p>
-              <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link
-                    to='/'
-                    className='inline-block px-8 py-3 bg-gradient-to-r from-red-600 to-yellow-500 hover:from-red-700 hover:to-yellow-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center'
-                  >
-                    <FontAwesomeIcon icon={faTree} className='mr-3' />
-                    На новорічну головну
-                  </Link>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link
-                    to='/catalog/semi-finished'
-                    className='inline-block px-8 py-3 border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold rounded-xl transition-all'
-                  >
-                    <FontAwesomeIcon icon={faGift} className='mr-3' />
-                    До новорічних товарів
-                  </Link>
-                </motion.div>
               </div>
+              <h2 className='text-2xl font-black text-[#2D241E] mb-3'>
+                У кошику поки порожньо
+              </h2>
+              <p className='text-gray-500 mb-10 max-w-sm mx-auto font-medium'>
+                Здається, ви ще не обрали нічого смачного. Перейдіть до
+                каталогу, щоб знайти улюблені страви.
+              </p>
+              <Link
+                to='/'
+                className='inline-flex items-center gap-3 px-10 py-4 bg-[#2D241E] text-white font-black rounded-2xl shadow-xl hover:bg-orange-600 transition-all uppercase tracking-widest text-xs'
+              >
+                <FontAwesomeIcon icon={faArrowLeft} className='text-[10px]' />
+                До меню
+              </Link>
             </motion.div>
           ) : (
-            <motion.div
-              variants={container}
-              initial='hidden'
-              animate='show'
-              className='bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-2xl overflow-hidden border-2 border-white/30'
-            >
-              {groupedItems.map(item => (
-                <motion.div
-                  key={generateItemKey(item)}
-                  variants={itemAnimation}
-                  className='p-6 hover:bg-white/50 transition-colors duration-200 border-b border-white/30'
-                >
-                  <div className='flex flex-col md:flex-row md:items-center'>
-                    <div className='flex-shrink-0 mb-4 md:mb-0 md:mr-6 w-28 h-28 relative'>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className='relative'
-                      >
+            <div className='space-y-6'>
+              <motion.div
+                variants={container}
+                initial='hidden'
+                animate='show'
+                className='bg-white rounded-[2.5rem] shadow-sm border border-orange-50 overflow-hidden'
+              >
+                {groupedItems.map(item => (
+                  <motion.div
+                    key={generateItemKey(item)}
+                    variants={itemAnimation}
+                    className='p-6 md:p-8 border-b border-gray-50 last:border-none group'
+                  >
+                    <div className='flex flex-col md:flex-row gap-6 md:items-center'>
+                      {/* Изображение */}
+                      <div className='relative w-full md:w-32 h-32 flex-shrink-0'>
                         <img
                           src={
                             item.images?.[0]
@@ -218,211 +151,150 @@ export function CartPage () {
                                 ).href
                               : zaglushka
                           }
-                          className='w-28 h-28 object-cover rounded-xl shadow-lg flex-shrink-0 border-2 border-white/50'
+                          className='w-full h-full object-cover rounded-2xl border border-gray-100'
                           alt={item.name}
                         />
-                        {/* Новогодний декор на изображении */}
-                      </motion.div>
+                        <button
+                          onClick={() =>
+                            removeFromCart(
+                              item.id,
+                              item.category,
+                              item.price,
+                              item.weight
+                            )
+                          }
+                          className='absolute -top-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-full shadow-md flex items-center justify-center hover:bg-red-500 hover:text-white transition-all border border-red-50'
+                        >
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            className='text-[10px]'
+                          />
+                        </button>
+                      </div>
 
-                      <motion.button
-                        onClick={() => {
-                          removeFromCart(
-                            item.id,
-                            item.category,
-                            item.price,
-                            item.weight
-                          )
-                          toast(`🎁 ${item.name} видалено з кошика`, {
-                            icon: (
-                              <FontAwesomeIcon
-                                icon={faCircleXmark}
-                                className='text-white'
-                              />
-                            ),
-                            duration: 3000,
-                            style: {
-                              borderRadius: '12px',
-                              background:
-                                'linear-gradient(135deg, #dc2626 0%, #f87171 100%)',
-                              color: 'white',
-                              padding: '12px 16px'
-                            }
-                          })
-                        }}
-                        className='absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-full p-2 shadow-xl hover:shadow-2xl transition-all'
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <FontAwesomeIcon icon={faTrash} className='text-sm' />
-                      </motion.button>
-                    </div>
-                    <div className='flex-grow'>
-                      <div className='flex justify-between items-start'>
-                        <div>
-                          <h3 className='text-xl font-bold text-gray-800 mb-2 hover:text-red-600 transition-colors'>
-                            {item.name}
-                          </h3>
-                          <div className='flex items-center space-x-3'>
-                            <p className='text-2xl font-bold bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent'>
+                      {/* Инфо */}
+                      <div className='flex-grow'>
+                        <div className='flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-4'>
+                          <div>
+                            <h3 className='text-xl font-black text-[#2D241E] mb-1'>
+                              {item.name}
+                            </h3>
+                            <span className='inline-block px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-lg'>
+                              {item.weight || 'Стандарт'}
+                            </span>
+                          </div>
+                          <div className='text-left md:text-right'>
+                            <p className='text-sm text-gray-400 font-bold uppercase tracking-tighter'>
+                              Ціна за од.
+                            </p>
+                            <p className='text-lg font-black text-[#2D241E]'>
                               {item.price}
                             </p>
-                            {item.weight && (
-                              <span className='text-gray-600 bg-gray-100 px-3 py-1 rounded-full text-sm font-medium'>
-                                {item.weight}
-                              </span>
-                            )}
+                          </div>
+                        </div>
+
+                        {/* Управление количеством */}
+                        <div className='flex items-center justify-between mt-auto'>
+                          <div className='flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100'>
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  item.category,
+                                  item.quantity - 1,
+                                  item.price,
+                                  item.weight
+                                )
+                              }
+                              className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-[#2D241E] font-black transition-all disabled:opacity-30'
+                              disabled={item.quantity <= 1}
+                            >
+                              -
+                            </button>
+                            <span className='w-10 text-center font-black text-sm'>
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  item.category,
+                                  item.quantity + 1,
+                                  item.price,
+                                  item.weight
+                                )
+                              }
+                              className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-[#2D241E] font-black transition-all'
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <div className='text-right'>
+                            <p className='text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1'>
+                              Разом
+                            </p>
+                            <p className='text-xl font-black text-orange-600'>
+                              {(
+                                parseFloat(item.price.replace(/[^\d.]/g, '')) *
+                                item.quantity
+                              ).toFixed(0)}{' '}
+                              грн
+                            </p>
                           </div>
                         </div>
                       </div>
-
-                      <div className='flex items-center mt-6'>
-                        <motion.button
-                          onClick={() =>
-                            updateQuantity(
-                              item.id,
-                              item.category,
-                              item.quantity - 1,
-                              item.price,
-                              item.weight
-                            )
-                          }
-                          className='w-10 h-10 flex items-center justify-center border-2 border-red-300 rounded-l-xl bg-white hover:bg-red-50 disabled:opacity-50 font-bold text-lg'
-                          disabled={item.quantity <= 1}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          -
-                        </motion.button>
-                        <span className='w-14 h-10 flex items-center justify-center border-t-2 border-b-2 border-yellow-300 bg-yellow-50 font-bold text-lg'>
-                          {item.quantity}
-                        </span>
-                        <motion.button
-                          onClick={() =>
-                            updateQuantity(
-                              item.id,
-                              item.category,
-                              item.quantity + 1,
-                              item.price,
-                              item.weight
-                            )
-                          }
-                          className='w-10 h-10 flex items-center justify-center border-2 border-green-300 rounded-r-xl bg-white hover:bg-green-50 font-bold text-lg'
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          +
-                        </motion.button>
-                        <div className='ml-auto text-right'>
-                          <p className='text-sm text-gray-600'>Разом:</p>
-                          <p className='text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent'>
-                            {(
-                              parseFloat(
-                                item.price.replace(' грн', '').replace(',', '.')
-                              ) * item.quantity
-                            ).toFixed(2)}{' '}
-                            грн
-                          </p>
-                        </div>
-                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
 
-              {/* Итоговая секция */}
-              <div className='p-6 bg-gradient-to-r from-red-50 via-amber-50 to-green-50'>
-                <div className='flex justify-between items-center mb-8'>
-                  <div>
-                    <span className='text-lg font-semibold text-gray-800 block mb-2'>
-                      Загальна сума:
-                    </span>
-                    <div className='flex items-center'>
-                      <FontAwesomeIcon
-                        icon={faGift}
-                        className='text-red-500 mr-2'
-                      />
-                    </div>
-                  </div>
-                  <div className='text-right'>
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className='text-4xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 bg-clip-text text-transparent'
-                    >
-                      {totalPrice.toFixed(2)} грн
-                    </motion.span>
-                    {totalPrice >= 800 && (
-                      <p className='text-sm text-green-600 font-bold mt-2 flex items-center justify-end'>
-                        <FontAwesomeIcon icon={faStar} className='mr-1' />
-                        Доставка безкоштовна! 🎁
+                {/* Итоговая панель */}
+                <div className='bg-gray-50/50 p-8 md:p-10 border-t border-orange-50'>
+                  <div className='flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-10'>
+                    <div>
+                      <p className='text-gray-400 font-black uppercase tracking-[0.2em] text-[10px] mb-2'>
+                        Сума до сплати
                       </p>
-                    )}
+                      <h2 className='text-5xl font-black text-[#2D241E] tracking-tight'>
+                        {totalPrice.toFixed(0)}{' '}
+                        <span className='text-2xl text-orange-500'>грн</span>
+                      </h2>
+                    </div>
                   </div>
-                </div>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <motion.button
-                    onClick={handleClearCart}
-                    className='w-full py-4 border-2 border-red-500 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl'
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                    <span>Очистити новорічний кошик</span>
-                  </motion.button>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className='relative overflow-hidden rounded-xl'
-                  >
-                    {/* Блестящий эффект */}
-                    <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-600'></div>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <button
+                      onClick={handleClearCart}
+                      className='py-5 border-2 border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 bg-white'
+                    >
+                      <FontAwesomeIcon icon={faTrash} className='text-[10px]' />
+                      Очистити
+                    </button>
 
                     <Link
                       to='/payment'
-                      className='block w-full py-4 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 text-white font-bold rounded-xl transition-all text-center shadow-xl hover:shadow-2xl relative z-10'
+                      className='py-5 bg-[#2D241E] text-white hover:bg-orange-600 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-gray-200'
                     >
-                      <div className='flex items-center justify-center space-x-3'>
-                        <FontAwesomeIcon icon={faGift} />
-                        <span>Оформити новорічне замовлення</span>
-                        <FontAwesomeIcon icon={faTree} />
-                      </div>
+                      <span>Оформити замовлення</span>
+                      <FontAwesomeIcon
+                        icon={faArrowLeft}
+                        className='text-[10px] rotate-180'
+                      />
                     </Link>
-                  </motion.div>
+                  </div>
                 </div>
+              </motion.div>
 
-                {/* Новогоднее сообщение */}
-                <div className='mt-6 p-4 bg-gradient-to-r from-white/80 to-white/50 backdrop-blur-sm rounded-xl border border-white/30'>
-                  <p className='text-center text-gray-700'>
-                    <FontAwesomeIcon
-                      icon={faSnowflake}
-                      className='text-blue-400 mr-2'
-                    />
-                    Ваше замовлення буде приготоване з особливою новорічною
-                    турботою!
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      className='text-yellow-400 ml-2'
-                    />
-                  </p>
-                </div>
+              <div className='text-center'>
+                <Link
+                  to='/'
+                  className='inline-flex items-center gap-2 text-gray-400 hover:text-[#2D241E] font-black text-[10px] uppercase tracking-widest transition-colors'
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                  Повернутися до покупок
+                </Link>
               </div>
-            </motion.div>
-          )}
-
-          {/* Кнопка возврата для пустой корзины */}
-          {cartCount > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className='mt-8 text-center'
-            >
-              <Link
-                to='/'
-                className='inline-flex items-center text-red-600 hover:text-red-500 font-medium px-5 py-2.5 bg-white/80 backdrop-blur-sm rounded-xl hover:shadow-lg border border-white/30'
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className='mr-3' />
-                <span>Повернутись до новорічних покупок</span>
-              </Link>
-            </motion.div>
+            </div>
           )}
         </motion.div>
       </div>
