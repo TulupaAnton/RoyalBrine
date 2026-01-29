@@ -48,16 +48,13 @@ const phoneRegex = /^\+?\d{10,15}$/
 const generateOrderNumber = () => {
   const now = new Date()
 
-  // Получаем дату в формате ГГММДД
   const year = now.getFullYear().toString().slice(-2) // 24
-  const month = (now.getMonth() + 1).toString().padStart(2, '0') // 05
+  const month = (now.getMonth() + 1).toString().padStart(2, '0')
   const day = now.getDate().toString().padStart(2, '0') // 20
 
-  // Генерируем 3 случайные цифры для уникальности внутри дня
-  const random = Math.floor(100 + Math.random() * 900) // от 100 до 999
+  const random = Math.floor(100 + Math.random() * 900)
 
   return `${year}${month}${day}-${random}`
-  // Итог: 240520-145 (Заказ от 20 мая 24 года, номер 145)
 }
 
 const sendToSupabase = async orderData => {
@@ -137,22 +134,18 @@ export function Payment () {
           setIsOtherCity(isCurrentlyOtherCity)
 
           if (isCurrentlyOtherCity) {
-            // Если город НЕ Запорожье:
-            // 1. Сбрасываем район и день доставки
             newData.district = ''
             newData.deliveryDayOption = ''
-            // 2. Принудительно ставим Новую Почту
+
             newData.deliveryType = 'nova_poshta'
-            // 3. Принудительно ставим Предоплату (так как наложка только в ЗП)
+
             newData.payment = 'Передоплата'
 
             setDistrictPrice(0)
           } else {
-            // Если город Запорожье:
-            // Можно сбросить специфические поля НП, если нужно
-            newData.city = 'Запоріжжя' // Приводим к единому виду
+            newData.city = 'Запоріжжя'
             if (newData.deliveryType === 'nova_poshta') {
-              newData.payment = 'Передоплата' // НП всегда предоплата
+              newData.payment = 'Передоплата'
             }
           }
         }
@@ -162,7 +155,7 @@ export function Payment () {
           if (value === 'nova_poshta') {
             newData.district = ''
             newData.deliveryDayOption = ''
-            newData.payment = 'Передоплата' // Для НП только предоплата
+            newData.payment = 'Передоплата'
             setDistrictPrice(0)
           }
           if (value === 'courier') {

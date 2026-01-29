@@ -20,6 +20,7 @@ import ContactSection from '../../components/ContactSection/ContactSection'
 import { Ingredients } from '../../components/Ingredients/Ingredients'
 import { Block } from '../Block/Block'
 import { Footer } from '../../components/Footer/Footer'
+// import { BuffetPage } from '../../components/Buffer/Buffer'
 
 export function Home () {
   useEffect(() => {
@@ -51,6 +52,7 @@ export function Home () {
 
       {/* Секция с контактами */}
       <ContactSection />
+      {/* <BuffetPage /> */}
     </div>
   )
 }

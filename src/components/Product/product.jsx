@@ -15,7 +15,7 @@ import pickles from '../../assets/pickles.jpg'
 import salad from '../../assets/salad.jpg'
 import meats from '../../assets/мʼясніВироби.jpg'
 import fish from '../../assets/FishSRC.jpg'
-
+import buffet from '../../assets/buffet.jpg'
 // iOS detect
 const isIOS =
   typeof navigator !== 'undefined' &&
@@ -75,6 +75,15 @@ const categories = [
     image: salad,
     catalogLink: '/catalog/salad',
     icon: '🥗',
+    isHit: false
+  },
+  {
+    id: 'buffet',
+    name: 'Фуршет',
+    description: 'Канапе, закуски та міні-страви для свят і подій',
+    image: buffet,
+    catalogLink: '/catalog/buffet',
+    icon: '🍢',
     isHit: false
   }
 ]
