@@ -18,17 +18,17 @@ const REVIEWS = [
   {
     id: 1,
     text: "Неймовірні копчення! М'ясо тане у роті, а запах вільхової тріски просто зводить з розуму.",
-    author: 'Тетяна, постійний клієнт'
+    author: 'Тетяна'
   },
   {
     id: 2,
     text: 'Найкращі соління, що я куштував. Огірочки хрумтять прямо як у бабусі в селі!',
-    author: 'Олександр, шеф-кухар'
+    author: 'Олександр'
   },
   {
     id: 3,
     text: "Замовляли на свято м'ясну нарізку — гості були в захваті. Все свіже та натуральне.",
-    author: 'Марія, організатор подій'
+    author: 'Марія'
   }
 ]
 
@@ -63,16 +63,6 @@ export function Block () {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className='inline-flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full mb-6 border border-orange-100'>
-                <FontAwesomeIcon
-                  icon={faLeaf}
-                  className='text-orange-600 text-xs'
-                />
-                <span className='text-orange-900 text-[10px] font-bold uppercase tracking-widest'>
-                  Традиції з 1998 року
-                </span>
-              </div>
-
               <h1 className='text-6xl lg:text-8xl font-black text-[#2D241E] leading-[0.9] mb-6 tracking-tighter'>
                 Royal <br />
                 <span className='text-orange-600 italic font-serif font-light'>
