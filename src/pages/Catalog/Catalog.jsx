@@ -107,9 +107,13 @@ const ProductCard = memo(({ product, category, onAddToCart }) => {
           <FontAwesomeIcon icon={faEye} /> Детальніше
         </Link>
         <div className='mt-auto pt-2 border-t border-gray-50 flex items-center justify-between'>
-          <span className='text-lg font-black text-gray-900'>
-            {product.price} грн
+          <span className='text-xl font-extrabold text-gray-900'>
+            {product.price}
+            <span className='text-sm font-normal text-gray-500 ml-1.5'>
+              / {product.weight}
+            </span>
           </span>
+
           <button
             onClick={() => onAddToCart(product)}
             className='h-10 px-4 rounded-xl bg-gray-900 text-white shadow-md hover:bg-orange-600 transition-all active:scale-95'
