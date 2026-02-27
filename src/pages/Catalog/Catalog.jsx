@@ -22,7 +22,8 @@ import {
   faClipboardList,
   faCheckCircle,
   faUser,
-  faPhone
+  faPhone,
+  faBan
 } from '@fortawesome/free-solid-svg-icons'
 import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
@@ -75,6 +76,9 @@ const subcategoryConfig = {
 /* ===== SUB-COMPONENTS ===== */
 
 const ProductCard = memo(({ product, category, onAddToCart }) => {
+  // isAccessible: TRUE = in stock, FALSE or NULL = out of stock
+  const inStock = product.isAccessible === true
+
   const imageUrl = useMemo(() => {
     if (!product.images?.[0]) return zaglushka
     return new URL(
@@ -84,7 +88,15 @@ const ProductCard = memo(({ product, category, onAddToCart }) => {
   }, [product.images])
 
   return (
-    <article className='bg-white rounded-[2rem] p-2 shadow-sm border border-gray-100 flex flex-col h-full group transition-all duration-300 hover:shadow-lg'>
+    <article className='bg-white rounded-[2rem] p-2 shadow-sm border border-gray-100 flex flex-col h-full group transition-all duration-300 hover:shadow-lg relative'>
+      {/* OUT OF STOCK BADGE */}
+      {!inStock && (
+        <div className='absolute top-4 left-4 z-10 bg-gray-800/80 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1.5'>
+          <FontAwesomeIcon icon={faBan} className='text-red-400 text-[8px]' />
+          Немає в наявності
+        </div>
+      )}
+
       <Link
         to={`/product/${category}/${product.id}`}
         className='relative aspect-square overflow-hidden rounded-[1.7rem] mb-3 flex-shrink-0 bg-gray-50'
@@ -93,9 +105,12 @@ const ProductCard = memo(({ product, category, onAddToCart }) => {
           src={imageUrl}
           alt={product.name}
           loading='lazy'
-          className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+            !inStock ? 'grayscale opacity-60' : ''
+          }`}
         />
       </Link>
+
       <div className='flex flex-col flex-grow px-2 pb-2'>
         <h3 className='text-gray-900 font-bold text-[13px] md:text-base mb-2 line-clamp-2 min-h-[2.5rem]'>
           {product.name}
@@ -115,8 +130,14 @@ const ProductCard = memo(({ product, category, onAddToCart }) => {
           </span>
 
           <button
-            onClick={() => onAddToCart(product)}
-            className='h-10 px-4 rounded-xl bg-gray-900 text-white shadow-md hover:bg-orange-600 transition-all active:scale-95'
+            onClick={() => inStock && onAddToCart(product)}
+            disabled={!inStock}
+            title={!inStock ? 'Немає в наявності' : 'Додати до кошика'}
+            className={`h-10 px-4 rounded-xl shadow-md transition-all active:scale-95 ${
+              inStock
+                ? 'bg-gray-900 text-white hover:bg-orange-600 cursor-pointer'
+                : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+            }`}
           >
             <FontAwesomeIcon icon={faCartPlus} />
           </button>
@@ -128,6 +149,9 @@ const ProductCard = memo(({ product, category, onAddToCart }) => {
 
 const BuffetCard = memo(
   ({ product, isSelected, onOpenInfo, onToggleSelection }) => {
+    // isAccessible: TRUE = in stock
+    const inStock = product.isAccessible === true
+
     const mainImageUrl = useMemo(() => {
       if (product.images?.[0]) {
         return new URL(
@@ -139,13 +163,23 @@ const BuffetCard = memo(
     }, [product.images])
 
     return (
-      <article className='bg-white rounded-[2.5rem] p-3 shadow-sm border border-gray-100 flex flex-col h-full transition-all duration-300 hover:shadow-xl group'>
+      <article className='bg-white rounded-[2.5rem] p-3 shadow-sm border border-gray-100 flex flex-col h-full transition-all duration-300 hover:shadow-xl group relative'>
+        {/* OUT OF STOCK BADGE */}
+        {!inStock && (
+          <div className='absolute top-5 left-5 z-10 bg-gray-800/80 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1.5'>
+            <FontAwesomeIcon icon={faBan} className='text-red-400 text-[8px]' />
+            Немає в наявності
+          </div>
+        )}
+
         <div className='relative aspect-[4/3] overflow-hidden rounded-[2rem] mb-4 bg-gray-50'>
           <img
             src={mainImageUrl}
             alt={product.name}
             loading='lazy'
-            className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+              !inStock ? 'grayscale opacity-60' : ''
+            }`}
           />
         </div>
         <div className='flex flex-col flex-grow px-2'>
@@ -163,14 +197,17 @@ const BuffetCard = memo(
               {product.price} грн
             </span>
             <button
-              onClick={() => onToggleSelection(product)}
+              onClick={() => inStock && onToggleSelection(product)}
+              disabled={!inStock}
               className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${
-                isSelected
+                !inStock
+                  ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                  : isSelected
                   ? 'bg-green-500 text-white shadow-lg'
                   : 'bg-[#2D241E] text-white hover:bg-orange-600'
               }`}
             >
-              {isSelected ? 'Додано' : 'Додати'}
+              {!inStock ? 'Немає' : isSelected ? 'Додано' : 'Додати'}
             </button>
           </div>
         </div>
@@ -227,6 +264,15 @@ export function Catalog () {
       return matchesSearch && matchesSub
     })
   }, [products, searchTerm, activeSubFilter])
+
+  // Sort: in-stock first, out-of-stock at the bottom
+  const sortedFiltered = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const aStock = a.isAccessible === true ? 0 : 1
+      const bStock = b.isAccessible === true ? 0 : 1
+      return aStock - bStock
+    })
+  }, [filtered])
 
   const handleOpenInfo = product => {
     setInfoProduct(product)
@@ -348,8 +394,8 @@ export function Catalog () {
                     className='aspect-[3/4] bg-gray-100 rounded-[2rem] animate-pulse'
                   />
                 ))
-              ) : filtered.length > 0 ? (
-                filtered.map(p =>
+              ) : sortedFiltered.length > 0 ? (
+                sortedFiltered.map(p =>
                   isBuffet ? (
                     <BuffetCard
                       key={p.id}
@@ -614,15 +660,21 @@ export function Catalog () {
                       'Склад уточнюється...'}
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    toggleBuffetSelection(infoProduct)
-                    setInfoProduct(null)
-                  }}
-                  className='w-full bg-orange-600 text-white py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest'
-                >
-                  Додати до вибору
-                </button>
+                {infoProduct.isAccessible === true ? (
+                  <button
+                    onClick={() => {
+                      toggleBuffetSelection(infoProduct)
+                      setInfoProduct(null)
+                    }}
+                    className='w-full bg-orange-600 text-white py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest'
+                  >
+                    Додати до вибору
+                  </button>
+                ) : (
+                  <div className='w-full bg-gray-100 text-gray-400 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest text-center'>
+                    Немає в наявності
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
