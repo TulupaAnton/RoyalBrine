@@ -16,6 +16,25 @@ import zaglushka from '../../assets/zaglushka.jpg'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
 
+/* ─── HELPER: resolve image src ──────────────────────────────
+   Паски зберігають images[0] як вже імпортований URL-об'єкт,
+   тому для них просто повертаємо значення напряму.
+   Звичайні продукти зберігають рядок імені файлу → будуємо URL.
+──────────────────────────────────────────────────────────── */
+function resolveImageSrc (item) {
+  const raw = item.images?.[0]
+
+  if (!raw) return zaglushka
+
+  if (item.category === 'paska') return raw
+
+  try {
+    return new URL(`../../assets/products/${raw}`, import.meta.url).href
+  } catch {
+    return zaglushka
+  }
+}
+
 export function CartPage () {
   const {
     cartItems,
@@ -140,17 +159,10 @@ export function CartPage () {
                     className='p-6 md:p-8 border-b border-gray-50 last:border-none group'
                   >
                     <div className='flex flex-col md:flex-row gap-6 md:items-center'>
-                      {/* Изображение */}
+                      {/* Зображення */}
                       <div className='relative w-full md:w-32 h-32 flex-shrink-0'>
                         <img
-                          src={
-                            item.images?.[0]
-                              ? new URL(
-                                  `../../assets/products/${item.images[0]}`,
-                                  import.meta.url
-                                ).href
-                              : zaglushka
-                          }
+                          src={resolveImageSrc(item)}
                           className='w-full h-full object-cover rounded-2xl border border-gray-100'
                           alt={item.name}
                         />
@@ -172,13 +184,29 @@ export function CartPage () {
                         </button>
                       </div>
 
-                      {/* Инфо */}
+                      {/* Інфо */}
                       <div className='flex-grow'>
                         <div className='flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-4'>
                           <div>
                             <h3 className='text-xl font-black text-[#2D241E] mb-1'>
                               {item.name}
                             </h3>
+
+                            {/* Начинка паски */}
+                            {item.filling && (
+                              <p className='text-[11px] text-gray-400 font-medium mb-1.5'>
+                                {item.fillingEmoji} {item.filling}
+                              </p>
+                            )}
+
+                            {/* ── ДИЗАЙН ПАСКИ ── */}
+                            {item.design && (
+                              <p className='text-[11px] text-orange-500 font-bold mb-1.5'>
+                                📸{' '}
+                                {item.designLabel || `Дизайн №${item.design}`}
+                              </p>
+                            )}
+
                             <span className='inline-block px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-lg'>
                               {item.weight || 'Стандарт'}
                             </span>
@@ -193,7 +221,7 @@ export function CartPage () {
                           </div>
                         </div>
 
-                        {/* Управление количеством */}
+                        {/* Управління кількістю */}
                         <div className='flex items-center justify-between mt-auto'>
                           <div className='flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100'>
                             <button
@@ -248,7 +276,7 @@ export function CartPage () {
                   </motion.div>
                 ))}
 
-                {/* Итоговая панель */}
+                {/* Підсумкова панель */}
                 <div className='bg-gray-50/50 p-8 md:p-10 border-t border-orange-50'>
                   <div className='flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-10'>
                     <div>

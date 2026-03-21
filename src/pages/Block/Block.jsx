@@ -152,12 +152,12 @@ export function Block () {
               initial={{ opacity: 0, y: 20, x: 20, rotate: 5 }}
               animate={{
                 opacity: 1,
-                y: [0, -10, 0], // Ефект плавання
+                y: [0, -10, 0],
                 rotate: 5
               }}
               transition={{
                 opacity: { delay: 1, duration: 0.5 },
-                y: { repeat: Infinity, duration: 4, ease: 'easeInOut' } // Постійне плавання
+                y: { repeat: Infinity, duration: 4, ease: 'easeInOut' }
               }}
               whileHover={{ scale: 1.05, rotate: 0, zIndex: 50 }}
               className='absolute -top-10 right-0 sm:right-10 z-40'

@@ -39,22 +39,20 @@ const zapDistricts = [
   { id: 'hort', name: 'Хортицький', price: 80 },
   { id: 'dnipro', name: 'Дніпровський', price: 75 },
   { id: 'zavod', name: 'Заводський', price: 85 },
-  { id: 'komun', name: 'Комунарський', price: 65 }
+  { id: 'komun', name: 'Комунарський', price: 50 }
 ]
 
-const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
+const parsePrice = val => Number(String(val).replace(/[^\d.]/g, '')) || 0
 const phoneRegex = /^\+?\d{10,15}$/
+const nameRegex = /^[А-Яа-яЁёЇїІіЄєҐґA-Za-z\s'-]{2,}$/u
 
 const generateOrderNumber = () => {
   const now = new Date()
-
-  const year = now.getFullYear().toString().slice(-2) // 24
+  const year = now.getFullYear().toString().slice(-2)
   const month = (now.getMonth() + 1).toString().padStart(2, '0')
-  const day = now.getDate().toString().padStart(2, '0') // 20
-
-  const random = Math.floor(100 + Math.random() * 900)
-
-  return `${year}${month}${day}-${random}`
+  const day = now.getDate().toString().padStart(2, '0')
+  const rand = Math.floor(100 + Math.random() * 900)
+  return `${year}${month}${day}-${rand}`
 }
 
 const sendToSupabase = async orderData => {
@@ -67,12 +65,80 @@ const sendToSupabase = async orderData => {
   return data
 }
 
+/* ─── БУДУЄМО РЯДОК ТОВАРУ (з начинкою і дизайном) ─────── */
 const buildOrderDetailsText = cartItems =>
   cartItems
-    .map(
-      item => `${item.name} (${item.weight}) — ${item.price} × ${item.quantity}`
-    )
+    .map((item, i) => {
+      const weightLabel = item.weight ? `${item.weight}` : ''
+      const qty = Number(item.quantity) || 1
+      const price = parsePrice(item.price)
+      const lineTotal = price * qty
+
+      // Начинка (якщо є)
+      const fillingLine = item.filling
+        ? ` | Начинка: ${item.fillingEmoji || ''} ${item.filling}`.trim()
+        : ''
+
+      // Дизайн (якщо є)
+      const designLine = item.design
+        ? ` | 📸 ${item.designLabel || `Дизайн №${item.design}`}`
+        : ''
+
+      return (
+        `${i + 1}. *${item.name}*` +
+        `${weightLabel ? ` — ${weightLabel}` : ''}` +
+        `${fillingLine}` +
+        `${designLine}` +
+        ` × ${qty} шт = ${lineTotal} грн`
+      )
+    })
     .join('\n')
+
+const buildTelegramMessage = ({
+  orderNumber,
+  formData,
+  orderData,
+  cartItems,
+  totalWithDelivery,
+  isOtherCity,
+  selectedDistrict
+}) => {
+  const deliveryLine = isOtherCity
+    ? `🚚 Нова Пошта (відділення: ${formData.npBranch || '—'})`
+    : formData.deliveryType === 'nova_poshta'
+    ? `🚚 Нова Пошта (відділення: ${formData.npBranch || '—'})`
+    : `🛵 Кур'єр по Запоріжжю\n   📍 Район: ${
+        selectedDistrict?.name || '—'
+      }\n   📅 День: ${formData.deliveryDayOption || '—'}`
+
+  const deliveryCostLine =
+    isOtherCity || formData.deliveryType === 'nova_poshta'
+      ? '💸 Вартість доставки: за тарифом перевізника'
+      : orderData.delivery_cost === 0
+      ? '💸 Доставка: безкоштовно 🎉'
+      : `💸 Доставка: ${orderData.delivery_cost} грн`
+
+  const itemsText = buildOrderDetailsText(cartItems)
+
+  return (
+    `📦 *НОВЕ ЗАМОВЛЕННЯ #${orderNumber}*\n` +
+    `${'─'.repeat(28)}\n\n` +
+    `👤 *Клієнт:* ${formData.name}\n` +
+    `📞 *Телефон:* ${formData.phone}\n\n` +
+    `${'─'.repeat(28)}\n` +
+    `🏙 *Місто:* ${formData.city}\n` +
+    `🏠 *Адреса:* ${formData.address || '—'}\n` +
+    `${deliveryLine}\n\n` +
+    `${'─'.repeat(28)}\n` +
+    `🛒 *Склад замовлення:*\n${itemsText}\n\n` +
+    `${'─'.repeat(28)}\n` +
+    `💰 *Сума товарів:* ${orderData.total_items_price} грн\n` +
+    `${deliveryCostLine}\n` +
+    `✅ *РАЗОМ до оплати: ${totalWithDelivery} грн*\n\n` +
+    `💳 *Оплата:* ${formData.payment}\n` +
+    (formData.wish ? `\n💬 *Коментар:* ${formData.wish}` : '')
+  )
+}
 
 const FORM_STEPS = [
   { id: 'contact', title: 'Контакти', icon: faUser, color: 'bg-[#2D241E]' },
@@ -86,6 +152,18 @@ const FORM_STEPS = [
     color: 'bg-gray-500'
   }
 ]
+
+/* ─── HELPER: resolve image src ─────────────────────────── */
+function resolveImageSrc (item) {
+  const raw = item.images?.[0]
+  if (!raw) return zaglushka
+  if (item.category === 'paska') return raw
+  try {
+    return new URL(`../../assets/products/${raw}`, import.meta.url).href
+  } catch {
+    return zaglushka
+  }
+}
 
 export function Payment () {
   const { cartItems, clearCart } = useCartStore()
@@ -125,22 +203,18 @@ export function Payment () {
       setFormData(prev => {
         const newData = { ...prev, [field]: value }
 
-        // Логика при изменении города
         if (field === 'city') {
           const cityName = value.trim().toLowerCase()
-          const isZaporizhzhia = zaporizhzhiaVariants.includes(cityName)
-          const isCurrentlyOtherCity = !isZaporizhzhia
+          const isZap = zaporizhzhiaVariants.includes(cityName)
+          const isCurrentOther = !isZap
 
-          setIsOtherCity(isCurrentlyOtherCity)
+          setIsOtherCity(isCurrentOther)
 
-          if (isCurrentlyOtherCity) {
+          if (isCurrentOther) {
             newData.district = ''
             newData.deliveryDayOption = ''
-
             newData.deliveryType = 'nova_poshta'
-
             newData.payment = 'Передоплата'
-
             setDistrictPrice(0)
           } else {
             newData.city = 'Запоріжжя'
@@ -150,7 +224,6 @@ export function Payment () {
           }
         }
 
-        // Если меняем тип доставки вручную
         if (field === 'deliveryType') {
           if (value === 'nova_poshta') {
             newData.district = ''
@@ -163,7 +236,6 @@ export function Payment () {
           }
         }
 
-        // Если меняем район (для курьера в ЗП)
         if (field === 'district') {
           const selected = zapDistricts.find(d => d.id === value)
           setDistrictPrice(selected ? selected.price : 0)
@@ -175,23 +247,52 @@ export function Payment () {
     [zaporizhzhiaVariants]
   )
 
-  const { deliveryCost, showFreeDeliveryHint, totalWithDelivery } =
-    useMemo(() => {
-      let cost = 0
-      let hint = false
-      if (!isOtherCity && formData.deliveryType === 'courier') {
-        if (totalPrice >= FREE_DELIVERY_THRESHOLD) cost = 0
-        else {
-          cost = districtPrice
-          hint = true
-        }
-      }
+  const {
+    deliveryCost,
+    deliveryCostLabel,
+    showFreeDeliveryHint,
+    totalWithDelivery
+  } = useMemo(() => {
+    if (isOtherCity || formData.deliveryType === 'nova_poshta') {
       return {
-        deliveryCost: cost,
-        showFreeDeliveryHint: hint,
-        totalWithDelivery: totalPrice + cost
+        deliveryCost: 0,
+        deliveryCostLabel: 'За тарифом перевізника',
+        showFreeDeliveryHint: false,
+        totalWithDelivery: totalPrice
       }
-    }, [isOtherCity, formData.deliveryType, totalPrice, districtPrice])
+    }
+
+    if (!formData.district) {
+      return {
+        deliveryCost: 0,
+        deliveryCostLabel: 'Залежить від району',
+        showFreeDeliveryHint: false,
+        totalWithDelivery: totalPrice
+      }
+    }
+
+    if (totalPrice >= FREE_DELIVERY_THRESHOLD) {
+      return {
+        deliveryCost: 0,
+        deliveryCostLabel: 'Безкоштовно 🎉',
+        showFreeDeliveryHint: false,
+        totalWithDelivery: totalPrice
+      }
+    }
+
+    return {
+      deliveryCost: districtPrice,
+      deliveryCostLabel: `${districtPrice} грн`,
+      showFreeDeliveryHint: true,
+      totalWithDelivery: totalPrice + districtPrice
+    }
+  }, [
+    isOtherCity,
+    formData.deliveryType,
+    formData.district,
+    totalPrice,
+    districtPrice
+  ])
 
   const validateStep = useCallback(
     step => {
@@ -256,16 +357,31 @@ export function Payment () {
       phone: formData.phone,
       city: formData.city,
       address: formData.address,
-      delivery_type: isOtherCity ? 'Нова Пошта' : 'Курʼєр',
+      delivery_type:
+        isOtherCity || formData.deliveryType === 'nova_poshta'
+          ? 'Нова Пошта'
+          : 'Курʼєр',
       delivery_day: formData.deliveryDayOption || 'Сьогодні',
       np_branch: formData.npBranch,
       payment_method: formData.payment,
       wish: formData.wish,
       cart_items: buildOrderDetailsText(cartItems),
+      total_items_price: totalPrice,
+      delivery_cost: deliveryCost,
       total_price: totalWithDelivery,
       status: 'Новий',
       district: selectedDistrict?.name
     }
+
+    const telegramText = buildTelegramMessage({
+      orderNumber,
+      formData,
+      orderData,
+      cartItems,
+      totalWithDelivery,
+      isOtherCity,
+      selectedDistrict
+    })
 
     try {
       await sendToSupabase(orderData)
@@ -273,15 +389,7 @@ export function Payment () {
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
           chat_id: TELEGRAM_CHAT_ID,
-          text: `📦 *НОВЕ ЗАМОВЛЕННЯ ${orderNumber}*\n\n👤 Клієнт: ${
-            formData.name
-          }\n📞 Тел: ${formData.phone}\n🏙 Місто: ${formData.city}\n🏠 Адреса: ${
-            formData.address || 'НП'
-          }\n🚚 Доставка: ${
-            orderData.delivery_type
-          }\n💰 Сума: ${totalWithDelivery} грн\n\n🛒 Склад:\n${
-            orderData.cart_items
-          }`,
+          text: telegramText,
           parse_mode: 'Markdown'
         }
       )
@@ -344,7 +452,7 @@ export function Payment () {
         </Link>
 
         <div className='grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-12'>
-          {/* FORM SECTION */}
+          {/* ── FORM SECTION ── */}
           <div className='space-y-8'>
             <header>
               <h1 className='text-4xl md:text-5xl font-black text-[#2D241E] tracking-tighter mb-4'>
@@ -382,13 +490,13 @@ export function Payment () {
                 </h2>
               </div>
 
-              {/* STEP CONTENT */}
               <div className='space-y-6'>
+                {/* STEP 0 — Контакти */}
                 {currentStep === 0 && (
                   <>
                     <div className='space-y-2'>
                       <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
-                        Ваше Ім'я
+                        Ваше Імʼя
                       </label>
                       <input
                         type='text'
@@ -417,31 +525,42 @@ export function Payment () {
                   </>
                 )}
 
+                {/* STEP 1 — Адреса */}
                 {currentStep === 1 && (
                   <>
-                    <input
-                      type='text'
-                      value={formData.city}
-                      onChange={e => handleInputChange('city', e.target.value)}
-                      className='w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 font-bold'
-                      placeholder='Місто (напр. Запоріжжя)'
-                    />
-                    <textarea
-                      value={formData.address}
-                      onChange={e =>
-                        handleInputChange('address', e.target.value)
-                      }
-                      className='w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 font-bold h-32'
-                      placeholder='Вулиця, будинок, квартира...'
-                    />
+                    <div className='space-y-2'>
+                      <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
+                        Місто
+                      </label>
+                      <input
+                        type='text'
+                        value={formData.city}
+                        onChange={e =>
+                          handleInputChange('city', e.target.value)
+                        }
+                        className='w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 font-bold'
+                        placeholder='Місто (напр. Запоріжжя)'
+                      />
+                    </div>
+                    <div className='space-y-2'>
+                      <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
+                        Адреса
+                      </label>
+                      <textarea
+                        value={formData.address}
+                        onChange={e =>
+                          handleInputChange('address', e.target.value)
+                        }
+                        className='w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 font-bold h-32'
+                        placeholder='Вулиця, будинок, квартира...'
+                      />
+                    </div>
                   </>
                 )}
 
-                {/* ... внутри Step 2 ... */}
-
+                {/* STEP 2 — Доставка */}
                 {currentStep === 2 && (
                   <div className='space-y-4'>
-                    {/* Кнопка Курьера (только для Запорожья) */}
                     {!isOtherCity && (
                       <button
                         type='button'
@@ -463,7 +582,6 @@ export function Payment () {
                       </button>
                     )}
 
-                    {/* Кнопка Новой Почты (доступна всегда) */}
                     <button
                       type='button'
                       onClick={() =>
@@ -481,7 +599,19 @@ export function Payment () {
                       </p>
                     </button>
 
-                    {/* Поля для КУРЬЕРА (Запорожье) */}
+                    {isOtherCity && (
+                      <div className='p-4 bg-blue-50 rounded-xl border border-blue-100 flex gap-3 items-center'>
+                        <FontAwesomeIcon
+                          icon={faInfoCircle}
+                          className='text-blue-500 text-sm shrink-0'
+                        />
+                        <p className='text-[10px] font-bold text-blue-700 uppercase leading-tight'>
+                          Вартість доставки Новою Поштою оплачується окремо за
+                          тарифами перевізника при отриманні
+                        </p>
+                      </div>
+                    )}
+
                     {formData.deliveryType === 'courier' && !isOtherCity && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -503,25 +633,22 @@ export function Payment () {
                           ))}
                         </select>
 
-                        <div className='flex gap-2'>
-                          <button
-                            type='button'
-                            onClick={() =>
-                              handleInputChange('deliveryDayOption', 'Субота')
-                            }
-                            className={`flex-1 py-4 rounded-xl font-black text-xs uppercase border-2 transition-all ${
-                              formData.deliveryDayOption === 'Субота'
-                                ? 'bg-[#2D241E] text-white border-[#2D241E]'
-                                : 'border-gray-100 text-gray-400'
-                            }`}
-                          >
-                            Доставка у Суботу
-                          </button>
-                        </div>
+                        <button
+                          type='button'
+                          onClick={() =>
+                            handleInputChange('deliveryDayOption', 'Субота')
+                          }
+                          className={`w-full py-4 rounded-xl font-black text-xs uppercase border-2 transition-all ${
+                            formData.deliveryDayOption === 'Субота'
+                              ? 'bg-[#2D241E] text-white border-[#2D241E]'
+                              : 'border-gray-100 text-gray-400'
+                          }`}
+                        >
+                          Доставка у Суботу
+                        </button>
                       </motion.div>
                     )}
 
-                    {/* ПОЛЕ ДЛЯ НОВОЙ ПОЧТЫ (Появляется здесь) */}
                     {formData.deliveryType === 'nova_poshta' && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -544,6 +671,8 @@ export function Payment () {
                     )}
                   </div>
                 )}
+
+                {/* STEP 3 — Оплата */}
                 {currentStep === 3 && (
                   <div className='space-y-4'>
                     <p className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-2'>
@@ -553,8 +682,7 @@ export function Payment () {
                     </p>
 
                     <div className='grid gap-4'>
-                      {/* Вариант Наличными — только если это Запорожье */}
-                      {!isOtherCity && (
+                      {!isOtherCity && formData.deliveryType === 'courier' && (
                         <button
                           type='button'
                           onClick={() =>
@@ -590,7 +718,6 @@ export function Payment () {
                         </button>
                       )}
 
-                      {/* Вариант Предоплата — доступен всегда */}
                       <button
                         type='button'
                         onClick={() =>
@@ -622,12 +749,11 @@ export function Payment () {
                         </div>
                       </button>
 
-                      {/* Инфо-сообщение для других городов */}
                       {isOtherCity && (
                         <div className='p-4 bg-blue-50 rounded-xl border border-blue-100 flex gap-3 items-center'>
                           <FontAwesomeIcon
                             icon={faInfoCircle}
-                            className='text-blue-500 text-sm'
+                            className='text-blue-500 text-sm shrink-0'
                           />
                           <p className='text-[10px] font-bold text-blue-700 uppercase leading-tight'>
                             Для замовлень по Україні діє тільки повна
@@ -639,6 +765,7 @@ export function Payment () {
                   </div>
                 )}
 
+                {/* STEP 4 — Коментар */}
                 {currentStep === 4 && (
                   <textarea
                     value={formData.wish}
@@ -664,7 +791,7 @@ export function Payment () {
                     currentStep === 4 ? handlePaymentSubmit : goToNextStep
                   }
                   disabled={isSubmitting}
-                  className='ml-auto px-10 py-4 bg-[#2D241E] text-white font-black rounded-2xl uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-xl shadow-gray-100'
+                  className='ml-auto px-10 py-4 bg-[#2D241E] text-white font-black rounded-2xl uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-xl shadow-gray-100 disabled:opacity-60'
                 >
                   {isSubmitting
                     ? 'Обробка...'
@@ -676,7 +803,7 @@ export function Payment () {
             </motion.div>
           </div>
 
-          {/* SUMMARY SIDEBAR */}
+          {/* ── SUMMARY SIDEBAR ── */}
           <aside className='lg:sticky lg:top-24 h-fit'>
             <div className='bg-white rounded-[2.5rem] shadow-sm border border-orange-50 overflow-hidden'>
               <div className='p-8 bg-[#2D241E] text-white'>
@@ -703,25 +830,34 @@ export function Payment () {
                     >
                       <div className='flex items-center gap-3'>
                         <img
-                          src={
-                            item.images?.[0]
-                              ? new URL(
-                                  `../../assets/products/${item.images[0]}`,
-                                  import.meta.url
-                                ).href
-                              : zaglushka
-                          }
-                          className='w-10 h-10 rounded-lg object-cover'
+                          src={resolveImageSrc(item)}
+                          className='w-10 h-10 rounded-lg object-cover flex-shrink-0'
+                          alt={item.name}
                         />
                         <div>
                           <p className='text-xs font-black text-[#2D241E] leading-none mb-1'>
                             {item.name}
                           </p>
+                          {item.filling && (
+                            <p className='text-[10px] text-orange-500 font-bold mb-0.5'>
+                              {item.fillingEmoji} {item.filling}
+                            </p>
+                          )}
+                          {/* Дизайн у сайдбарі */}
+                          {item.design && (
+                            <p className='text-[10px] text-blue-500 font-bold mb-0.5'>
+                              📸 {item.designLabel || `Дизайн №${item.design}`}
+                            </p>
+                          )}
                           <p className='text-[10px] text-gray-400 font-bold uppercase'>
-                            {item.quantity} x {item.price}
+                            {item.weight && `${item.weight} · `}
+                            {item.quantity} шт · {parsePrice(item.price)} грн
                           </p>
                         </div>
                       </div>
+                      <p className='text-xs font-black text-[#2D241E] shrink-0'>
+                        {parsePrice(item.price) * Number(item.quantity)} грн
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -731,46 +867,52 @@ export function Payment () {
                     <span>Товари</span>
                     <span className='text-[#2D241E]'>{totalPrice} грн</span>
                   </div>
+
                   <div className='flex justify-between text-xs font-bold text-gray-400 uppercase tracking-tighter'>
                     <span>Доставка</span>
                     <span
                       className={
-                        deliveryCost === 0 ? 'text-green-600' : 'text-[#2D241E]'
+                        deliveryCost === 0 &&
+                        formData.district &&
+                        !isOtherCity &&
+                        formData.deliveryType !== 'nova_poshta'
+                          ? 'text-green-600'
+                          : isOtherCity ||
+                            formData.deliveryType === 'nova_poshta'
+                          ? 'text-blue-500'
+                          : 'text-[#2D241E]'
                       }
                     >
-                      {deliveryCost === 0
-                        ? 'Безкоштовно'
-                        : `${deliveryCost} грн`}
+                      {deliveryCostLabel}
                     </span>
                   </div>
+
                   {showFreeDeliveryHint && (
                     <p className='text-[9px] font-black uppercase text-orange-500 bg-orange-50 p-2 rounded-lg text-center tracking-widest'>
                       До безкоштовної ще {FREE_DELIVERY_THRESHOLD - totalPrice}{' '}
                       грн
                     </p>
                   )}
+
                   <div className='pt-4 flex justify-between items-end'>
                     <span className='text-[10px] font-black uppercase text-gray-400 tracking-widest'>
-                      Всього
+                      {isOtherCity || formData.deliveryType === 'nova_poshta'
+                        ? 'Сума товарів'
+                        : 'Всього'}
                     </span>
                     <span className='text-3xl font-black text-[#2D241E] tracking-tighter'>
                       {totalWithDelivery}{' '}
                       <span className='text-sm text-orange-500'>грн</span>
                     </span>
                   </div>
+
+                  {(isOtherCity || formData.deliveryType === 'nova_poshta') && (
+                    <p className='text-[9px] text-blue-500 font-bold text-center'>
+                      + доставка НП за тарифом перевізника
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-
-            <div className='mt-6 p-6 bg-orange-50/50 rounded-3xl border border-orange-100 flex gap-4'>
-              <FontAwesomeIcon
-                icon={faTruckFast}
-                className='text-orange-500 mt-1'
-              />
-              <p className='text-[10px] font-bold text-gray-500 leading-relaxed uppercase tracking-tighter'>
-                Ми зателефонуємо вам для підтвердження деталей протягом 15
-                хвилин.
-              </p>
             </div>
           </aside>
         </div>

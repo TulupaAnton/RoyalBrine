@@ -1,26 +1,21 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
-
 import AOS from 'aos'
 import 'aos/dist/aos.css'
-import {
-  faEnvelope,
-  faMapMarkerAlt,
-  faClock,
-  faPhone
-} from '@fortawesome/free-solid-svg-icons'
 
 import { Product } from '../../components/Product/product'
-
-import { Description } from '../../components/Description/Description'
 import ContactSection from '../../components/ContactSection/ContactSection'
 import { Ingredients } from '../../components/Ingredients/Ingredients'
 import { Block } from '../Block/Block'
 import { Footer } from '../../components/Footer/Footer'
-// import { BuffetPage } from '../../components/Buffer/Buffer'
+
+// Импортируем пасхальные компоненты
+import {
+  EasterAnnouncementBar,
+  EasterSection
+} from '../../components/EasterAnnouncementBar/EasterAnnouncementBar'
+
+// Импорт фото паски (у вас уже есть этот ассет)
+import paskaImg from '../../assets/paska.jpg'
 
 export function Home () {
   useEffect(() => {
@@ -34,25 +29,26 @@ export function Home () {
 
   return (
     <div className='relative overflow-hidden'>
-      {/* Первый блок с контентом - Hero секция */}
+      <EasterAnnouncementBar />
+
       <div>
         <Block />
       </div>
-      {/* Параллакс-секция с продуктами */}
+
+      <EasterSection paskaImage={paskaImg} />
+
+      {/* Каталог продуктов */}
       <div>
         <Product />
       </div>
-      {/* Секция с ингредиентами */}
+
+      {/* Ингредиенты */}
       <div>
         <Ingredients />
       </div>
 
-      {/* Секция с сортами хлеба */}
-      <div>{/* <Description /> */}</div>
-
-      {/* Секция с контактами */}
+      {/* Контакты */}
       <ContactSection />
-      {/* <BuffetPage /> */}
     </div>
   )
 }

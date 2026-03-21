@@ -17,6 +17,7 @@ import { Refund } from './components/Refund/Refund'
 import { ScrollToTop } from './components/ScrollToTop/ScrollToTop'
 import { CookieBanner } from './components/CookieBanner/CookieBanner'
 import { Footer } from './components/Footer/Footer'
+import PaskaProductPage from './components/Paska/Paska'
 
 function App () {
   return (
@@ -37,6 +38,7 @@ function App () {
         <Route path='/cart' element={<CartPage />} />
         <Route path='/payment' element={<Payment />} />
         <Route path='/ComingSoon' element={<ComingSoon />} />
+        <Route path='/product/paska/:id' element={<PaskaProductPage />} />
       </Routes>
       <Footer />
       <CookieBanner />

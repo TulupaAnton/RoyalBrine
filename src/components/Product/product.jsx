@@ -17,6 +17,7 @@ import salad from '../../assets/salad.jpg'
 import meats from '../../assets/мʼясніВироби.jpg'
 import fish from '../../assets/FishSRC.jpg'
 import buffet from '../../assets/buffet.jpg'
+import paska from '../../assets/paska.jpg'
 
 const categories = [
   {
@@ -88,6 +89,17 @@ const categories = [
     icon: '🍢',
     isHit: false,
     isAvailable: false // ТИМЧАСОВО НЕДОСТУПНО (наприклад)
+  },
+  {
+    id: 'paska',
+    name: 'Паски до Великодня',
+    description:
+      'Смачні великодні паски з родзинками, глазурʼю та святковим декором',
+    image: paska,
+    catalogLink: '/catalog/paska',
+    icon: '🧁',
+    isHit: true,
+    isAvailable: true
   }
 ]
 
