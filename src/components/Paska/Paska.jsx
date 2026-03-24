@@ -13,7 +13,8 @@ import {
   faClock,
   faHeart,
   faLeaf,
-  faWeightHanging
+  faWeightHanging,
+  faTruck
 } from '@fortawesome/free-solid-svg-icons'
 import { useCartStore } from '../../store/cartStore'
 import { toast, Toaster } from 'react-hot-toast'
@@ -21,6 +22,7 @@ import paska1 from '../../assets/products/paska1.jpg'
 import paska2 from '../../assets/products/paska2.jpg'
 import paska3 from '../../assets/products/paska3.jpg'
 import zaglushka from '../../assets/zaglushka.jpg'
+import paska5 from '../../assets/products/paska5.jpg'
 
 // Weight options per paska (only for paskas with hasFilling or specific weight config)
 const WEIGHT_OPTIONS = {
@@ -35,7 +37,6 @@ const WEIGHT_OPTIONS = {
 }
 
 // Filling extra prices per weight
-// Key: `${paskaId}-${weightId}-${fillingId}`
 const FILLING_EXTRAS = {
   'zavarna-500-pistachio': 210,
   'zavarna-500-tres-leches': 250,
@@ -57,7 +58,7 @@ const PASKAS = [
       'Ніжна паска на заварному тісті з родзинками. Неймовірно волога, ароматна, з глибоким смаком і золотистою скоринкою. Ідеальна структура тіста — пориста, але щільна. ',
     price: '180 грн',
     priceRaw: 180,
-    images: [paska1, paska2, paska3],
+    images: [paska1, paska2, paska3, paska5],
     videoUrl: null,
     color: '#C9873A',
     bgLight: '#FEF3E2',
@@ -73,7 +74,7 @@ const PASKAS = [
       'Повітряна вершкова паска з преміум-шоколадними дропсами. Тане в роті, з вершковим ароматом та шоколадними вкрапленнями у кожному шматочку. Приготовлено на натуральних вершках без замінників.',
     price: '190 грн',
     priceRaw: 190,
-    images: [paska1, paska2, paska3],
+    images: [paska1, paska2, paska3, paska5],
     videoUrl: null,
     color: '#6B3A2A',
     bgLight: '#F5EAE5',
@@ -135,14 +136,14 @@ const FILLINGS = [
     emoji: '🍓',
     name: 'Фісташкова з полуницею',
     description: 'Ніжний фісташковий крем + полуничний крем ',
-    price: true // dynamic, see FILLING_EXTRAS
+    price: true
   },
   {
     id: 'tres-leches',
     emoji: '🥛',
     name: 'Молочна ',
     description: 'маскарпоне, згущене молоко, вершковий сир',
-    price: true // dynamic, see FILLING_EXTRAS
+    price: true
   }
 ]
 
@@ -284,6 +285,38 @@ function AvailableSoonBanner ({ paska }) {
   )
 }
 
+/* ─── PREORDER DELIVERY BANNER ───────────────────────────── */
+function PreorderDeliveryBanner ({ paska }) {
+  return (
+    <div
+      className='rounded-2xl px-5 py-4 mb-5 flex items-center gap-4 border'
+      style={{
+        background: paska.bgLight,
+        borderColor: paska.color + '40'
+      }}
+    >
+      <div
+        className='w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0'
+        style={{ background: paska.color + '20' }}
+      >
+        <FontAwesomeIcon
+          icon={faTruck}
+          style={{ color: paska.color }}
+          className='text-base'
+        />
+      </div>
+      <div>
+        <p className='text-sm font-black' style={{ color: paska.color }}>
+          Зараз приймаємо передзамовлення
+        </p>
+        <p className='text-xs text-gray-500 font-medium mt-0.5'>
+          🚚 Доставка по Запоріжжю — субота, 11 квітня
+        </p>
+      </div>
+    </div>
+  )
+}
+
 /* ─── PAGE COMPONENT ─────────────────────────────────────── */
 export function PaskaProductPage () {
   const { id } = useParams()
@@ -292,7 +325,6 @@ export function PaskaProductPage () {
 
   const paska = useMemo(() => PASKAS.find(p => p.id === id), [id])
 
-  // Default weight: first option if hasWeightChoice, else null
   const defaultWeight = paska?.hasWeightChoice
     ? WEIGHT_OPTIONS[paska.id]?.[0]?.id ?? null
     : null
@@ -316,7 +348,6 @@ export function PaskaProductPage () {
     )
   }
 
-  // Resolve current base price
   const currentWeightOption = paska.hasWeightChoice
     ? WEIGHT_OPTIONS[paska.id]?.find(w => w.id === selectedWeight)
     : null
@@ -362,7 +393,7 @@ export function PaskaProductPage () {
     }
     addToCart(cartItem, 'paska')
     setAdded(true)
-    toast.success('Пасочку додано до кошика! 🐣', { duration: 2000 })
+    toast.success('Пасочку додано! 🐣 Доставка 11 квітня', { duration: 2500 })
     setTimeout(() => setAdded(false), 2500)
   }
 
@@ -416,14 +447,12 @@ export function PaskaProductPage () {
             />
           </AnimatePresence>
 
-          {/* Бейдж поточного дизайну */}
           {!paska.availableSoon && (
             <div className='absolute top-5 right-5 z-10 bg-black/50 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full'>
               Дизайн №{photoIdx + 1}
             </div>
           )}
 
-          {/* Available soon overlay */}
           {paska.availableSoon && (
             <div className='absolute inset-0 bg-gradient-to-t from-[#1a1009]/70 via-transparent to-transparent flex flex-col items-center justify-end p-6'>
               <motion.div
@@ -442,7 +471,6 @@ export function PaskaProductPage () {
             </div>
           )}
 
-          {/* Nav arrows */}
           {paska.images.length > 1 && (
             <>
               <button
@@ -460,7 +488,6 @@ export function PaskaProductPage () {
             </>
           )}
 
-          {/* Dots + video button */}
           <div className='absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10'>
             {paska.images.map((_, i) => (
               <button
@@ -485,7 +512,6 @@ export function PaskaProductPage () {
             )}
           </div>
 
-          {/* Badge */}
           <div
             className='absolute top-5 left-5 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md z-10'
             style={{ background: paska.color }}
@@ -561,6 +587,9 @@ export function PaskaProductPage () {
             {paska.description}
           </p>
         </div>
+
+        {/* ── PREORDER & DELIVERY INFO ── */}
+        {!paska.availableSoon && <PreorderDeliveryBanner paska={paska} />}
 
         {/* ── WEIGHT SELECTOR ── */}
         {paska.hasWeightChoice && !paska.availableSoon && (

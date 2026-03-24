@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowRight,
   faTimes,
-  faStar
+  faStar,
+  faTruck
 } from '@fortawesome/free-solid-svg-icons'
 
 // ─────────────────────────────────────────────
@@ -51,7 +52,6 @@ const CountdownUnit = memo(function CountdownUnit ({ value, label }) {
   return (
     <div className='flex flex-col items-center'>
       <div className='w-14 h-14 sm:w-16 sm:h-16 bg-white/15 border border-white/20 rounded-xl flex items-center justify-center mb-1.5'>
-        {/* tabular-nums: цифры одинаковой ширины — нет прыжков layout */}
         <span className='text-xl sm:text-2xl font-black text-white tabular-nums leading-none'>
           {String(value).padStart(2, '0')}
         </span>
@@ -64,9 +64,7 @@ const CountdownUnit = memo(function CountdownUnit ({ value, label }) {
 })
 
 // ─────────────────────────────────────────────
-// Изолированный блок таймера.
-// Только он ререндерится каждую секунду —
-// основной EasterSection остаётся нетронутым.
+// Изолированный блок таймера
 // ─────────────────────────────────────────────
 const EasterCountdown = memo(function EasterCountdown () {
   const { days, hours, minutes, seconds } = useCountdown(EASTER_DATE)
@@ -95,9 +93,7 @@ const EasterCountdown = memo(function EasterCountdown () {
 })
 
 // ─────────────────────────────────────────────
-// Варианты анимаций — только opacity + y,
-// БЕЗ x-смещений (вызывают горизонтальный
-// overflow и layout shift на мобиле)
+// Варианты анимаций
 // ─────────────────────────────────────────────
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -149,11 +145,11 @@ export function EasterAnnouncementBar () {
             {/* Короткий текст на мобиле, полный на sm+ */}
             <span className='text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-center leading-snug'>
               <span className='sm:hidden'>
-                🌸 Паски до Великодня — обмежена кількість!
+                🌸 Паски — передзамовлення! Доставка по Запоріжжю 11 квітня 🚚
               </span>
               <span className='hidden sm:inline'>
-                🌸 Великдень вже близько! Паски до свята — обмежена кількість.
-                Замовляйте заздалегідь
+                🌸 Паски зараз у передзамовленні — доставка по Запоріжжю у
+                суботу, 11 квітня. Встигніть замовити!
               </span>
             </span>
 
@@ -175,7 +171,6 @@ export function EasterAnnouncementBar () {
             <button
               onClick={hide}
               aria-label='Закрити оголошення'
-              // touch-manipulation: убирает 300ms задержку на мобиле
               className='absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center opacity-60 hover:opacity-100 active:opacity-100 transition-opacity touch-manipulation'
             >
               <FontAwesomeIcon icon={faTimes} className='text-xs' />
@@ -200,7 +195,7 @@ export function EasterSection ({ paskaImage }) {
             'linear-gradient(135deg, #431407 0%, #7c2d12 30%, #92400e 60%, #78350f 100%)'
         }}
       >
-        {/* ── Статичный декоративный фон (без анимаций) ── */}
+        {/* ── Декоративный фон ── */}
         <div
           className='absolute inset-0 pointer-events-none overflow-hidden'
           aria-hidden='true'
@@ -208,7 +203,6 @@ export function EasterSection ({ paskaImage }) {
           <div className='absolute -right-20 -top-20 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-orange-400/10 border border-orange-300/10' />
           <div className='absolute -right-10 -top-10 w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-orange-400/10 border border-orange-300/10' />
 
-          {/* Точки — только md+ чтобы не нагружать мобил */}
           <div
             className='hidden md:block absolute inset-0 opacity-5'
             style={{
@@ -218,7 +212,6 @@ export function EasterSection ({ paskaImage }) {
             }}
           />
 
-          {/* Волна сверху — #FDFCFB → секция */}
           <svg
             className='absolute top-0 left-0 w-full'
             viewBox='0 0 1440 60'
@@ -231,7 +224,6 @@ export function EasterSection ({ paskaImage }) {
             />
           </svg>
 
-          {/* Волна снизу — секция → #FDFCFB */}
           <svg
             className='absolute bottom-0 left-0 w-full'
             viewBox='0 0 1440 60'
@@ -269,7 +261,7 @@ export function EasterSection ({ paskaImage }) {
                 </span>
               </div>
 
-              {/* Заголовок — адаптивный размер */}
+              {/* Заголовок */}
               <h2 className='text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black text-white leading-[0.92] tracking-tighter mb-4'>
                 Паски до
                 <br />
@@ -287,7 +279,7 @@ export function EasterSection ({ paskaImage }) {
               </p>
 
               {/* Теги */}
-              <div className='flex flex-wrap gap-2 mb-8 justify-center lg:justify-start'>
+              <div className='flex flex-wrap gap-2 mb-5 justify-center lg:justify-start'>
                 {FEATURES.map(f => (
                   <span
                     key={f}
@@ -298,7 +290,23 @@ export function EasterSection ({ paskaImage }) {
                 ))}
               </div>
 
-              {/* Кнопки — full-width на xs, авто на sm+ */}
+              {/* ── ИНФО О ПРЕДЗАКАЗЕ И ДОСТАВКЕ ── */}
+              <div className='inline-flex items-center gap-3 bg-orange-400/15 border border-orange-300/25 px-4 py-3 rounded-2xl mb-8 justify-center lg:justify-start'>
+                <FontAwesomeIcon
+                  icon={faTruck}
+                  className='text-orange-300 text-sm flex-shrink-0'
+                />
+                <div className='text-left'>
+                  <p className='text-white text-[12px] font-black uppercase tracking-wider leading-tight'>
+                    Зараз приймаємо передзамовлення
+                  </p>
+                  <p className='text-orange-200/80 text-[11px] font-medium mt-0.5'>
+                    🚚 Доставка по Запоріжжю — субота, 11 квітня
+                  </p>
+                </div>
+              </div>
+
+              {/* Кнопки */}
               <div className='flex flex-col xs:flex-row gap-3 justify-center lg:justify-start'>
                 <Link
                   to='/catalog/paska'
@@ -332,7 +340,6 @@ export function EasterSection ({ paskaImage }) {
                       src={paskaImage}
                       alt='Домашня паска'
                       className='w-full h-full object-cover'
-                      // lazy + async: не блокирует рендер
                       loading='lazy'
                       decoding='async'
                     />
@@ -349,7 +356,6 @@ export function EasterSection ({ paskaImage }) {
                   )}
                 </div>
 
-                {/* Крутящийся значок — чистый CSS (дешевле framer-motion rotate на мобиле) */}
                 <div
                   className='absolute -top-3 -right-3 w-11 h-11 sm:w-14 sm:h-14 bg-orange-400 rounded-full flex items-center justify-center shadow-lg text-lg sm:text-2xl animate-spin'
                   style={{ animationDuration: '14s' }}
@@ -358,7 +364,6 @@ export function EasterSection ({ paskaImage }) {
                   ✨
                 </div>
 
-                {/* Рейтинговый бейдж */}
                 <div className='absolute -bottom-4 -left-2 sm:-left-4 bg-white rounded-2xl px-3 py-1.5 shadow-xl'>
                   <div className='flex items-center gap-1.5'>
                     <div className='flex text-orange-400 gap-0.5'>
@@ -377,7 +382,7 @@ export function EasterSection ({ paskaImage }) {
                 </div>
               </div>
 
-              {/* Таймер — изолирован в отдельный мемоизированный компонент */}
+              {/* Таймер */}
               <EasterCountdown />
             </motion.div>
           </div>
