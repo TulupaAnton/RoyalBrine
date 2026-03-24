@@ -2,6 +2,12 @@
   "redirects": [
     {
       "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "royal-brine.vercel.app"
+        }
+      ],
       "destination": "https://www.royalbrine.store/$1",
       "permanent": true
     }
@@ -24,7 +30,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api|static|favicon.ico).*)",
       "destination": "/index.html"
     }
   ],
