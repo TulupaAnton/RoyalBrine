@@ -1,336 +1,777 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--              ГОЛОВНА / ОСНОВНІ          -->
+  <!-- ═══════════════════════════════════════ -->
+
   <url>
-    <loc>https://royal-brine.vercel.app/</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/about</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/about</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/contact</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/contact</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--               КАТЕГОРІЇ                 -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <url>
+    <loc>https://www.royalbrine.store/catalog/pickles</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/cart</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/smoked</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/payment</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/cooking</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/Terms</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/semi-finished</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/Privacy</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/salad</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/Refund</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/meats</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://royal-brine.vercel.app/ComingSoon</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/catalog/fish</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.royalbrine.store/catalog/paska</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.royalbrine.store/catalog/buffet</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+
+ <!-- ═══════════════════════════════════════ -->
+  <!--         ТОВАРИ — паски (2)           -->
+  <!-- ═══════════════════════════════════════ -->
+
+
+  <url>
+    <loc>https://www.royalbrine.store/product/paska</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://royal-brine.vercel.app/catalog/pickles</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/paska/zavarna</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://royal-brine.vercel.app/catalog/smoked</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/paska/vershkova</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- ═══════════════════════════════════════ -->
+  <!--         ТОВАРИ — pickles (28)           -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Огірок Корнішон -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/1</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Огірок Бочковий -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/2</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Помідор бочковий -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/3</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Огірок маринований із соусом Чилі -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/4</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Капуста квашена -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/5</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Капуста кисло-солодка -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/6</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Кавун маринований -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/7</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Помідор маринований -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/8</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Салат з капусти -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/9</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Маринований солодкий перець -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/10</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Огірок 'Бургерний' -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/11</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Капуста 'пелюстка' -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/12</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- 'Вогник' -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/13</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Печериці мариновані -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/14</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Салат із Баклажан із солодким чилі -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/15</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Баклажан 'бочковий' -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/16</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Баклажан Фарширований -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/17</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Морська Капуста -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/18</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Морква корейською -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/19</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Помідор зелений, Фарширований -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/20</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ткемалі -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/21</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ікра баклажанна -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/22</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Аджика -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/23</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Томат -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/24</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Опеньки -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/25</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Мариновані маслята -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/26</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Маринована цвітна капуста -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/28</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- буряк корейською -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/29</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Лобіо з кінзою та горіхами -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/58</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Квасоля біла маринована -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/59</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Мариновані Ушки -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/82</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Бурий помідор -->
+  <url>
+    <loc>https://www.royalbrine.store/product/pickles/83</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
+  <!-- ═══════════════════════════════════════ -->
+  <!--           ТОВАРИ — fish (9)             -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Саламур з товстолоба -->
   <url>
-    <loc>https://royal-brine.vercel.app/catalog/cooking</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/fish/27</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Шашлички Рибні холодного/копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/35</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Форель (засолена) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/76</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Оселедець -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/77</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Рулет «Дует Скандинавії» -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/78</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Тунець холодного копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/79</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Рибний рулет «Морське тріо» -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/80</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ікра червона (Кети (USA)) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/81</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Масляна риба (холодного копчення) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/fish/93</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
+  <!-- ═══════════════════════════════════════ -->
+  <!--          ТОВАРИ — meats (12)            -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Балик гарячого копчення зі свинини -->
   <url>
-    <loc>https://royal-brine.vercel.app/catalog/semi-finished</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/meats/30</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Окіст гарячого копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/31</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Перепілка гарячого копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/32</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Окіст гарячого копчення (без/кістки) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/33</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Курча гарячого копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/34</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ковбаса свиняча (смажена) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/37</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ковбаса кров'янка -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/49</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Курячий рулет гриби+сир -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/50</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Свинячі котлети -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/52</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Колбаса з куриці (смажена) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/53</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Сало -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/55</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Копчене сало -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/85</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Ребро гарячого копчення -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/86</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Бастурма (в'ялена) -->
+  <url>
+    <loc>https://www.royalbrine.store/product/meats/91</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
+  <!-- ═══════════════════════════════════════ -->
+  <!--         ТОВАРИ — cooking (20)           -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Капустняй чебурек -->
   <url>
-    <loc>https://royal-brine.vercel.app/catalog/salad</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/36</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Овочева запіканка з моцарелою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/1</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/38</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Хінкалі -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/2</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/39</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Банош -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/3</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/40</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Рибні мітболи в вершковому соусі -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/4</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/41</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Зрази картопляні (курка) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/5</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/42</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Лазання порційна -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/6</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/43</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Шпинатний рулет із лососем -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/7</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/44</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Жульєн -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/8</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/45</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Рулет печінковий -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/9</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/46</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Тефтелі свинячо-яловичні -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/10</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/47</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Голубці з свининою та яловичиною -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/11</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/48</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Фарширований перець -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/12</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/54</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Холодець -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/13</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/56</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Паштет -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/14</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/57</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Рибні котлети -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/15</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/51</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Паштет грибний (печериці) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/16</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/90</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Картопляні зрази (свинячі) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/17</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/cooking/89</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--       ТОВАРИ — semi-finished (12)       -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Млинці з картоплею та грибами -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/18</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/66</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Котлети зі свининою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/19</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/70</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Тефтелі -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/20</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/69</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Вареники з картоплею та грибами -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/21</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/63</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Вареники з капустою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/22</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/62</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Вареники з вишнею -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/23</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/64</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Пельмені зі свининою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/pickles/24</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/60</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Млинці з шинкою та грибами -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/1</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/65</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Голубці -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/2</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/67</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Ліниві голубці -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/3</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/68</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Пельмені з куркою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/4</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/61</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Сирники -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/5</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/71</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Бендерики з м'ясом -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/smoked/6</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/semi-finished/72</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+
+
+  <!-- Печінковий салат (500 гр) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/1</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/salad/73</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Олів'є (500 гр) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/2</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/salad/75</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Вінігрет (400 гр) -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/3</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/salad/74</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Салат з ананасами -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/4</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/salad/88</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+  <!-- Оселедь під шубою -->
   <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/5</loc>
-    <lastmod>2025-11-20</lastmod>
+    <loc>https://www.royalbrine.store/product/salad/87</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/6</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/7</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/8</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/9</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/10</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/11</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/12</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/13</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/14</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/15</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/16</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/17</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/18</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/19</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/20</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/21</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/cooking/22</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/1</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/2</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/3</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/4</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/5</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/6</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/7</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/8</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/9</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/10</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/11</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/12</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/semi-finished/14</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/salad/1</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/salad/2</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://royal-brine.vercel.app/product/salad/3</loc>
-    <lastmod>2025-11-20</lastmod>
-  </url>
+
+ 
 </urlset>
