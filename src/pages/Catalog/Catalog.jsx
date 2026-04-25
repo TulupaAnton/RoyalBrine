@@ -286,39 +286,6 @@ const PaskaCard = memo(({ paska, index }) => {
   )
 })
 
-/* ===== PASKA SECTION ===== */
-function PaskaSection () {
-  return (
-    <>
-      {/* Банер */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className='rounded-[2rem] p-6 sm:p-8 mb-7 border border-orange-100'
-        style={{
-          background: 'linear-gradient(135deg, #FEF3E2 0%, #FDF0D5 100%)'
-        }}
-      >
-        <div className='flex items-center gap-3 mb-2'>
-          <span className='text-3xl'>🐣</span>
-          <h2 className='text-xl sm:text-2xl font-black text-orange-900 uppercase tracking-tight'>
-            Великодні Паски
-          </h2>
-        </div>
-        <p className='text-sm sm:text-base text-orange-800/70 font-medium leading-relaxed'>
-          Авторські паски з любов'ю.
-        </p>
-      </motion.div>
-
-      <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5'>
-        {PASKAS_INITIAL.map((paska, i) => (
-          <PaskaCard key={paska.id} paska={paska} index={i} />
-        ))}
-      </div>
-    </>
-  )
-}
-
 /* ===== SUB-COMPONENTS ===== */
 
 const ProductCard = memo(({ product, category, onAddToCart }) => {

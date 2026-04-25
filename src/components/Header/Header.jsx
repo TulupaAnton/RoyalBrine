@@ -17,7 +17,6 @@ export function Header () {
   const [isOpen, setIsOpen] = useState(false)
   const cartCount = useCartStore(state => state.cartCount())
 
-  // Блокировка скролла при открытом меню
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'

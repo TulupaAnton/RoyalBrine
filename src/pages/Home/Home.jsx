@@ -8,12 +8,6 @@ import { Ingredients } from '../../components/Ingredients/Ingredients'
 import { Block } from '../Block/Block'
 import { Footer } from '../../components/Footer/Footer'
 
-// Импортируем пасхальные компоненты
-import {
-  EasterAnnouncementBar,
-  EasterSection
-} from '../../components/EasterAnnouncementBar/EasterAnnouncementBar'
-
 // Импорт фото паски (у вас уже есть этот ассет)
 import paskaImg from '../../assets/paska.jpg'
 
@@ -29,13 +23,9 @@ export function Home () {
 
   return (
     <div className='relative overflow-hidden'>
-      <EasterAnnouncementBar />
-
       <div>
         <Block />
       </div>
-
-      <EasterSection paskaImage={paskaImg} />
 
       {/* Каталог продуктов */}
       <div>

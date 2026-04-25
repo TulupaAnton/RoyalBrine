@@ -89,18 +89,18 @@ const categories = [
     icon: '🍢',
     isHit: false,
     isAvailable: false // ТИМЧАСОВО НЕДОСТУПНО (наприклад)
-  },
-  {
-    id: 'paska',
-    name: 'Паски до Великодня',
-    description:
-      'Смачні великодні паски з родзинками, глазурʼю та святковим декором',
-    image: paska,
-    catalogLink: '/catalog/paska',
-    icon: '🧁',
-    isHit: true,
-    isAvailable: true
   }
+  // {
+  //   id: 'paska',
+  //   name: 'Паски до Великодня',
+  //   description:
+  //     'Смачні великодні паски з родзинками, глазурʼю та святковим декором',
+  //   image: paska,
+  //   catalogLink: '/catalog/paska',
+  //   icon: '🧁',
+  //   isHit: true,
+  //   isAvailable: true
+  // }
 ]
 
 export function Product () {
