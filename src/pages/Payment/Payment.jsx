@@ -25,7 +25,6 @@ import zaglushka from '../../assets/zaglushka.jpg'
 import { useCartStore } from '../../store/cartStore'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
-import { supabase } from '../../lib/supabase'
 
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
@@ -53,16 +52,6 @@ const generateOrderNumber = () => {
   const day = now.getDate().toString().padStart(2, '0')
   const rand = Math.floor(100 + Math.random() * 900)
   return `${year}${month}${day}-${rand}`
-}
-
-const sendToSupabase = async orderData => {
-  const { data, error } = await supabase
-    .from('orders')
-    .insert([orderData])
-    .select()
-    .single()
-  if (error) throw error
-  return data
 }
 
 /* ─── БУДУЄМО РЯДОК ТОВАРУ (з начинкою і дизайном) ─────── */
@@ -384,7 +373,6 @@ export function Payment () {
     })
 
     try {
-      await sendToSupabase(orderData)
       await axios.post(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
