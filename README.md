@@ -3,7 +3,7 @@
 **RoyalBrine** is a modern online store built with **React** and **Vite**.  
 It is designed as a fast, convenient, and customizable solution for small businesses that want to sell products online without dealing with complex CMS systems.  
 
-👉 **The store is live and fully functional right now.**  (https://royal-brine.vercel.app) (Ukranian language on web-site)
+👉 **The store is live and fully functional right now.**  ((https://www.royalbrine.store)) (Ukranian language on web-site)
 
 ## ✨ Features
 
