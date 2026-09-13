@@ -16,16 +16,60 @@ import { motion, AnimatePresence } from "framer-motion";
 import zaglushka from "../../assets/zaglushka.jpg";
 import { toast } from "react-hot-toast";
 
-const weightOptions = [0.5, 1, 2, 3];
+const defaultWeightOptions = [0.5, 1, 2, 3];
 const pieceOptions = [1, 2, 3, 5, 10];
 const literOptions = [1, 2, 3, 5];
-const gramOptions = [100, 250, 500, 1000];
-// Ведро теперь меряется в литрах, а не в кг
+
+const defaultGramOptions = [100, 250, 500, 1000];
+
 const bucketSizeOptions = [
   { value: 1, label: "1 л" },
   { value: 3, label: "3 л" },
   { value: 5, label: "5 л" },
 ];
+
+/**
+ * Тарифная сетка цен за кг в зависимости от выбранного веса (в кг).
+ * product.priceTiers — JSON-массив вида:
+ * [ { upTo: 0.5, price: 200 }, { upTo: null, price: 160 } ]
+ * upTo: null (или отсутствует) означает "і більше" — последняя ступень.
+ * Работает и для товаров "на вагу" (кг), и для товаров "на грами"
+ * (граммы переводятся в кг перед поиском ступени: 100 г = 0.1 кг).
+ */
+function getTieredPrice(weightKg, tiers) {
+  if (!Array.isArray(tiers) || tiers.length === 0) return null;
+
+  const sorted = [...tiers].sort((a, b) => {
+    const aVal = a.upTo == null ? Infinity : a.upTo;
+    const bVal = b.upTo == null ? Infinity : b.upTo;
+    return aVal - bVal;
+  });
+
+  for (const tier of sorted) {
+    if (tier.upTo == null || weightKg <= tier.upTo) {
+      return tier.price;
+    }
+  }
+
+  return sorted[sorted.length - 1].price;
+}
+
+// Повертає відформатований текст тарифної сітки для підказки
+function getTierDescription(tiers) {
+  if (!Array.isArray(tiers) || tiers.length === 0) return "";
+
+  return tiers
+    .map((tier, index, arr) => {
+      const price = `${tier.price} грн/кг`;
+      if (tier.upTo != null) {
+        return `до ${tier.upTo} кг — ${price}`;
+      }
+      const prevUpTo = arr[index - 1]?.upTo;
+      const range = prevUpTo != null ? `від ${prevUpTo} кг` : "більше";
+      return `${range} — ${price}`;
+    })
+    .join(" • ");
+}
 
 export function ProductDetail() {
   const { category, id } = useParams();
@@ -36,7 +80,7 @@ export function ProductDetail() {
   const [selectedWeight, setSelectedWeight] = useState(1);
   const [selectedPieces, setSelectedPieces] = useState(1);
   const [selectedLiters, setSelectedLiters] = useState(1);
-  const [selectedGrams, setSelectedGrams] = useState(100);
+  const [selectedGrams, setSelectedGrams] = useState(null);
   const [selectedBucketOption, setSelectedBucketOption] = useState("weight");
   const [selectedBucketSize, setSelectedBucketSize] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -56,8 +100,6 @@ export function ProductDetail() {
   }, [id]);
 
   // ── Наличие товара зависит от выбранного способа продажи ───────────────
-  // isAccessible       -> наличие "на вагу"
-  // isBucketAccessible -> наличие "у відрі"
   const isBucketMode =
     product?.bucket === true && selectedBucketOption === "bucket";
 
@@ -82,31 +124,86 @@ export function ProductDetail() {
     return { isPieceProduct, isGramProduct, isLiquidProduct };
   }, [product]);
 
-  // ── Базовая цена берётся из разных полей БД в зависимости от режима ────
-  // Для ведра product.bucketPrice трактуется как ціна за 1 літр.
+  // Кастомные варианты веса (кг) для конкретного товара
+  const weightOptions = useMemo(() => {
+    if (
+      Array.isArray(product?.weightOptions) &&
+      product.weightOptions.length > 0
+    ) {
+      return product.weightOptions;
+    }
+    return defaultWeightOptions;
+  }, [product]);
+
+  // Кастомные варианты грамовки для конкретного товара
+  const gramOptions = useMemo(() => {
+    if (Array.isArray(product?.gramOptions) && product.gramOptions.length > 0) {
+      return product.gramOptions;
+    }
+    return defaultGramOptions;
+  }, [product]);
+
+  useEffect(() => {
+    if (
+      Array.isArray(product?.weightOptions) &&
+      product.weightOptions.length > 0 &&
+      !product.weightOptions.includes(selectedWeight)
+    ) {
+      setSelectedWeight(product.weightOptions[0]);
+    }
+  }, [product, selectedWeight]);
+
+  useEffect(() => {
+    if (productType.isGramProduct && selectedGrams == null) {
+      setSelectedGrams(gramOptions[0]);
+    }
+  }, [productType.isGramProduct, gramOptions, selectedGrams]);
+
+  const usesTieredPricing =
+    !isBucketMode &&
+    !productType.isPieceProduct &&
+    !productType.isLiquidProduct &&
+    Array.isArray(product?.priceTiers) &&
+    product.priceTiers.length > 0;
+
   const basePrice = useMemo(() => {
     if (!product) return 0;
     const { isPieceProduct, isGramProduct, isLiquidProduct } = productType;
+    const currentGrams = selectedGrams ?? gramOptions[0];
 
-    // Для "у відрі" берём product.bucketPrice, если задан,
-    // иначе откатываемся на обычную цену, чтобы ничего не сломалось.
+    if (usesTieredPricing) {
+      const effectiveKg = isGramProduct ? currentGrams / 1000 : selectedWeight;
+      const tieredPrice = getTieredPrice(effectiveKg, product.priceTiers);
+      if (tieredPrice != null) return tieredPrice;
+    }
+
     const priceSource = isBucketMode
       ? product.bucketPrice || product.price
       : product.price;
 
     let p = priceSource.replace(" грн", "");
-    // В режиме ведра единица измерения всегда "за літр", поэтому
-    // не нужно чистить суффиксы /шт, /л, /100 гр — они относятся
-    // только к обычной (не-ведёрной) цене.
+
     if (!isBucketMode) {
       if (isPieceProduct) p = p.replace("/шт", "");
       if (isLiquidProduct) p = p.replace("/л", "");
-      if (isGramProduct) p = p.replace("/100 гр", "").replace("/100гр", "");
+      if (isGramProduct) {
+        p = p.replace("/100 гр", "").replace("/100гр", "");
+        return parseFloat(p) * 10;
+      }
     } else {
       p = p.replace("/л", "");
     }
+
     return parseFloat(p);
-  }, [product, productType, isBucketMode]);
+  }, [
+    product,
+    productType,
+    isBucketMode,
+    usesTieredPricing,
+    selectedWeight,
+    selectedGrams,
+    gramOptions,
+  ]);
 
   const { calculatedPrice, displayAmount } = useMemo(() => {
     if (!product) return { calculatedPrice: "0 грн", displayAmount: "" };
@@ -114,9 +211,9 @@ export function ProductDetail() {
     const isBucketProduct = product.bucket === true;
     let price = 0;
     let amount = "";
+    const grams = selectedGrams ?? gramOptions[0];
 
     if (isBucketProduct && selectedBucketOption === "bucket") {
-      // Ведро считается в литрах
       price = (basePrice * selectedBucketSize).toFixed(2);
       amount = `${selectedBucketSize} л (відро)`;
     } else if (isPieceProduct) {
@@ -126,11 +223,8 @@ export function ProductDetail() {
       price = (basePrice * selectedLiters).toFixed(2);
       amount = `${selectedLiters} л`;
     } else if (isGramProduct) {
-      price = ((basePrice / 100) * selectedGrams).toFixed(2);
-      amount =
-        selectedGrams >= 1000
-          ? `${selectedGrams / 1000} кг`
-          : `${selectedGrams} гр`;
+      price = (basePrice * (grams / 1000)).toFixed(2);
+      amount = grams >= 1000 ? `${grams / 1000} кг` : `${grams} гр`;
     } else {
       price = (basePrice * selectedWeight).toFixed(2);
       amount = `${selectedWeight} кг`;
@@ -148,6 +242,7 @@ export function ProductDetail() {
     selectedPieces,
     selectedLiters,
     selectedGrams,
+    gramOptions,
     selectedBucketOption,
     selectedBucketSize,
   ]);
@@ -197,18 +292,22 @@ export function ProductDetail() {
       </div>
     );
 
-  // ── Shared blocks (rendered in both mobile + desktop) ──────────────────
-
   const SelectorsBlock = () => (
     <div className="space-y-6">
       {productType.isGramProduct && (
         <SectionBlock label="Скільки грамів?">
+          {usesTieredPricing && (
+            <p className="text-[11px] font-semibold text-gray-400 mb-2">
+              Ціна за кг при {selectedGrams ?? gramOptions[0]} г:{" "}
+              <span className="text-gray-700">{Math.round(basePrice)} грн</span>
+            </p>
+          )}
           <div className="grid grid-cols-4 gap-2">
             {gramOptions.map((g) => (
               <OptionButton
                 key={g}
                 label={g >= 1000 ? `${g / 1000}кг` : `${g}г`}
-                active={selectedGrams === g}
+                active={(selectedGrams ?? gramOptions[0]) === g}
                 onClick={() => setSelectedGrams(g)}
                 accent="dark"
               />
@@ -246,7 +345,6 @@ export function ProductDetail() {
             })}
           </div>
 
-          {/* Показываем актуальную цену для выбранного способа */}
           <p className="text-[11px] font-semibold text-gray-400 mb-3">
             {selectedBucketOption === "bucket"
               ? "Ціна за літр у відрі: "
@@ -289,6 +387,13 @@ export function ProductDetail() {
 
       {!product.bucket && !productType.isGramProduct && (
         <SectionBlock label="Оберіть об'єм:">
+          {usesTieredPricing && (
+            <p className="text-[11px] font-semibold text-gray-400 mb-2">
+              Ціна за кг при {selectedWeight} кг:{" "}
+              <span className="text-gray-700">{Math.round(basePrice)} грн</span>
+            </p>
+          )}
+
           <div className="grid grid-cols-4 gap-2">
             {(productType.isPieceProduct
               ? pieceOptions
@@ -384,11 +489,8 @@ export function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-[#F7F4EF] font-sans">
-      {/* ══════════════════════════════════════
-          DESKTOP  (md+)
-      ══════════════════════════════════════ */}
+      {/* DESKTOP */}
       <div className="hidden md:block">
-        {/* Breadcrumb header */}
         <header className="border-b border-gray-200 bg-[#F7F4EF]/90 backdrop-blur-md sticky top-0 z-30">
           <div className="max-w-6xl mx-auto px-8 py-4 flex items-center gap-3">
             <Link
@@ -409,10 +511,8 @@ export function ProductDetail() {
           </div>
         </header>
 
-        {/* Two-column layout */}
         <div className="max-w-6xl mx-auto px-8 py-12">
           <div className="grid grid-cols-2 gap-16 items-start">
-            {/* LEFT — sticky photo */}
             <div className="sticky top-24">
               <div className="relative aspect-square rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-sm">
                 <AnimatePresence mode="wait">
@@ -477,7 +577,6 @@ export function ProductDetail() {
                 )}
               </div>
 
-              {/* Thumbnails row */}
               {images.length > 1 && (
                 <div className="flex gap-2 mt-3">
                   {images.map((img, i) => (
@@ -500,7 +599,6 @@ export function ProductDetail() {
               )}
             </div>
 
-            {/* RIGHT — info */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -522,11 +620,22 @@ export function ProductDetail() {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-400 font-medium mb-8">
+              <p className="text-sm text-gray-400 font-medium mb-2">
                 {isBucketMode
                   ? product.bucketPrice || product.price
-                  : product.price}
+                  : usesTieredPricing
+                    ? `від ${Math.min(
+                        ...product.priceTiers.map((t) => t.price),
+                      )} грн/кг`
+                    : product.price}
               </p>
+
+              {usesTieredPricing && (
+                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50/80 border border-orange-100/60 px-3 py-1.5 rounded-xl mb-6 w-fit">
+                  <span>💡</span>
+                  <span>{getTierDescription(product.priceTiers)}</span>
+                </div>
+              )}
 
               <div className="h-px bg-gray-200 mb-8" />
 
@@ -563,11 +672,8 @@ export function ProductDetail() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════
-          MOBILE  (< md)
-      ══════════════════════════════════════ */}
+      {/* MOBILE */}
       <div className="md:hidden">
-        {/* Full-bleed hero image */}
         <div
           className="relative w-full"
           style={{ height: "58vmax", maxHeight: "65vh", minHeight: 280 }}
@@ -664,7 +770,6 @@ export function ProductDetail() {
           />
         </div>
 
-        {/* Sliding content card */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -688,11 +793,22 @@ export function ProductDetail() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-gray-400 font-medium mb-2">
               {isBucketMode
                 ? product.bucketPrice || product.price
-                : product.price}
+                : usesTieredPricing
+                  ? `від ${Math.min(
+                      ...product.priceTiers.map((t) => t.price),
+                    )} грн/кг`
+                  : product.price}
             </p>
+
+            {usesTieredPricing && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50/80 border border-orange-100/60 px-3 py-1.5 rounded-xl w-fit">
+                <span>💡</span>
+                <span>{getTierDescription(product.priceTiers)}</span>
+              </div>
+            )}
           </div>
 
           <div className="h-px bg-gray-200 mb-6" />
@@ -723,7 +839,6 @@ export function ProductDetail() {
           )}
         </motion.div>
 
-        {/* Fixed bottom purchase bar */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
           <div className="h-5 bg-gradient-to-t from-[#F7F4EF] to-transparent" />
           <div className="bg-[#F7F4EF] px-4 pb-8 pt-1">
