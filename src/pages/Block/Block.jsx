@@ -66,7 +66,7 @@ export function Block() {
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
-                <div className="min-h-[110px] relative">
+                <div className="h-[160px] relative">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={index}
@@ -74,9 +74,9 @@ export function Block() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.3 }}
-                      className="absolute inset-0"
+                      className="absolute inset-0 flex flex-col"
                     >
-                      <div className="flex text-orange-400 gap-1 mb-4">
+                      <div className="flex text-orange-400 gap-1 mb-4 flex-shrink-0">
                         {[...Array(5)].map((_, i) => (
                           <FontAwesomeIcon
                             key={i}
@@ -85,10 +85,10 @@ export function Block() {
                           />
                         ))}
                       </div>
-                      <p className="text-[#2D241E] italic text-lg leading-snug mb-4">
+                      <p className="text-[#2D241E] italic text-lg leading-snug mb-2 line-clamp-3 overflow-hidden">
                         "{REVIEWS[index].text}"
                       </p>
-                      <span className="text-xs font-bold uppercase tracking-widest text-orange-900/40">
+                      <span className="text-xs font-bold uppercase tracking-widest text-orange-900/40 mt-auto">
                         {REVIEWS[index].author}
                       </span>
                     </motion.div>
