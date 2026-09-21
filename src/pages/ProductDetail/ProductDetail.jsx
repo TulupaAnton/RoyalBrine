@@ -10,6 +10,8 @@ import {
   faInfoCircle,
   faBan,
   faLeaf,
+  faMinus,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { useCartStore } from "../../store/cartStore";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +23,8 @@ const pieceOptions = [1, 2, 3, 5, 10];
 const literOptions = [1, 2, 3, 5];
 
 const defaultGramOptions = [100, 250, 500, 1000];
+
+const MAX_PIECES = 999;
 
 const bucketSizeOptions = [
   { value: 1, label: "1 л" },
@@ -71,6 +75,26 @@ function getTierDescription(tiers) {
     .join(" • ");
 }
 
+/**
+ * Оптова сітка для штучних товарів (тушонка тощо).
+ * product.pieceTiers — JSON-масив вида:
+ * [ { minQty: 1, price: 200 }, { minQty: 10, price: 180 }, { minQty: 24, price: 160 } ]
+ * Ціна за 1 шт діє на ВСЮ кількість (при 10 шт усі 10 йдуть по 180).
+ */
+function getPieceTier(qty, tiers) {
+  if (!Array.isArray(tiers) || tiers.length === 0) return null;
+  const sorted = [...tiers].sort((a, b) => b.minQty - a.minQty);
+  return sorted.find((t) => qty >= t.minQty) ?? sorted[sorted.length - 1];
+}
+
+// "1–9 шт", "10–23 шт", "від 100 шт"
+function getPieceRangeLabel(tier, index, tiers) {
+  const next = tiers[index + 1];
+  if (!next) return `від ${tier.minQty} шт`;
+  const end = next.minQty - 1;
+  return end <= tier.minQty ? `${tier.minQty} шт` : `${tier.minQty}–${end} шт`;
+}
+
 export function ProductDetail() {
   const { category, id } = useParams();
   const addToCart = useCartStore((state) => state.addToCart);
@@ -109,6 +133,17 @@ export function ProductDetail() {
 
   const productType = useMemo(() => {
     if (!product) return {};
+
+    // Якщо задана оптова сітка pieceTiers — товар однозначно штучний,
+    // незалежно від того, що написано в price / weight.
+    if (Array.isArray(product.pieceTiers) && product.pieceTiers.length > 0) {
+      return {
+        isPieceProduct: true,
+        isGramProduct: false,
+        isLiquidProduct: false,
+      };
+    }
+
     const isPieceProduct =
       product.price?.includes("/шт") ||
       product.weight?.includes("шт") ||
@@ -166,10 +201,57 @@ export function ProductDetail() {
     Array.isArray(product?.priceTiers) &&
     product.priceTiers.length > 0;
 
+  // ── Оптова сітка для штучних товарів ────────────────────────────────────
+  const pieceTiers = useMemo(() => {
+    if (!Array.isArray(product?.pieceTiers)) return [];
+    return product.pieceTiers
+      .map((t) => ({ minQty: Number(t?.minQty), price: Number(t?.price) }))
+      .filter(
+        (t) =>
+          Number.isFinite(t.minQty) && t.minQty > 0 && Number.isFinite(t.price),
+      )
+      .sort((a, b) => a.minQty - b.minQty);
+  }, [product]);
+
+  const usesPieceTiers =
+    !isBucketMode && !!productType.isPieceProduct && pieceTiers.length > 0;
+
+  // Поточна ступінь, економія та підказки "докупи і заощадь"
+  const pieceInfo = useMemo(() => {
+    if (!usesPieceTiers) return null;
+
+    const qty = selectedPieces;
+    const tier = getPieceTier(qty, pieceTiers);
+    const total = qty * tier.price;
+    const retailPrice = pieceTiers[0].price;
+    const savings = Math.max(0, Math.round(qty * retailPrice - total));
+
+    // Наступна ступінь, на якій усе замовлення коштує стільки ж або дешевше
+    const betterDeal =
+      pieceTiers
+        .filter((t) => t.minQty > qty)
+        .map((t) => ({
+          tier: t,
+          extra: t.minQty - qty,
+          save: Math.round(total - t.minQty * t.price),
+        }))
+        .find((d) => d.save >= 0) ?? null;
+
+    // Найближча ступінь із нижчою ціною за штуку
+    const nextTier =
+      pieceTiers.find((t) => t.minQty > qty && t.price < tier.price) ?? null;
+
+    return { tier, savings, betterDeal, nextTier };
+  }, [usesPieceTiers, pieceTiers, selectedPieces]);
+
   const basePrice = useMemo(() => {
     if (!product) return 0;
     const { isPieceProduct, isGramProduct, isLiquidProduct } = productType;
     const currentGrams = selectedGrams ?? gramOptions[0];
+
+    if (usesPieceTiers) {
+      return getPieceTier(selectedPieces, pieceTiers).price;
+    }
 
     if (usesTieredPricing) {
       const effectiveKg = isGramProduct ? currentGrams / 1000 : selectedWeight;
@@ -200,6 +282,9 @@ export function ProductDetail() {
     productType,
     isBucketMode,
     usesTieredPricing,
+    usesPieceTiers,
+    pieceTiers,
+    selectedPieces,
     selectedWeight,
     selectedGrams,
     gramOptions,
@@ -292,6 +377,28 @@ export function ProductDetail() {
       </div>
     );
 
+  if (!product)
+    return (
+      <div className="min-h-screen bg-[#F7F4EF] flex flex-col items-center justify-center gap-4">
+        <p className="text-sm font-bold text-gray-400">Товар не знайдено</p>
+        <Link
+          to={`/catalog/${category}`}
+          className="text-xs font-black uppercase tracking-widest text-orange-600"
+        >
+          Назад до списку
+        </Link>
+      </div>
+    );
+
+  // Ціна під назвою товару
+  const headerPrice = isBucketMode
+    ? product.bucketPrice || product.price
+    : usesPieceTiers
+      ? `від ${Math.min(...pieceTiers.map((t) => t.price))} грн/шт`
+      : usesTieredPricing
+        ? `від ${Math.min(...product.priceTiers.map((t) => t.price))} грн/кг`
+        : product.price;
+
   const SelectorsBlock = () => (
     <div className="space-y-6">
       {productType.isGramProduct && (
@@ -314,6 +421,15 @@ export function ProductDetail() {
             ))}
           </div>
         </SectionBlock>
+      )}
+
+      {usesPieceTiers && pieceInfo && (
+        <PieceTiersSelector
+          tiers={pieceTiers}
+          qty={selectedPieces}
+          onChange={setSelectedPieces}
+          info={pieceInfo}
+        />
       )}
 
       {product.bucket && (
@@ -385,7 +501,7 @@ export function ProductDetail() {
         </SectionBlock>
       )}
 
-      {!product.bucket && !productType.isGramProduct && (
+      {!product.bucket && !productType.isGramProduct && !usesPieceTiers && (
         <SectionBlock label="Оберіть об'єм:">
           {usesTieredPricing && (
             <p className="text-[11px] font-semibold text-gray-400 mb-2">
@@ -433,7 +549,7 @@ export function ProductDetail() {
     </div>
   );
 
-  const CTABlock = ({ compact = false }) => (
+  const CTABlock = ({ compact = false } = {}) => (
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -457,6 +573,11 @@ export function ProductDetail() {
           <span className="text-[12px] font-semibold text-orange-500 mt-0.5 block">
             {displayAmount}
           </span>
+          {pieceInfo?.savings > 0 && (
+            <span className="text-[12px] font-bold text-emerald-600 mt-0.5 block">
+              Економія {pieceInfo.savings} грн
+            </span>
+          )}
         </div>
       </div>
 
@@ -487,6 +608,9 @@ export function ProductDetail() {
     </div>
   );
 
+  // ВАЖЛИВО: SelectorsBlock/CTABlock викликаються як функції, а не як <Компонент />.
+  // Вони оголошені всередині ProductDetail, тому як компоненти перестворювалися б
+  // на кожен рендер, і поле вводу кількості втрачало б фокус після кожної цифри.
   return (
     <div className="min-h-screen bg-[#F7F4EF] font-sans">
       {/* DESKTOP */}
@@ -621,13 +745,7 @@ export function ProductDetail() {
                 )}
               </div>
               <p className="text-sm text-gray-400 font-medium mb-2">
-                {isBucketMode
-                  ? product.bucketPrice || product.price
-                  : usesTieredPricing
-                    ? `від ${Math.min(
-                        ...product.priceTiers.map((t) => t.price),
-                      )} грн/кг`
-                    : product.price}
+                {headerPrice}
               </p>
 
               {usesTieredPricing && (
@@ -639,7 +757,7 @@ export function ProductDetail() {
 
               <div className="h-px bg-gray-200 mb-8" />
 
-              <SelectorsBlock />
+              {SelectorsBlock()}
 
               {product.compound && (
                 <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mt-6">
@@ -666,7 +784,7 @@ export function ProductDetail() {
 
               <div className="h-px bg-gray-200 my-8" />
 
-              <CTABlock compact />
+              {CTABlock({ compact: true })}
             </motion.div>
           </div>
         </div>
@@ -794,13 +912,7 @@ export function ProductDetail() {
               )}
             </div>
             <p className="text-sm text-gray-400 font-medium mb-2">
-              {isBucketMode
-                ? product.bucketPrice || product.price
-                : usesTieredPricing
-                  ? `від ${Math.min(
-                      ...product.priceTiers.map((t) => t.price),
-                    )} грн/кг`
-                  : product.price}
+              {headerPrice}
             </p>
 
             {usesTieredPricing && (
@@ -813,7 +925,7 @@ export function ProductDetail() {
 
           <div className="h-px bg-gray-200 mb-6" />
 
-          <SelectorsBlock />
+          {SelectorsBlock()}
 
           {product.compound && (
             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mt-6">
@@ -843,7 +955,7 @@ export function ProductDetail() {
           <div className="h-5 bg-gradient-to-t from-[#F7F4EF] to-transparent" />
           <div className="bg-[#F7F4EF] px-4 pb-8 pt-1">
             <div className="bg-white rounded-[2rem] shadow-[0_-4px_30px_rgba(0,0,0,0.08)] border border-gray-100 px-4 pt-4 pb-4">
-              <CTABlock />
+              {CTABlock()}
             </div>
           </div>
         </div>
@@ -882,5 +994,167 @@ function OptionButton({ label, active, onClick, accent = "dark" }) {
     >
       {label}
     </button>
+  );
+}
+
+/**
+ * Степпер (− / число / +) з ручним введенням.
+ * Тримає власний текстовий "чернетковий" стан, щоб можна було стерти
+ * цифри повністю і ввести нове число, а на blur значення нормалізується.
+ */
+function QuantityStepper({ value, onChange, min = 1, max = MAX_PIECES }) {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const clamp = (n) => Math.min(max, Math.max(min, n));
+
+  const handleInput = (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+    setDraft(digits);
+    const n = parseInt(digits, 10);
+    if (!Number.isNaN(n) && n >= min) onChange(clamp(n));
+  };
+
+  const handleBlur = () => {
+    const n = parseInt(draft, 10);
+    const next = Number.isNaN(n) ? min : clamp(n);
+    onChange(next);
+    setDraft(String(next));
+  };
+
+  const stepBtn =
+    "w-12 h-12 flex items-center justify-center rounded-2xl bg-white border-2 border-gray-100 text-gray-700 transition-all active:scale-90 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed";
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        aria-label="Менше"
+        disabled={value <= min}
+        onClick={() => onChange(clamp(value - 1))}
+        className={stepBtn}
+      >
+        <FontAwesomeIcon icon={faMinus} size="sm" />
+      </button>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        aria-label="Кількість штук"
+        value={draft}
+        onChange={handleInput}
+        onBlur={handleBlur}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        className="w-20 h-12 text-center text-lg font-black text-gray-900 rounded-2xl bg-white border-2 border-gray-100 outline-none focus:border-gray-900 transition-colors"
+      />
+      <button
+        type="button"
+        aria-label="Більше"
+        disabled={value >= max}
+        onClick={() => onChange(clamp(value + 1))}
+        className={stepBtn}
+      >
+        <FontAwesomeIcon icon={faPlus} size="sm" />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Блок вибору кількості для штучних товарів з оптовою сіткою:
+ * степпер, швидкі кнопки по порогах, підказка "докупи і заощадь"
+ * і таблиця ступенів з підсвіткою поточної.
+ */
+function PieceTiersSelector({ tiers, qty, onChange, info }) {
+  const { tier, betterDeal, nextTier } = info;
+
+  return (
+    <SectionBlock label="Скільки штук?">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <QuantityStepper value={qty} onChange={onChange} />
+        <div className="text-right leading-tight">
+          <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400">
+            Ціна за шт
+          </span>
+          <span className="block text-xl font-black text-gray-900">
+            {tier.price} грн
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        {tiers.map((t) => (
+          <OptionButton
+            key={t.minQty}
+            label={`${t.minQty} шт`}
+            active={qty === t.minQty}
+            accent="dark"
+            onClick={() => onChange(t.minQty)}
+          />
+        ))}
+      </div>
+
+      {betterDeal ? (
+        <button
+          type="button"
+          onClick={() => onChange(betterDeal.tier.minQty)}
+          className="w-full text-left flex items-start gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-2.5 rounded-xl mb-3 active:scale-[0.99] transition-transform"
+        >
+          <span>🔥</span>
+          <span>
+            Візьміть {betterDeal.tier.minQty} шт (ще {betterDeal.extra}) —{" "}
+            {betterDeal.save > 0
+              ? `це дешевше на ${betterDeal.save} грн`
+              : "за ту саму ціну"}
+            . <span className="underline">Обрати</span>
+          </span>
+        </button>
+      ) : nextTier ? (
+        <button
+          type="button"
+          onClick={() => onChange(nextTier.minQty)}
+          className="w-full text-left flex items-start gap-2 text-xs font-bold text-orange-600 bg-orange-50/80 border border-orange-100/60 px-3 py-2.5 rounded-xl mb-3 active:scale-[0.99] transition-transform"
+        >
+          <span>💡</span>
+          <span>
+            Ще {nextTier.minQty - qty} шт — і ціна впаде до {nextTier.price}{" "}
+            грн/шт
+          </span>
+        </button>
+      ) : (
+        <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-2.5 rounded-xl mb-3">
+          <span>✅</span>
+          <span>Діє найнижча ціна</span>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden">
+        {tiers.map((t, i) => {
+          const active = t.minQty === tier.minQty;
+          return (
+            <button
+              key={t.minQty}
+              type="button"
+              onClick={() => onChange(t.minQty)}
+              className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
+                i > 0 ? "border-t border-gray-100" : ""
+              } ${
+                active
+                  ? "bg-orange-50 text-orange-700 font-black"
+                  : "text-gray-500 font-semibold hover:bg-gray-50"
+              }`}
+            >
+              <span>{getPieceRangeLabel(t, i, tiers)}</span>
+              <span>{t.price} грн/шт</span>
+            </button>
+          );
+        })}
+      </div>
+    </SectionBlock>
   );
 }
