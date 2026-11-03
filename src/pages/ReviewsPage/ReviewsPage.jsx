@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { REVIEWS } from "../../data/reviews";
+import { REVIEWS } from "../../components/data/reviews";
 
 export function ReviewsPage() {
   return (

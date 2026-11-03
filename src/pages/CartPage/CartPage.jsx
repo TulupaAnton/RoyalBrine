@@ -16,6 +16,9 @@ import zaglushka from "../../assets/zaglushka.jpg";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 
+/* ─── МІНІМАЛЬНА СУМА ЗАМОВЛЕННЯ (грн) ─────────────────────── */
+const MIN_ORDER_SUM = 600;
+
 /* ─── HELPER: resolve image src ──────────────────────────────
    Паски зберігають images[0] як вже імпортований URL-об'єкт,
    тому для них просто повертаємо значення напряму.
@@ -48,6 +51,25 @@ export function CartPage() {
   const cartCount = useCartStore((state) => state.cartCount());
 
   const groupedItems = getGroupedItems();
+
+  const isBelowMin = totalPrice < MIN_ORDER_SUM;
+  const remaining = Math.ceil(MIN_ORDER_SUM - totalPrice);
+
+  const handleCheckoutClick = (e) => {
+    if (isBelowMin) {
+      e.preventDefault();
+      toast.error(`Мінімальна сума замовлення — ${MIN_ORDER_SUM} грн`, {
+        duration: 3000,
+        style: {
+          borderRadius: "16px",
+          background: "#FDFCFB",
+          color: "#2D241E",
+          border: "1px solid #FFEDD5",
+          padding: "12px 16px",
+        },
+      });
+    }
+  };
 
   const handleClearCart = () => {
     clearCart();
@@ -297,6 +319,17 @@ export function CartPage() {
                     </div>
                   </div>
 
+                  {/* Попередження про мінімальну суму */}
+                  {isBelowMin && (
+                    <div className="mb-6 px-5 py-4 bg-orange-50 border border-orange-100 rounded-2xl">
+                      <p className="text-sm font-bold text-orange-600">
+                        Мінімальна сума замовлення — {MIN_ORDER_SUM} грн.
+                        Додайте ще товарів на {remaining} грн, щоб оформити
+                        замовлення.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button
                       onClick={handleClearCart}
@@ -308,7 +341,13 @@ export function CartPage() {
 
                     <Link
                       to="/payment"
-                      className="py-5 bg-[#2D241E] text-white hover:bg-orange-600 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-gray-200"
+                      onClick={handleCheckoutClick}
+                      aria-disabled={isBelowMin}
+                      className={`py-5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-gray-200 ${
+                        isBelowMin
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-[#2D241E] text-white hover:bg-orange-600"
+                      }`}
                     >
                       <span>Оформити замовлення</span>
                       <FontAwesomeIcon

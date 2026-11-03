@@ -14,8 +14,7 @@ import {
 import picklesImg from "../../assets/pickles.jpg";
 import meatsImg from "../../assets/мʼясніВироби.jpg";
 
-// Відгуки тепер підключаються з окремого файлу
-import { REVIEWS } from "../../data/reviews";
+import { REVIEWS } from "../../components/data/reviews";
 
 export function Block() {
   const [index, setIndex] = useState(0);
@@ -25,7 +24,7 @@ export function Block() {
     if (isHovered) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % REVIEWS.length);
-    }, 5000); // збільшено інтервал, бо відгуків тепер більше
+    }, 5000);
     return () => clearInterval(timer);
   }, [isHovered]);
 

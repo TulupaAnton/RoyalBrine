@@ -49,7 +49,7 @@ const categories = [
     catalogLink: "/catalog/stew",
     icon: "🥫",
     isHit: true,
-    isAvailable: true, // ТИМЧАСОВО НЕДОСТУПНО (наприклад)
+    isAvailable: true, // ТИМЧАСОВО НЕДОСТУПНО
   },
 
   {
@@ -100,7 +100,7 @@ const categories = [
     catalogLink: "/catalog/buffet",
     icon: "🍢",
     isHit: false,
-    isAvailable: false, // ТИМЧАСОВО НЕДОСТУПНО (наприклад)
+    isAvailable: false, // ТИМЧАСОВО НЕДОСТУПНО
   },
   // {
   //   id: 'paska',

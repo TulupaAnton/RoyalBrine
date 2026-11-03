@@ -997,11 +997,6 @@ function OptionButton({ label, active, onClick, accent = "dark" }) {
   );
 }
 
-/**
- * Степпер (− / число / +) з ручним введенням.
- * Тримає власний текстовий "чернетковий" стан, щоб можна було стерти
- * цифри повністю і ввести нове число, а на blur значення нормалізується.
- */
 function QuantityStepper({ value, onChange, min = 1, max = MAX_PIECES }) {
   const [draft, setDraft] = useState(String(value));
 
